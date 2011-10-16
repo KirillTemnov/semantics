@@ -1,0 +1,10 @@
+{
+  "name": "lastname",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=0.4.99"
+  },
+  "dependencies": {"coffee-script": ">= 1.0.1"},
+  "private":"true",
+ "author": "Temnov Kirill <allselead@gmail.com>"
+}
