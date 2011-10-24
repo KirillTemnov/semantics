@@ -9,8 +9,14 @@ Capitalize = (s) -> if s then "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
 exports.inclineMaleName = inclineMaleName = (name) ->
   hardConsonants = "бвгдзклмнпрстфхжшц"
   hissingAndChe =  ["ж","ш","щ","ц","ч"]
+  # nominative = yes
+  # if name in ruMaleNames        # found!!!
+  #   return name: name, cases: {}, src: name, found: yes
+
   name = Capitalize name
   validEndOfWord = ["а", "б", "в", "г", "д", "ж", "з", "и", "й", "к", "л", "м", "н", "п", "р", "с", "т", "ф", "х", "ь", "я", "ом", "ем", "ий", "ия", "ию", "ии", "ием"]
+
+
 
 #  withoutEnd = name[..-2]
 
@@ -120,9 +126,101 @@ exports.inclineFemName = inclineFemName = (name) ->
   result
 
 
-# lastename = (str) ->
-#   ruRe = /^[а-я ]$/i
-#   sex = null
-#   # try to gess sex
-#   inclined = yes
+inclineSurname = (surname, noInclinesRe, inclineRe, casesRe) ->
+  result = found: null,  src: surname, cases: null, cases_index: null
+  if noInclinesRe.test(surname)
+    # cases: [surname, surname, surname, surname, surname, surname],
+    result = found: surname,  src: surname, cases: ["nominative","genitive","dative","accusative","instrumental","prepositional"], cases_index: [0,1,2,3,4,5]
+  else
+    for check in inclineRe
+      if check[0].test surname
+        result = found: surname.replace(check[0], check[1]), src: surname
+        cases_index = []
+        cases = []
+        i = 0
+        for c in casesRe
+          if c.test surname
+            cases_index.push i
+            cases.push ["nominative","genitive","dative","accusative","instrumental","prepositional"][i]
+          i++
+        if cases.length == 0
+          result.found = null
+          result.cases = null
+        else
+          result.cases = cases
+        result.cases_index = cases_index
+        break
+  if result.cases
+    result.guess_case = result.cases[0]
+  result
 
+exports.inclineFemSurname = inclineFemSurname = (surname) ->
+  noInclinesRe = /((их)|(ых)|(е)|(о)|(э)|(и)|(ы)|(^[нв]у)|(^ую)|(уа)|(иа)|(ман)|(вич))$/g
+  inclineRe = [
+    [/((ова)|(овой)|(ову))$/g, "ова"]
+    [/((ева)|(евой)|(еву))$/g, "ева"]
+    [/((ёва)|(ёвой)|(ёву))$/g, "ёва"]
+    [/((ина)|(иной)|(ину))$/g, "ина"]
+    [/((ая)|(ой)|(ую))$/g, "ая"]
+    ]
+  casesRe = [
+    /((ова)|(ева)|(ёва)|(ина)|(ая))$/g,
+    /((овой)|(евой)|(ёвой)|(иной)|(ой))$/g,
+    /((овой)|(евой)|(ёвой)|(иной)|(ой))$/g,
+    /((ову)|(еву)|(ёву)|(ину)|(ую))$/g,
+    /((овой)|(евой)|(ёвой)|(иной)|(ой))$/g,
+    /((овой)|(евой)|(ёвой)|(иной)|(ой))$/g
+    ]
+
+  inclineSurname surname, noInclinesRe, inclineRe, casesRe
+
+
+exports.inclineMaleSurname = inclineMaleSurname = (surname) ->
+  noInclinesRe = /((их)|(ых)|(^ве)|(о)|(э)|(и)|(ы)|(^му)|(ю)|(уа)|(иа))$/g
+  inclineRe = [
+    [/((ов)|(ова)|(ову)|(овым)|(ове))$/g, "ов"]
+    [/((ев)|(ева)|(еву)|(евым)|(еве))$/g, "ев"]
+    [/((ёв)|(ёва)|(ёву)|(ёвым)|(ёве))$/g, "ёв"]
+    [/((ин)|(ина)|(ину)|(иным)|(ине))$/g, "ин"]
+    [/((ский)|(ского)|(скому)|(ским)|(ском))$/g, "ский"]
+    [/((ской)|(ского)|(скому)|(ским)|(ском))$/g, "ской"]
+    [/((ман)|(мана)|(ману)|(маном)|(мане))$/g, "ман"]
+    [/((ой)|(ого)|(ому)|(ого)|(ым)|(ом))$/g, "ой"]
+    [/((ий)|(ого)|(ому)|(ого)|(им)|(ом))$/g, "ий"]
+    [/((ый)|(ого)|(ому)|(ого)|(ым)|(ом))$/g, "ый"]
+    [/((ич)|(ича)|(ичу)|(ича)|(ичем)|(иче))$/g, "ич"]
+    ]
+  casesRe = [
+    /((ов)|(ев)|(ёв)|(ин)|(ский)|(ской)|(ой)|(ий)|(ый)|(ман)|(ич))$/g,
+    /((ова)|(ева)|(ёва)|(ина)|(ского)|(ого)|(мана)|(ича))$/g,
+    /((ову)|(еву)|(ёву)|(ину)|(скому)|(ому)|(ману)|(ичу))$/g,
+    /((ова)|(ева)|(ёва)|(ина)|(ского)|(ого)|(мана)|(ича))$/g,
+    /((овым)|(евым)|(ёвым)|(иным)|(ским)|(им)|(ым)|(маном)|(ичем))$/g,
+    /((ове)|(еве)|(ёве)|(ине)|(ском)|(ом)|(мане)|(иче))$/g
+    ]
+  inclineSurname surname, noInclinesRe, inclineRe, casesRe
+
+
+exports.inclineSurname = (surname) ->
+  fs = inclineFemSurname surname
+  ms = inclineMaleSurname surname
+  if fs.found == ms.found == null
+    result = {found: no, src: surname, value: null, gender: null}
+  else if fs.found && ms.found
+    result = {found: yes, src: surname, gender: "male or female"}
+    result.female_cases = fs.cases
+    result.male_cases = ms.cases
+    if fs.cases.length == 6 # not inclined
+      if ms.cases.length == 6   # not inclined too, unknown
+        result.guess_sex = "unknown"
+      else # suppose, that it's a man
+        result.guess_sex = "man"
+    # nominative female, and multiple male cases, suppose it's a woman
+    else if fs.cases.length == 1 && ms.cases.length > 1
+      result.guess_sex = "woman"
+  else if !fs.found
+    result = {found: yes, src: surname, gender: "male", male_cases: ms.cases, guess_case: ms.guess_case}
+  else if !ms.found
+    result = {found: yes, src: surname, gender: "female", female_cases: fs.cases, guess_case: fs.guess_case}
+
+  result
