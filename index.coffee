@@ -99,7 +99,6 @@ exports.doInclineMaleName = doInclineMaleName = (name) ->
   else if hissingAndChe.test name
     [name, "#{name}а", "#{name}у", "#{name}а", "#{name}ем", "#{name}е"]
   else if hardConsonants.test name
-    console.log "HHKK"
     [name, "#{name}а", "#{name}у", "#{name}а", "#{name}ом", "#{name}е"]
   else if /ь$/g.test name
     console.log "bar"
@@ -130,17 +129,68 @@ exports.doInclineMaleName = doInclineMaleName = (name) ->
 
 exports.inclineMaleName2 = inclineMaleName2 = (name) ->
   nl = name.toLowerCase()
-  nominativeRe = /(б)|(в)|(г)|(д)|(з)|(к)|(л)|(м)|(н)|(п)|(р)|(с)|(т)|(ф)|(х)|(ж)|(ш)|(ц)|(ь)|(й)|(ба)|(ва)|(да)|(за)|(ла)|(ма)|(на)|(па)|(ра)|(са)|(та)|(фа)|(га)|(ка)|(ха)|(жа)|(ша)|(ща)|(ца)|(ча)|(я)|(ло)|(ко)$/g
-  canCaseRe = /(б)|(в)|(г)|(д)|(з)|(к)|(л)|(м)|(н)|(п)|(р)|(с)|(т)|(ф)|(х)|(ж)|(ш)|(ц)|(ь)|(а)|(я)|(ия)|(ья)|(ея)$/g
-  if nominativeRe.test(nl) && ruMaleNamesDict[nl] # found nominative!
-    if canCaseRe.test nl
-      cases = "let me think about it!  "
-    else
-      cases = [ "nominative", "genitive", "dative", "accusative", "instrumental", "prepositional" ]
+  nominativeRe = /([вгдзклмнпрстфхжшцьй]|(ба)|(ва)|(да)|(за)|(ла)|(ма)|(на)|(па)|(ра)|(са)|(та)|(фа)|(га)|(ка)|(ха)|(жа)|(ша)|(ща)|(ца)|(ча)|(я)|(ло)|(ко))$/g
+  canInclineRe = /([бвгдзклмнпрстфхжшцьая]|(ия)|(ья)|(ея))$/g
+  genitiveRe = /[аяыи]$/g
+  dativeRe = /(([еую])|(ии))$/g
+  accusativeRe = /[аяую]$/g
+  instrumentalRe = /((ом)|(ем)|(ой)|(ей)|(ёй))$/g
+  prepositionalRe = /((е)|(ии))$/g
+#  vowels = "аеиоуэюя"
+
+  if nominativeRe.test(nl) && ruMaleNamesDict[nl]
+    if canInclineRe.test nl
+      cases = doInclineMaleName name
+    else                        # check for inclines by passing through case regexps
+      cases = [name, name, name, name, name, name]
     result = {found: yes, gender: "male", src: name, cases: cases, guess_case: "nominative", nominative: name}
+  else if genitiveRe.test nl
+    console.log "genetive:!!"
+    # replacement table:
+    # а -> (nil)
+    # [аеуоия]я -> й
+    # [бвдзмнпрлс]я -> ь
+    # и -> а,я
+    # ы -> о
+    if /[а]$/g.test nl
+      console.log "##1 \ #{name[..-2]}"
+      result = inclineMaleName2(name[..-2])
+      console.log "BAR"
+    else if /[аеуоия]я$/g.test nl
+      console.log "##2"
+      result = inclineMaleName2 "#{name[..-2]}й"
+    else if /[бвдзмнпрлс]я$/g.test nl
+      console.log "##3"
+      result = inclineMaleName2 "#{name[..-2]}ь"
+    else if /ы$/g.test nl
+      console.log "##4"
+      result = inclineMaleName2 "#{name[..-2]}о"
+    else if /и$/g.test nl
+      console.log "##5"
+      # try 2 cases
+      result1 = inclineMaleName2 "#{name[..-2]}а"
+      result2 = inclineMaleName2 "#{name[..-2]}я"
+      result3 = inclineMaleName2 "#{name[..-2]}о"
+      if result1.found
+        result = result1
+      else if result2.found
+        result = result2
+      else
+        result = result3
+    else
+      return {err: "not found!"}
+    result.guess_case = "genetive"
+  else if dativeRe.test nl
+    result = "dative"
+  else if accusativeRe.test nl
+    result = "accusative"
+  else if instrumentalRe.test nl
+    result = "instrumental"
+  else if prepositionalRe.test nl
+    result = "prepositional"
   else
-    result {err: "non nominative case"}
-  console.log "and result is: #{sys.inspect result}"
+    result =  {err: "non nominative case"}
+#  console.log "and result is: #{sys.inspect result}"
   result
 
 exports.inclineFemName = inclineFemName = (name) ->
