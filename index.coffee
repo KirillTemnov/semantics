@@ -1,3 +1,4 @@
+sys = require "sys"
 
 ruFemNames = ["Августа", "Августина", "Авдотья", "Авелина", "Аврелия", "Аврора", "Агапия", "Агата", "Агафья", "Агафия", "Аглаида", "Аглая", "Агнеса", "Агнесса", "Агния", "Агриппина", "Агрефена", "Ада", "Адель", "Аделия", "Аделаида", "Аза", "Азалия", "Аида", "Акилина", "Акулина", "Аксинья", "Алевтина", "Александра", "Алёна", "Алина", "Алиса", "Алла", "Альбина", "Альвина", "Анастасия", "Анатолия", "Ангелина", "Анжела", "Анимаиса", "Анисия", "Анисья", "Анита", "Анна", "Антонина", "Антонида", "Антония", "Анфиса", "Анфуса", "Анфия", "Ариадна", "Арина", "Аркадия", "Арсения", "Артемия", "Аста", "Астра", "Астрид", "Афанасия", "Афродита", "Аэлита", "Аэлла", "Бажена", "Беата", "Беатриса", "Бела", "Белла", "Берта", "Богдана", "Болеслава", "Борислава", "Бронислава", "Валентина", "Валерия", "Ванда", "Варвара", "Василина", "Василиса", "Васса", "Вацлава", "Вевея", "Венера", "Вера", "Вероника", "Веселина", "Веста", "Видана", "Викторина", "Виктория", "Вилена", "Вилора", "Вилория", "Виола", "Виолетта", "Виоланта", "Виринея", "Виталия", "Виталина", "Влада", "Владилена", "Владимира", "Владислава", "Владлена", "Власта", "Воля", "Всеслава", "Гайя", "Гали", "Галина", "Ганна", "Гаяна", "Гаяния", "Гелена", "Гелия", "Гелла", "Гертруда", "Глафира", "Гликерия", "Глория", "Горислава", "Дайна", "Дана", "Дарья", "Дария", "Дарина", "Дарьяна", "Декабрина", "Дея", "Дия", "Джульетта", "Диана", "Дина", "Диния", "Диодора", "Дионисия", "Добрава", "Домна", "Домина", "Домника", "Доминика", "Донара", "Дорофея", "Доротея", "Ева", "Евгения", "Евдокия", "Евлалия", "Евпраксия", "Евстолия", "Евфалия", "Екатерина", "Елена", "Елизавета", "Еликонида", "Ермиония", "Ефимия", "Евфимия", "Ефросиния", "Евфросиния", "Жанна", "Ждана", "Зара", "Зарема", "Зарина", "Зорина", "Звенислава", "Зинаида", "Зиновия", "Злата", "Зоя", "Иванна", "Ида", "Илария", "Илиана", "Илона", "Инга", "Инесса", "Инна", "Иоанна", "Иона", "Ипатия", "Ипполита", "Ираида", "Ироида", "Ираклия", "Ирина", "Исидора", "Искра", "Ифигения", "Ия", "Калерия", "Калиса", "Капитолина", "Карина", "Каролина", "Катерина", "Кира", "Кирилла", "Клавдия", "Клара", "Клариса", "Кларисса", "Клеопатра", "Конкордия", "Констанция", "Кристина", "Ксения", "Лада", "Лариса", "Лениана", "Ленина", "Леонида", "Леонила", "Леонтия", "Леся", "Ливия", "Лидия", "Лилиана", "Лилия", "Лина", "Лия", "Лея", "Лора", "Луиза", "Лукерия", "Лукиана", "Лукина", "Люцина", "Любава", "Любовь", "Любомира", "Людмила", "Мавра", "Магда", "Магдалина", "Мадлен", "Майя", "Мая", "Мальвина", "Маргарита", "Мариана", "Марьяна", "Марианна", "Мариетта", "Мариэтта", "Марина", "Мария", "Марья", "Мари", "Марлена", "Марта", "Марфа", "Матильда", "Матрёна", "Матрона", "Мелания", "Меланья", "Мелитина", "Милада", "Милана", "Милена", "Милица", "Милия", "Милослава", "Мира", "Мирра", "Мирослава", "Митродора", "Млада", "Мстислава", "Муза", "Нада", "Надежда", "Надия", "Наина", "Нана", "Настасья", "Наталья", "Наталия", "Нелли", "Неонила", "Ника", "Нина", "Нинелла", "Нинель", "Новелла", "Нонна", "Оксана", "Октавия", "Октябрина", "Олеся", "Оливия", "Олимпиада", "Олимпия", "Ольга", "Павла", "Павлина", "Пелагея", "Платонида", "Поликсена", "Полина", "Правдина", "Нора", "Прасковья", "Рада", "Радмила", "Раиса", "Раймонда", "Ревмира", "Регина", "Рената", "Римма", "Рогнеда", "Роза", "Розалия", "Розана", "Ростислава", "Руслана", "Руфина", "Руфь", "Сабина", "Савина", "Саломея", "Соломея", "Светлана", "Светозара", "Светослава", "Свобода", "Святослава", "Севастьяна", "Северина", "Селена", "Селина", "Серафима", "Сильва", "Сильвия", "Симона", "Слава", "Славяна", "Снежана", "Софья", "София", "Станислава", "Стелла", "Степанида", "Стефанида", "Стефания", "Сусанна", "Сосанна", "Сюзанна", "Таира", "Таисия", "Тальяна", "Тамара", "Тамила", "Томила", "Татьяна", "Текуса", "Тереза", "Улита", "Ульяна", "Услада", "Устинья", "Фаина", "Февронья", "Феликсана", "Фелицата", "Фелицитата", "Фелиция", "Федора", "Феодора", "Феодосия", "Феодосья", "Феоктиста", "Феофания", "Феона", "Флавия", "Флора", "Флория", "Флорентина", "Флоренция", "Флориана", "Фотина", "Харита", "Харитина", "Хиония", "Христина", "Цецилия", "Чеслава", "Эвелина", "Эвридика", "Эдда", "Элеонора", "Элина", "Эльвира", "Эльмира", "Эльза", "Эмилия", "Эмма", "Эрика", "Эсфирь", "Юдифь", "Юзефа", "Юлиана", "Юлитта", "Юлия", "Юманита", "Юния", "Юнона", "Юстина", "Ядвига", "Яна", "Янина", "Яромира", "Ярослава"].map (x) -> x.toLowerCase()
 
@@ -37,7 +38,7 @@ exports.inclineMaleName = inclineMaleName = (name) ->
   else
     withoutEnd = name[..-(1 + endOfWord.length)]
 
-  console.log "ll = #{lastLetter}\t eow = #{endOfWord}\t withoutEnd = #{withoutEnd} \n ll in hc #{lastLetter} in #{hardConsonants}"
+  # console.log "ll = #{lastLetter}\t eow = #{endOfWord}\t withoutEnd = #{withoutEnd} \n ll in hc #{lastLetter} in #{hardConsonants}"
 
 
   if endOfWord in hissingAndChe || endOfWord in ["а","у","e","ем"] && "ием" != name[-3..]
@@ -125,6 +126,26 @@ exports.inclineFemName = inclineFemName = (name) ->
   result.guess_case = if -1 == caseIndex then "unknown" else ["nominative","genitive","dative","accusative","instrumental","prepositional"][caseIndex]
   result
 
+inclineName = (name) ->
+  fn = inclineFemName name
+  mn = inclineMaleName name
+#  console.log "fn = #{sys.inspect fn}\nmn = #{sys.inspect mn}"
+  if fn.found                   # female
+    result = {found: yes, src: name, gender: "female", guess_case: fn.guess_case, female_cases: fn.cases, nominative: fn.name}
+  else if mn.found
+    result = {found: yes, src: name, gender: "male", guess_case: mn.guess_case, male_cases: mn.cases, nominative: mn.name}
+  else
+    # word may be a name
+    if fn.possible_yes && mn.possible_yes
+      result = {found: "maybe", src: name, gender: ["male", "female"], female_cases: fn.cases, male_cases: mn.cases}
+      result.guess_case = if fn.guess_case_index <= mn.guess_case_index then fn.guess_case else mn.guess_case
+    else if fn.possible_yes
+      result = {found: "maybe", src: name, gender: "female", female_cases: fn.cases, guess_case: fn.cases}
+    else if mn.possible_yes
+      result = {found: "maybe", src: name, gender: "male", male_cases: mn.cases, guess_case: mn.cases}
+    else
+      result = {found: no, src: name}
+  result
 
 inclineSurname = (surname, noInclinesRe, inclineRe, casesRe) ->
   result = found: null,  src: surname, cases: null, cases_index: null
@@ -176,7 +197,7 @@ exports.inclineFemSurname = inclineFemSurname = (surname) ->
 
 
 exports.inclineMaleSurname = inclineMaleSurname = (surname) ->
-  noInclinesRe = /((их)|(ых)|(^ве)|(о)|(э)|(и)|(ы)|(^му)|(ю)|(уа)|(иа))$/g
+  noInclinesRe = /((их)|(ых)|(^ве)|(^го)|(э)|(и)|(ы)|(^му)|(ю)|(уа)|(иа))$/g
   inclineRe = [
     [/((ов)|(ова)|(ову)|(овым)|(ове))$/g, "ов"]
     [/((ев)|(ева)|(еву)|(евым)|(еве))$/g, "ев"]
@@ -205,18 +226,21 @@ inclineMiddleNameOrSurname = (src, fem, male) ->
   if fem.found == male.found == null
     result = {found: no, src: src, value: null, gender: null}
   else if fem.found && male.found
-    result = {found: yes, src: src, gender: "male or female"}
+#    console.log "эм жо!!!\n\n#{sys.inspect fem}\n\n"
+    result = {found: yes, src: src, gender: ["male", "female"]}
+    result.nominative_male = male.found
+    result.nominative_female = fem.found
     result.female_cases = fem.cases
     result.male_cases = male.cases
     if fem.cases.length == 6 # not inclined
       if male.cases.length == 6   # not inclined too, unknown
         result.guess_sex = "unknown"
       else # suppose, that it's a man
-        result.guess_sex = "man"
+        result.guess_sex = "male"
         result.nominative = male.found
     # nominative female, and multiple male cases, suppose it's a woman
     else if fem.cases.length == 1 && male.cases.length > 1
-      result.guess_sex = "woman"
+      result.guess_sex = "female"
       result.nominative = fem.found
   else if !fem.found
     result = {found: yes, src: src, gender: "male", male_cases: male.cases, guess_case: male.guess_case, nominative: male.found}
@@ -226,7 +250,7 @@ inclineMiddleNameOrSurname = (src, fem, male) ->
   result
 
 
-exports.inclineSurname = (surname) ->
+exports.inclineSurname = inclinePersonSurname = (surname) ->
   inclineMiddleNameOrSurname surname, inclineFemSurname(surname), inclineMaleSurname(surname)
 
 
@@ -261,5 +285,103 @@ exports.inclineFemMiddleName = inclineFemMiddleName = (mname) ->
   inclineSurname mname, null, inclineRe, casesRe
 
 
-exports.inclineMiddleName = (mname) ->
+exports.inclineMiddleName = inclineMiddleName = (mname) ->
   inclineMiddleNameOrSurname mname, inclineFemMiddleName(mname), inclineMaleMiddleName(mname)
+
+
+#--------------------------------------------------------------------------------
+genderMatch = (g1, g2) ->
+  if g1 == g2 || g1 in g2
+    g1
+  else if g2 in g1
+    g2
+  else
+    null
+
+matchCase = (pObj, target_case, gender) ->
+  target_case in pObj["#{gender}_cases"]
+
+getNominative = (pObj, gender) ->
+  nom =  pObj.nominative && pObj.nominative || pObj["nominative_#{gender}"]
+#  console.log "#{gender} nominative = #{nom} \npObj = #{sys.inspect pObj}\n\n"
+  nom
+
+exports.findProperName = (listOfWords, opts={}) ->
+  switch listOfWords.length
+    when 1                      # just surname
+      result =  inclinePersonSurname listOfWords[0]
+      if result.found
+        console.log "found surname"
+        return result
+      else
+        console.log "not found((, name? \n#{sys.inspect inclineName listOfWords[0]}"
+        null
+    when 2
+      console.log "low = #{sys.inspect listOfWords}"
+
+      sResult1 = inclinePersonSurname listOfWords[0]
+      sResult2 = inclinePersonSurname listOfWords[1]
+
+      nResult1 = inclineName listOfWords[0]
+      nResult2 = inclineName listOfWords[1]
+
+      surnameFound = sResult1.found || sResult2.found
+      nameFound = nResult1.found || nResult2.found
+      if !surnameFound || !nameFound
+        console.log "not a proper name!"
+      else                      # find name first
+        if yes == nResult1.found == nResult2.found
+          return null            # two names!
+        if yes == nResult1.found# name found
+          console.log "### 1"
+          gender = nResult1.gender
+          guess_case = nResult1.guess_case
+          r1 = {name: nResult1.nominative, surname: getNominative(sResult1, gender), found: yes, gender: gender, order: "normal"}
+          r2 = {name: nResult1.nominative, surname: getNominative(sResult2, gender), found: yes, gender: gender, order: "normal"}
+
+        else if yes == nResult2.found
+          console.log "### 2"
+          gender = nResult2.gender
+          guess_case = nResult2.guess_case
+          r1 = {name: nResult2.nominative, surname: getNominative(sResult1, gender), found: yes, gender: gender, order: "reverse"}
+          r2 = {name: nResult2.nominative, surname: getNominative(sResult2, gender), found: yes, gender: gender, order: "reverse"}
+
+        else
+          console.log "### 3"
+          console.log "suspicios name!!"
+          return null
+        console.log "r1 = #{sys.inspect r1}\n r2 = #{sys.inspect r2}\n\n\n\n"
+        g1 = genderMatch gender, sResult1.gender
+        g2 = genderMatch gender, sResult2.gender
+        console.log "sgender1 = #{sResult1.gender}\t sgender2 = #{sResult2.gender}"
+        if sResult1.found && sResult2.found
+          if g1 && g2           # see the case of name!
+            if matchCase sResult1, guess_case, g1
+              return r1
+            else if matchCase sResult2, guess_case, g2
+              return r2
+            else
+              return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
+          return {found: no, error: "missmatch gender"}
+        else if sResult1.found && g1
+          if matchCase sResult1, guess_case, g1
+            return r1
+          else
+            return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
+        else if sResult2.found && g2
+          if matchCase sResult2, guess_case, g2
+            return r2
+          else
+            return {found: no, error: "missmatch case"}
+        else
+          return {found: no, error: "missmatch gender"}
+
+      # else if sResult1.found
+      #   console.log "found for #{listOfWords[0]}"
+      # else if sResult2.found
+      #   console.log "found for #{listOfWords[1]}"
+    when 3
+      console.log "three cases!"
+    else
+      console.log "WTF"
+  console.log "fY"
