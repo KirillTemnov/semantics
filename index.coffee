@@ -302,8 +302,9 @@ matchCase = (pObj, target_case, gender) ->
   target_case in pObj["#{gender}_cases"]
 
 getNominative = (pObj, gender) ->
-  nom =  pObj.nominative && pObj.nominative || pObj["nominative_#{gender}"]
-#  console.log "#{gender} nominative = #{nom} \npObj = #{sys.inspect pObj}\n\n"
+  gnstr = "nominative_#{gender}"
+  nom =  pObj.nominative && pObj.nominative || pObj[gnstr]
+#  console.log "#{gender} nominative = #{nom} \npObj = #{pObj[gnstr]} nom = #{nom}\n\n"
   nom
 
 exports.findProperName = (listOfWords, opts={}) ->
@@ -317,8 +318,6 @@ exports.findProperName = (listOfWords, opts={}) ->
         console.log "not found((, name? \n#{sys.inspect inclineName listOfWords[0]}"
         null
     when 2
-      console.log "low = #{sys.inspect listOfWords}"
-
       sResult1 = inclinePersonSurname listOfWords[0]
       sResult2 = inclinePersonSurname listOfWords[1]
 
@@ -333,53 +332,26 @@ exports.findProperName = (listOfWords, opts={}) ->
         if yes == nResult1.found == nResult2.found
           return null            # two names!
         if yes == nResult1.found# name found
-          console.log "### 1"
           gender = nResult1.gender
           guess_case = nResult1.guess_case
-          r1 = {name: nResult1.nominative, surname: getNominative(sResult1, gender), found: yes, gender: gender, order: "normal"}
-          r2 = {name: nResult1.nominative, surname: getNominative(sResult2, gender), found: yes, gender: gender, order: "normal"}
-
+          r = {name: nResult1.nominative, surname: getNominative(sResult2, gender), found: yes, gender: gender, order: "normal"}
+          sResult = sResult2
         else if yes == nResult2.found
-          console.log "### 2"
           gender = nResult2.gender
           guess_case = nResult2.guess_case
-          r1 = {name: nResult2.nominative, surname: getNominative(sResult1, gender), found: yes, gender: gender, order: "reverse"}
-          r2 = {name: nResult2.nominative, surname: getNominative(sResult2, gender), found: yes, gender: gender, order: "reverse"}
-
+          r = {name: nResult2.nominative, surname: getNominative(sResult1, gender), found: yes, gender: gender, order: "reverse"}
+          sResult = sResult1
         else
-          console.log "### 3"
           console.log "suspicios name!!"
           return null
-        console.log "r1 = #{sys.inspect r1}\n r2 = #{sys.inspect r2}\n\n\n\n"
-        g1 = genderMatch gender, sResult1.gender
-        g2 = genderMatch gender, sResult2.gender
-        console.log "sgender1 = #{sResult1.gender}\t sgender2 = #{sResult2.gender}"
-        if sResult1.found && sResult2.found
-          if g1 && g2           # see the case of name!
-            if matchCase sResult1, guess_case, g1
-              return r1
-            else if matchCase sResult2, guess_case, g2
-              return r2
-            else
-              return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
+        sGender = genderMatch gender, sResult.gender
+        if !sGender
           return {found: no, error: "missmatch gender"}
-        else if sResult1.found && g1
-          if matchCase sResult1, guess_case, g1
-            return r1
-          else
-            return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
-        else if sResult2.found && g2
-          if matchCase sResult2, guess_case, g2
-            return r2
-          else
-            return {found: no, error: "missmatch case"}
+        else if matchCase sResult, guess_case, sGender
+          return r
         else
-          return {found: no, error: "missmatch gender"}
+          return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
 
-      # else if sResult1.found
-      #   console.log "found for #{listOfWords[0]}"
-      # else if sResult2.found
-      #   console.log "found for #{listOfWords[1]}"
     when 3
       console.log "three cases!"
     else
