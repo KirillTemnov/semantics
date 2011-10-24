@@ -128,7 +128,7 @@ exports.inclineFemName = inclineFemName = (name) ->
 
 inclineSurname = (surname, noInclinesRe, inclineRe, casesRe) ->
   result = found: null,  src: surname, cases: null, cases_index: null
-  if noInclinesRe.test(surname)
+  if noInclinesRe && noInclinesRe.test(surname)
     # cases: [surname, surname, surname, surname, surname, surname],
     result = found: surname,  src: surname, cases: ["nominative","genitive","dative","accusative","instrumental","prepositional"], cases_index: [0,1,2,3,4,5]
   else
@@ -201,26 +201,65 @@ exports.inclineMaleSurname = inclineMaleSurname = (surname) ->
   inclineSurname surname, noInclinesRe, inclineRe, casesRe
 
 
-exports.inclineSurname = (surname) ->
-  fs = inclineFemSurname surname
-  ms = inclineMaleSurname surname
-  if fs.found == ms.found == null
-    result = {found: no, src: surname, value: null, gender: null}
-  else if fs.found && ms.found
-    result = {found: yes, src: surname, gender: "male or female"}
-    result.female_cases = fs.cases
-    result.male_cases = ms.cases
-    if fs.cases.length == 6 # not inclined
-      if ms.cases.length == 6   # not inclined too, unknown
+inclineMiddleNameOrSurname = (src, fem, male) ->
+  if fem.found == male.found == null
+    result = {found: no, src: src, value: null, gender: null}
+  else if fem.found && male.found
+    result = {found: yes, src: src, gender: "male or female"}
+    result.female_cases = fem.cases
+    result.male_cases = male.cases
+    if fem.cases.length == 6 # not inclined
+      if male.cases.length == 6   # not inclined too, unknown
         result.guess_sex = "unknown"
       else # suppose, that it's a man
         result.guess_sex = "man"
+        result.nominative = male.found
     # nominative female, and multiple male cases, suppose it's a woman
-    else if fs.cases.length == 1 && ms.cases.length > 1
+    else if fem.cases.length == 1 && male.cases.length > 1
       result.guess_sex = "woman"
-  else if !fs.found
-    result = {found: yes, src: surname, gender: "male", male_cases: ms.cases, guess_case: ms.guess_case}
-  else if !ms.found
-    result = {found: yes, src: surname, gender: "female", female_cases: fs.cases, guess_case: fs.guess_case}
+      result.nominative = fem.found
+  else if !fem.found
+    result = {found: yes, src: src, gender: "male", male_cases: male.cases, guess_case: male.guess_case, nominative: male.found}
+  else if !male.found
+    result = {found: yes, src: src, gender: "female", female_cases: fem.cases, guess_case: fem.guess_case, nominative: fem.found}
 
   result
+
+
+exports.inclineSurname = (surname) ->
+  inclineMiddleNameOrSurname surname, inclineFemSurname(surname), inclineMaleSurname(surname)
+
+
+exports.inclineMaleMiddleName = inclineMaleMiddleName = (mname) ->
+  inclineRe = [
+    [/(евич)|(евичу)|(евичу)|(евича)|(евичем)|(евиче)$/g, "евич"],
+    [/(ович)|(овичу)|(овичу)|(овича)|(овичем)|(овиче)$/g, "ович"],
+    ]
+  casesRe = [
+    /((евич)|(ович))$/g,
+    /((евичу)|(овичу))$/g,
+    /((евичу)|(овичу))$/g,
+    /((евича)|(овича))$/g,
+    /((евичем)|(овичем))$/g,
+    /((евиче)|(овиче))$/g
+    ]
+  inclineSurname mname, null, inclineRe, casesRe
+
+exports.inclineFemMiddleName = inclineFemMiddleName = (mname) ->
+  inclineRe = [
+    [/(вна)|(вной)|(вне)|(вну)|(вной)|(вне)$/g, "вна"],
+    [/(чна)|(чной)|(чне)|(чну)|(чной)|(чне)$/g, "чна"]
+    ]
+  casesRe = [
+    /((вна)|(чна))$/g,
+    /((вной)|(чной))$/g,
+    /((вне)|(чне))$/g,
+    /((вну)|(чну))$/g,
+    /((вной)|(чной))$/g,
+    /((вное)|(чне))$/g
+    ]
+  inclineSurname mname, null, inclineRe, casesRe
+
+
+exports.inclineMiddleName = (mname) ->
+  inclineMiddleNameOrSurname mname, inclineFemMiddleName(mname), inclineMaleMiddleName(mname)
