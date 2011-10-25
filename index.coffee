@@ -64,13 +64,20 @@ exports.doInclineMaleName = doInclineMaleName = (name) ->
   else
     null
 
-inclineAndGetResult = ->
+inclineAndGetResult = (fn, args) ->
   r = null
-  for i, name of arguments
-    r = inclineMaleName name, yes
+  for i, name of args
+    console.log "name = #{name}"
+    r = fn name, yes
     if r.found
       break
   r
+
+inclineMaleNameAndGetResult = ->
+  inclineAndGetResult inclineMaleName,  arguments
+
+inclineFemaleNameAndGetResult = ->
+  inclineAndGetResult inclineFemaleName, arguments
 
 
 exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
@@ -109,15 +116,15 @@ exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
     # и -> а,я
     # ы -> о
     if /[а]$/g.test nl
-      result = inclineAndGetResult name2
+      result = inclineMaleNameAndGetResult name2
     else if /[аеуоия]я$/g.test nl
-      result = inclineAndGetResult "#{name[..-2]}й"
+      result = inclineMaleNameAndGetResult "#{name[..-2]}й"
     else if /[бвдзмнпрлс]я$/g.test nl
-      result = inclineAndGetResult "#{name[..-2]}ь"
+      result = inclineMaleNameAndGetResult "#{name[..-2]}ь"
     else if /ы$/g.test nl
-      result = inclineAndGetResult "#{name2}о", "#{name2}а"
+      result = inclineMaleNameAndGetResult "#{name2}о", "#{name2}а"
     else if /и$/g.test nl
-      result = inclineAndGetResult "#{name[..-2]}а", "#{name[..-2]}я", "#{name[..-2]}о"
+      result = inclineMaleNameAndGetResult "#{name[..-2]}а", "#{name[..-2]}я", "#{name[..-2]}о"
     else
       return {found: no, src: name}
     cases.push "genetive"
@@ -125,48 +132,48 @@ exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
     if /у$/g.test nl
       result = inclineMaleName name2
     else if /[аеиоуя]ю$/g.test nl
-      result = inclineAndGetResult "#{name2}й"
+      result = inclineMaleNameAndGetResult "#{name2}й"
     else if /ю$/g.test nl
-      result = inclineAndGetResult "#{name2}ь"
+      result = inclineMaleNameAndGetResult "#{name2}ь"
     else if /е$/g.test nl
-      result = inclineAndGetResult "#{name2}и", "#{name2}я", "#{name2}o"
+      result = inclineMaleNameAndGetResult "#{name2}и", "#{name2}я", "#{name2}o"
     else if /ии$/g.test nl
-      result = inclineAndGetResult "#{name2}я"
+      result = inclineMaleNameAndGetResult "#{name2}я"
     else
       return  {found: no}
     cases.push "dative"
   if accusativeRe.test nl
     if /[а]$/g.test nl
-      result = inclineAndGetResult name2
+      result = inclineMaleNameAndGetResult name2
     else if /[аеуоия]я$/g.test nl
-      result = inclineAndGetResult "#{name[..-2]}й"
+      result = inclineMaleNameAndGetResult "#{name[..-2]}й"
     else if /[бвдзмнпрлс]я$/g.test nl
-      result = inclineAndGetResult "#{name[..-2]}ь"
+      result = inclineMaleNameAndGetResult "#{name[..-2]}ь"
     else if /у$/g.test nl
-      result = inclineAndGetResult  "#{name2}а"
+      result = inclineMaleNameAndGetResult  "#{name2}а"
     else if /[ую]$/g.test nl
-      result = inclineAndGetResult "#{name2}а", "#{name2}я", "#{name2}о"
+      result = inclineMaleNameAndGetResult "#{name2}а", "#{name2}я", "#{name2}о"
     else
       return {found: no}
     cases.push "accusative"
   if instrumentalRe.test nl
     # ом ем ой ей
     if /ом$/g.test nl
-      result = inclineAndGetResult "#{name[..-3]}"
+      result = inclineMaleNameAndGetResult "#{name[..-3]}"
     else if /ем$/g.test nl
-      result = inclineAndGetResult "#{name[..-3]}", "#{name[..-3]}ь", "#{name[..-3]}й"
+      result = inclineMaleNameAndGetResult "#{name[..-3]}", "#{name[..-3]}ь", "#{name[..-3]}й"
     else if /ой$/g.test nl
-      result = inclineAndGetResult "#{name[..-3]}а", "#{name[..-3]}о"
+      result = inclineMaleNameAndGetResult "#{name[..-3]}а", "#{name[..-3]}о"
     else if /((ей)|(ёй))$/g.test nl
-      result = inclineAndGetResult "#{name[..-3]}я", "#{name[..-3]}а"
+      result = inclineMaleNameAndGetResult "#{name[..-3]}я", "#{name[..-3]}а"
     else
       return {found: no}
     cases.push "instrumental"
   if prepositionalRe.test nl
     if /е$/g.test nl
-      result = inclineAndGetResult name2, "#{name2}ь", "#{name2}й", "#{name2}а", "#{name2}я", "#{name2}о"
+      result = inclineMaleNameAndGetResult name2, "#{name2}ь", "#{name2}й", "#{name2}а", "#{name2}я", "#{name2}о"
     else if /и$/g.test nl
-      result = inclineAndGetResult "#{name2}я", "#{name2}й"
+      result = inclineMaleNameAndGetResult "#{name2}я", "#{name2}й"
     else
       return {found: no}
     cases.push "prepositional"
@@ -176,7 +183,7 @@ exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
   result.guess_case = cases[0]
   result
 
-exports.inclineFemName = inclineFemName = (name) ->
+exports.inclineFemaleName = inclineFemaleName = (name) ->
   name = Capitalize name
   validEndOfWord = ["ч", "щ","ш","ж","ь","и","а","я","ы","ю","е","й","ю","ии","ия","ая","ей","ой","ию","йю","ью"]
   withoutEnd = name[..-2]
@@ -219,7 +226,7 @@ exports.inclineFemName = inclineFemName = (name) ->
   result
 
 inclineName = (name) ->
-  fn = inclineFemName name
+  fn = inclineFemaleName name
   mn = inclineMaleName name
   if fn.found                   # female
     result = {found: yes, src: name, gender: "female", guess_case: fn.guess_case, female_cases: fn.cases, nominative: fn.name}
@@ -445,4 +452,3 @@ exports.findProperName = (listOfWords, opts={}) ->
       console.log "three cases!"
     else
       console.log "WTF"
-  console.log "fY"
