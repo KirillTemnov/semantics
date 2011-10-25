@@ -8,6 +8,28 @@ ruMaleNamesDict = { "ааран": 1, "аарен": 1, "ааррон": 1, "аб":
 
 Capitalize = (s) -> if s then "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
 
+unique = (array) ->
+  output = {}
+  output[array[key]] = array[key] for key in [0...array.length]
+  value for key, value of output
+
+###
+merge two lists
+###
+merge = (l1, l2) ->
+  l = []
+  l1.map (x) -> l.push x
+  l2.map (x) -> l.push x
+  unique l
+
+###
+Get first intersection of two lists
+###
+intersection = (l1, l2) ->
+  for i in l1
+    return i if i in l2
+  null
+
 exports.doInclineFemaleName = doInclineFemaleName = (name) ->
   aNotAfterHissingAndOthersRe = /[^жшщцгкхч]а$/g
   aAfterHissingAndOthersRe = /[жшщцгкхч]а$/g
@@ -91,7 +113,7 @@ exports.inclineFemaleName = inclineFemaleName = (name, nominativeOnly=no) ->
   accusativeRe = /[жшщцчьую]$/g
   instrumentalRe = /((ой)|(ей)|(еи)|(ью))$/g
   prepositionalRe = /[еи]$/g
-  result = {}
+  result = r = null
   if nominativeRe.test(nl) && ruFemaleNamesDict[nl]
     if canInclineRe.test nl
       cases = doInclineFemaleName name
@@ -107,32 +129,40 @@ exports.inclineFemaleName = inclineFemaleName = (name, nominativeOnly=no) ->
   cases = []
 
   if genitiveRe.test nl
-    result = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а", "#{name2}ь", "#{name2}"
-    if result.found
+    r = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а", "#{name2}ь", "#{name2}"
+    if r && r.found
+      result = r
       cases.push "genitive"
   if dativeRe.test nl
-    result = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а", "#{name2}ь", "#{name2}"
-    if result.found
+    r = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а", "#{name2}ь", "#{name2}"
+    if r && r.found
+      result = r
       cases.push "dative"
   if prepositionalRe.test nl    # check similar cases together
-    result = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а", "#{name2}ь", "#{name2}"
-    if result.found
+    r = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а", "#{name2}ь", "#{name2}"
+    if r && r.found
+      result = r
       cases.push "prepositional"
   if accusativeRe.test nl
     if /[ую]$/g.test nl
-      result = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а",
+      r = inclineFemaleNameAndGetResult "#{name2}я", "#{name2}а"
     else                        # consonants
-      result = inclineFemaleNameAndGetResult name
-    if result.found
+      r = inclineFemaleNameAndGetResult name
+    if r && r.found
+      result = r
       cases.push "accusative"
   if instrumentalRe.test nl
     name3 = name[..-3]
-    result = inclineFemaleNameAndGetResult "#{name3}я", "#{name3}а", "#{name3}ь", "#{name3}"
-    if result.found
+    r = inclineFemaleNameAndGetResult "#{name3}я", "#{name3}а", "#{name3}ь", "#{name3}"
+    if r && r.found
+      result = r
       cases.push "instrumental"
-  result.src = name
-  result.possible_cases = cases
-  result.guess_case = cases[0]
+  if !result
+    result = r || {found: no, src: name}
+  if result
+    result.src = name
+    result.possible_cases = cases
+    result.guess_case = cases[0]
   result
 
 
@@ -150,7 +180,7 @@ exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
   prepositionalRe = /((е)|(ии))$/g
 #  vowels = "аеиоуэюя"
   name2 = name[..-2]
-  result = {}
+  result = r = null
   if nominativeRe.test(nl) && ruMaleNamesDict[nl]
     if canInclineRe.test nl
       cases = doInclineMaleName name
@@ -171,75 +201,83 @@ exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
     # и -> а,я
     # ы -> о
     if /[а]$/g.test nl
-      result = inclineMaleNameAndGetResult name2
+      r = inclineMaleNameAndGetResult name2
     else if /[аеуоия]я$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-2]}й"
+      r = inclineMaleNameAndGetResult "#{name[..-2]}й"
     else if /[бвдзмнпрлс]я$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-2]}ь"
+      r = inclineMaleNameAndGetResult "#{name[..-2]}ь"
     else if /ы$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}о", "#{name2}а"
+      r = inclineMaleNameAndGetResult "#{name2}о", "#{name2}а"
     else if /и$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-2]}а", "#{name[..-2]}я", "#{name[..-2]}о"
+      r = inclineMaleNameAndGetResult "#{name[..-2]}а", "#{name[..-2]}я", "#{name[..-2]}о"
     else
-      return {found: no, src: name}
-    if result.found
+      r = null
+    if r && r.found
+      result = r
       cases.push "genitive"
   if dativeRe.test nl
     if /у$/g.test nl
-      result = inclineMaleName name2
+      r = inclineMaleName name2
     else if /[аеиоуя]ю$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}й"
+      r = inclineMaleNameAndGetResult "#{name2}й"
     else if /ю$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}ь"
+      r = inclineMaleNameAndGetResult "#{name2}ь"
     else if /е$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}и", "#{name2}я", "#{name2}o"
+      r = inclineMaleNameAndGetResult "#{name2}и", "#{name2}я", "#{name2}o"
     else if /ии$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}я"
+      r = inclineMaleNameAndGetResult "#{name2}я"
     else
-      return  {found: no}
-    if result.found
+      r = null
+    if r && r.found
+      result = r
       cases.push "dative"
   if accusativeRe.test nl
     if /[а]$/g.test nl
-      result = inclineMaleNameAndGetResult name2
+      r = inclineMaleNameAndGetResult name2
     else if /[аеуоия]я$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-2]}й"
+      r = inclineMaleNameAndGetResult "#{name[..-2]}й"
     else if /[бвдзмнпрлс]я$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-2]}ь"
+      r = inclineMaleNameAndGetResult "#{name[..-2]}ь"
     else if /у$/g.test nl
-      result = inclineMaleNameAndGetResult  "#{name2}а"
+      r = inclineMaleNameAndGetResult  "#{name2}а"
     else if /[ую]$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}а", "#{name2}я", "#{name2}о"
+      r = inclineMaleNameAndGetResult "#{name2}а", "#{name2}я", "#{name2}о"
     else
-      return {found: no}
-    if result.found
+      r = null
+    if r && r.found
+      result = r
       cases.push "accusative"
   if instrumentalRe.test nl
     # ом ем ой ей
     if /ом$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-3]}"
+      r = inclineMaleNameAndGetResult "#{name[..-3]}"
     else if /ем$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-3]}", "#{name[..-3]}ь", "#{name[..-3]}й"
+      r = inclineMaleNameAndGetResult "#{name[..-3]}", "#{name[..-3]}ь", "#{name[..-3]}й"
     else if /ой$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-3]}а", "#{name[..-3]}о"
+      r = inclineMaleNameAndGetResult "#{name[..-3]}а", "#{name[..-3]}о"
     else if /((ей)|(ёй))$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name[..-3]}я", "#{name[..-3]}а"
+      r = inclineMaleNameAndGetResult "#{name[..-3]}я", "#{name[..-3]}а"
     else
-      return {found: no}
-    if result.found
+      r = null
+    if r && r.found
+      result = r
       cases.push "instrumental"
   if prepositionalRe.test nl
     if /е$/g.test nl
-      result = inclineMaleNameAndGetResult name2, "#{name2}ь", "#{name2}й", "#{name2}а", "#{name2}я", "#{name2}о"
+      r = inclineMaleNameAndGetResult name2, "#{name2}ь", "#{name2}й", "#{name2}а", "#{name2}я", "#{name2}о"
     else if /и$/g.test nl
-      result = inclineMaleNameAndGetResult "#{name2}я", "#{name2}й"
+      r = inclineMaleNameAndGetResult "#{name2}я", "#{name2}й"
     else
-      return {found: no}
-    if result.found
+      r = null
+    if r && r.found
+      result = r
       cases.push "prepositional"
-  result.src = name
-  result.possible_cases = cases
-  result.guess_case = cases[0]
+  if !result
+    result = r || {found: no, src: name}
+  if result
+    result.src = name
+    result.possible_cases = cases
+    result.guess_case = cases[0]
   result
 
 
@@ -247,18 +285,19 @@ exports.inclineName = inclineName = (name) ->
   fn = inclineFemaleName name
   mn = inclineMaleName name
   if fn.found                   # female
-    result = {found: yes, src: name, gender: "female", guess_case: fn.guess_case, female_cases: fn.cases, nominative: fn.nominative}
+    result = {found: yes, src: name, gender: "female", guess_case: fn.guess_case, female_cases: fn.cases, possible_cases: fn.possible_cases, nominative: fn.nominative}
   else if mn.found
-    result = {found: yes, src: name, gender: "male", guess_case: mn.guess_case, male_cases: mn.cases, nominative: mn.nominative}
+    result = {found: yes, src: name, gender: "male", guess_case: mn.guess_case, male_cases: mn.cases, possible_cases: mn.possible_cases,  nominative: mn.nominative}
   else
     # word may be a name
     if fn.possible_yes && mn.possible_yes
-      result = {found: "maybe", src: name, gender: ["male", "female"], female_cases: fn.cases, male_cases: mn.cases}
+
+      result = {found: "maybe", src: name, gender: ["male", "female"], female_cases: fn.cases, male_cases: mn.cases, possible_cases: merge fn.possible_cases, mn.possible_cases}
       result.guess_case = if fn.guess_case_index <= mn.guess_case_index then fn.guess_case else mn.guess_case
     else if fn.possible_yes
-      result = {found: "maybe", src: name, gender: "female", female_cases: fn.cases, guess_case: fn.cases}
+      result = {found: "maybe", src: name, gender: "female", female_cases: fn.cases, guess_case: fn.cases, possible_cases: fn.possible_cases}
     else if mn.possible_yes
-      result = {found: "maybe", src: name, gender: "male", male_cases: mn.cases, guess_case: mn.cases}
+      result = {found: "maybe", src: name, gender: "male", male_cases: mn.cases, guess_case: mn.cases, possible_cases: mn.possible_cases}
     else
       result = {found: no, src: name}
   result
@@ -349,17 +388,22 @@ inclineMiddleNameOrSurname = (src, fem, male) ->
     if fem.cases.length == 6 # not inclined
       if male.cases.length == 6   # not inclined too, unknown
         result.guess_sex = "unknown"
+        result.possible_cases = merge fem.cases, male.cases
       else # suppose, that it's a man
         result.guess_sex = "male"
         result.nominative = male.found
+        result.possible_cases = male.cases
     # nominative female, and multiple male cases, suppose it's a woman
     else if fem.cases.length == 1 && male.cases.length > 1
       result.guess_sex = "female"
       result.nominative = fem.found
+      result.possible_cases = fem.cases
+    else
+      result.possible_cases = merge fem.cases, male.cases
   else if !fem.found
-    result = {found: yes, src: src, gender: "male", male_cases: male.cases, guess_case: male.guess_case, nominative: male.found}
+    result = {found: yes, src: src, gender: "male", male_cases: male.cases, guess_case: male.guess_case, nominative: male.found, possible_cases: male.cases}
   else if !male.found
-    result = {found: yes, src: src, gender: "female", female_cases: fem.cases, guess_case: fem.guess_case, nominative: fem.found}
+    result = {found: yes, src: src, gender: "female", female_cases: fem.cases, guess_case: fem.guess_case, nominative: fem.found, possible_cases: fem.cases}
 
   result
 
@@ -385,16 +429,16 @@ exports.inclineMaleMiddleName = inclineMaleMiddleName = (mname) ->
 
 exports.inclineFemMiddleName = inclineFemMiddleName = (mname) ->
   inclineRe = [
-    [/(вна)|(вной)|(вне)|(вну)|(вной)|(вне)$/g, "вна"],
-    [/(чна)|(чной)|(чне)|(чну)|(чной)|(чне)$/g, "чна"]
+    [/(вна)|(вны)|(вне)|(вну)|(вной)|(вне)$/g, "вна"],
+    [/(чна)|(чны)|(чне)|(чну)|(чной)|(чне)$/g, "чна"]
     ]
   casesRe = [
     /((вна)|(чна))$/g,
-    /((вной)|(чной))$/g,
+    /((вны)|(чны))$/g,
     /((вне)|(чне))$/g,
     /((вну)|(чну))$/g,
     /((вной)|(чной))$/g,
-    /((вное)|(чне))$/g
+    /((вне)|(чне))$/g
     ]
   inclineSurname mname, null, inclineRe, casesRe
 
@@ -411,6 +455,23 @@ genderMatch = (g1, g2) ->
     g2
   else
     null
+
+###
+match gender of first name (comes first) middlename and surname
+###
+matchNameParts = (fn, mn, sn) ->
+  theCase = intersection fn.possible_cases, mn.possible_cases
+  g1 = genderMatch(fn.gender, mn.gender)
+  overallGender = genderMatch g1, sn.gender
+#  console.log "og = #{overallGender}\t g1 = #{g1},\t sn.g = #{sn.gender}\nthe case #{theCase}\t pc : #{sn.possible_cases}"
+  if overallGender && theCase in sn.possible_cases
+    console.log "seems we found:"
+    surname = sn["nominative_#{overallGender}"]
+    console.log "name: #{fn.nominative}\t middlename: #{mn.nominative} \t surname: #{surname} \t gender: #{overallGender}"
+  else
+    console.log "not found (((\n"
+    # seems find
+
 
 matchCase = (pObj, target_case, gender) ->
   cases = pObj["#{gender}_cases"]
@@ -468,8 +529,34 @@ exports.findProperName = (listOfWords, opts={}) ->
           return r
         else
           return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
-
     when 3
-      console.log "three cases!"
+      sr1 = inclinePersonSurname listOfWords[0]
+      sr2 = inclinePersonSurname listOfWords[1]
+      sr3 = inclinePersonSurname listOfWords[2]
+
+      mnr2 = inclineMiddleName listOfWords[1]
+      mnr3 = inclineMiddleName listOfWords[2]
+
+      nr1 = inclineName listOfWords[0]
+      nr2 = inclineName listOfWords[1]
+      nr3 = inclineName listOfWords[2]
+
+
+
+      # the cases are:
+      # #1 Surname Name MiddleName
+      # #2 Name MiddleName Surname
+      # #3 Trash Name Surname
+      # #4 Name Surname Trash
+      if nr3.found then return {found: no, error: "name at the end of 3-component proper name"}
+      if nr1.found              # cases #2 and #3
+        # #2
+        if mnr2.found && sr3.found # check compliance
+          matchNameParts nr1, mnr2, sr3
+          # console.log "case #3"
+          # console.log "nr1 = #{sys.inspect nr1}"
+          # console.log "mnr2 = #{sys.inspect mnr2}"
+          # console.log "sr3 = #{sys.inspect sr3}"
+
     else
       console.log "WTF"
