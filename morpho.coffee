@@ -105,7 +105,8 @@ findProperName = (namesList) ->
 
 word = process.argv[2]
 if word
-  console.log "result = #{sys.inspect cases.inclineMiddleName word}"
+#  console.log "result = #{sys.inspect cases.inclineName word}"
+  console.log "result = #{sys.inspect cases.findProperName process.argv[2..]}"
 else
   text = require("./samples").text2
   console.log "source:\n#{text}"
@@ -131,8 +132,6 @@ else
     ruRe = /^[а-я\-ё]+$/ig
     enRe = /^[a-z\-]+$/ig
     wordRe = /^[а-яё\-\da-z]+$/ig
-
-
 
     r =  morphoRu t.toLowerCase()
     switch (r.type)
