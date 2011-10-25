@@ -242,47 +242,6 @@ exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
   result.guess_case = cases[0]
   result
 
-# exports.inclineFemaleName = inclineFemaleName = (name) ->
-#   name = Capitalize name
-#   validEndOfWord = ["ч", "щ","ш","ж","ь","и","а","я","ы","ю","е","й","ю","ии","ия","ая","ей","ой","ию","йю","ью"]
-#   withoutEnd = name[..-2]
-
-
-#   if name.length > 2
-#     endOfWord = name[-2..]
-#     if endOfWord in validEndOfWord
-#       withoutEnd = name[..-3]
-#     else
-#       endOfWord = name[-1..]
-#   else
-#     endOfWord = name[-1..]
-
-#   lastLetter = withoutEnd[-1..]
-
-#   if endOfWord == "ь" || ( endOfWord == "ью" && !(withoutEnd[-1..] in "жшчщ"))
-#     cases = ["#{withoutEnd}ь", "#{withoutEnd}и", "#{withoutEnd}и", "#{withoutEnd}ь", "#{withoutEnd}ью", "#{withoutEnd}и"]
-#   else if endOfWord == "ью" && withoutEnd[-1..] in "жшчщ"
-#     cases = ["#{withoutEnd}", "#{withoutEnd}и", "#{withoutEnd}и", "#{withoutEnd}", "#{withoutEnd}ью", "#{withoutEnd}и"]
-
-#   else if endOfWord in "жшчщ"
-#     withoutEnd += endOfWord
-#     cases = ["#{withoutEnd}", "#{withoutEnd}и", "#{withoutEnd}и", "#{withoutEnd}", "#{withoutEnd}ью", "#{withoutEnd}и"]
-
-#   else if endOfWord in "ияюе"
-#     cases = ["#{withoutEnd}я", "#{withoutEnd}и", "#{withoutEnd}е", "#{withoutEnd}ю", "#{withoutEnd}ей", "#{withoutEnd}е"]
-#   else if lastLetter in  "жшчщцгкх"
-#     cases = ["#{withoutEnd}а", "#{withoutEnd}и", "#{withoutEnd}е", "#{withoutEnd}у", "#{withoutEnd}ой", "#{withoutEnd}е"]
-#   else
-#     cases = ["#{withoutEnd}а", "#{withoutEnd}ы", "#{withoutEnd}е", "#{withoutEnd}у", "#{withoutEnd}ой", "#{withoutEnd}е"]
-
-#   # todo add more exceptions here
-#   result = name: cases[0], found: cases[0].toLowerCase() in ruFemNames, cases: cases, src: name
-
-#   result.possible_yes = result.found || endOfWord in validEndOfWord
-#   caseIndex = cases.indexOf name
-#   result.guess_case_index = caseIndex
-#   result.guess_case = if -1 == caseIndex then "unknown" else ["nominative","genitive","dative","accusative","instrumental","prepositional"][caseIndex]
-#   result
 
 exports.inclineName = inclineName = (name) ->
   fn = inclineFemaleName name
@@ -484,9 +443,7 @@ exports.findProperName = (listOfWords, opts={}) ->
       nameFound = nResult1.found || nResult2.found
       if !surnameFound || !nameFound
         console.log "not a proper name!"
-        console.log "s1 = #{sys.inspect sResult1}\n s2 = #{sys.inspect sResult2}"
-        console.log "--------------------------------------------------------------------------------"
-        console.log "n1 = #{sys.inspect nResult1}\n n2 = #{sys.inspect nResult2}"
+        return {found: no, error: "not a proper name"}
       else                      # find name first
         if yes == nResult1.found == nResult2.found
           return null            # two names!
@@ -504,7 +461,6 @@ exports.findProperName = (listOfWords, opts={}) ->
           console.log "suspicios name!!"
           return null
         sGender = genderMatch gender, sResult.gender
-        # console.log "gender = #{sys.inspect gender}\t sGender = #{sys.inspect sGender}, guess_case = #{guess_case}\n sR = #{sys.inspect sResult}\t mCase =#{matchCase sResult, guess_case, sGender}"
         if !sGender
           return {found: no, error: "missmatch gender"}
         else if matchCase sResult, guess_case, sGender
