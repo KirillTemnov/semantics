@@ -12,7 +12,7 @@ switch word
   when "help", undefined
     console.log "help here"
   when "-f"
-    readFile process.argv[3]
+    console.log  lastname.findInFile process.argv[3]
   else
     console.log "#{sys.inspect lastname.findProperName process.argv[2..]}"
 
