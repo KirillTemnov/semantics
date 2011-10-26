@@ -1,7 +1,6 @@
 #!/usr/bin/env coffee
 #
 lastname = require "../lib/index"
-morpho = require("../lib/morpho").morphoRu
 sys = require "sys"
 
 

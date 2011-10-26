@@ -4,8 +4,6 @@ Morphological analysis for russian texts
 
 ruW = require "./ru-words"
 sys = require "sys"
-cases = require "./index"
-
 
 exceptions = (word) ->
 
@@ -59,16 +57,8 @@ exports.morphoRu = morphoRu = (word) ->
       break
 
   result
-#  console.log "verb = #{verb}\tadjective = #{adjective}"
 
-isCapitalized = (word) ->
-  if 0 <= word.indexOf "-"
-    cap = yes
-    word.split("-").map (wrd) -> cap &&= isCapitalized wrd
-    cap
-  else
-    word &&  word == "#{word[0].toUpperCase()}#{word[1..].toLowerCase()}" || no
-
+# todo work on it later
 exports.analyseText = (text) ->
   punctuationRe = /\.|,|:|\/|\\|\?|!|\+|\'|\"|\«|\»|\*|\(|\)|\[|\]|\&|\№|(RT)|“|”\—/g
   doubleSpaceRe = /\s+/g
@@ -94,24 +84,6 @@ exports.analyseText = (text) ->
         result.push "[PP #{t}]"
       else
         result.push t
-
-    if isCapitalized(t) && wordRe.test(t) && !(r.type in ["adverb", "union", "preposition"])
-      if !properNameLang        # first part
-        curProperName.push t
-        if ruRe.test(t)
-          properNameLang = "ru"
-        else if enRe.test(t)
-          properNameLang = "en"
-        else                    # drop it
-          curProperName = []                 #?
-      else
-        # continue padding
-        if (properNameLang == "ru" && ruRe.test t) || (properNameLang == "en" && enRe.test t)
-          curProperName.push t
-        else                    # save previous result
-          resetProperName()
-    else
-      resetProperName()
 
     if t == "."
       result.push "\n"
