@@ -1,13 +1,13 @@
 {
   "name": "lastname",
-  "version": "0.2.0",
-  "description": "Package for search proper names in text. Can be used for incline some proper names."
+  "version": "0.2.3",
+  "description": "Package for search proper names in text. Can be used for incline some proper names.",
   "engines": {
    "node": "0.4 || 0.5"
   },
-  "main": "index",
-  "bin": { "lastname": "./bin/lastname.coffee"},
   "dependencies": {"coffee-script": ">= 1.0.1"},
+  "main": "./lib/index",
+  "bin": { "lastname": "./bin/lastname.coffee"},
   "keywords": ["morphology", "analysis"],
   "author": "Temnov Kirill <allselead@gmail.com>"
 }
