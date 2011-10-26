@@ -471,6 +471,22 @@ matchNameParts = (fn, mn, sn) ->
   else
     return {found: no}
 
+matchNameAndSurname = (fn, sn) ->
+  overallGender = genderMatch fn.gender, sn.gender
+  theCase = intersection fn.possible_cases, sn.possible_cases
+  # if case not found
+  if !theCase                   # try extract cases (and nominative) from custom gender
+    sn.possible_cases = sn["#{overallGender}_cases"]
+    sn.nominative = sn["nominative_#{overallGender}"]
+    theCase = intersection fn.possible_cases, sn.possible_cases
+
+  if overallGender && (theCase in sn.possible_cases)||(theCase in sn["#{overallGender}_cases"])
+    surname = sn.nominative || sn["nominative_#{overallGender}"]
+    return  {first_name: fn.nominative, middle_name: "", surname: surname, gender: overallGender, found: yes, case: theCase}
+  else
+    return {found: no}
+
+
 matchCase = (pObj, target_case, gender) ->
   cases = pObj["#{gender}_cases"]
   target_case in cases
@@ -482,51 +498,29 @@ getNominative = (pObj, gender) ->
   nom
 
 exports.findProperName = (listOfWords, opts={}) ->
+  result = {found: no}
   switch listOfWords.length
     when 1                      # just surname
       result =  inclinePersonSurname listOfWords[0]
       if result.found
-        console.log "found surname"
         return result
       else
         console.log "not found((, name? \n#{sys.inspect inclineName listOfWords[0]}"
-        null
+        return result
     when 2
-      sResult1 = inclinePersonSurname listOfWords[0]
-      sResult2 = inclinePersonSurname listOfWords[1]
+      sr1 = inclinePersonSurname listOfWords[0]
+      sr2 = inclinePersonSurname listOfWords[1]
 
-      nResult1 = inclineName listOfWords[0]
-      nResult2 = inclineName listOfWords[1]
+      nr1 = inclineName listOfWords[0]
+      nr2 = inclineName listOfWords[1]
 
-      surnameFound = sResult1.found || sResult2.found
-      nameFound = nResult1.found || nResult2.found
-      if !surnameFound || !nameFound
-        console.log "not a proper name!"
-        return {found: no, error: "not a proper name"}
-      else                      # find name first
-        if yes == nResult1.found == nResult2.found
-          return null            # two names!
-        if yes == nResult1.found# name found
-          gender = nResult1.gender
-          guess_case = nResult1.guess_case
-          r = {name: nResult1.nominative, surname: getNominative(sResult2, gender), found: yes, gender: gender, order: "normal"}
-          sResult = sResult2
-        else if yes == nResult2.found
-          gender = nResult2.gender
-          guess_case = nResult2.guess_case
-          r = {name: nResult2.nominative, surname: getNominative(sResult1, gender), found: yes, gender: gender, order: "reverse"}
-          sResult = sResult1
-        else
-          console.log "suspicios name!!"
-          return null
-        sGender = genderMatch gender, sResult.gender
-        if !sGender
-          return {found: no, error: "missmatch gender"}
-        else if matchCase sResult, guess_case, sGender
-          r.case = guess_case
-          return r
-        else
-          return {found: no, error: "missmatch case (#{sys.inspect sResult2})"}
+      if nr1.found && sr2.found
+        result = matchNameAndSurname nr1, sr2
+      if !result.found && sr1.found && nr2.found
+        result = matchNameAndSurname sr1, nr2
+
+      return result
+
     when 3
       sr1 = inclinePersonSurname listOfWords[0]
       sr2 = inclinePersonSurname listOfWords[1]
@@ -538,13 +532,6 @@ exports.findProperName = (listOfWords, opts={}) ->
       nr1 = inclineName listOfWords[0]
       nr2 = inclineName listOfWords[1]
       nr3 = inclineName listOfWords[2]
-
-
-      # console.log "nr1 = #{sys.inspect nr1}"
-      # console.log "mnr2 = #{sys.inspect mnr2}"
-      # console.log "sr3 = #{sys.inspect sr3}"
-
-      result = {found: no}
 
       # the cases are:
       # #1 Surname Name MiddleName
@@ -560,8 +547,12 @@ exports.findProperName = (listOfWords, opts={}) ->
           # console.log "nr1 = #{sys.inspect nr1}"
           # console.log "mnr2 = #{sys.inspect mnr2}"
           # console.log "sr3 = #{sys.inspect sr3}"
-        # if !result.found
-        #   result = matchNameParts
+        if !result.found && sr2.found
+          result = matchNameAndSurname nr1, sr2
+      else if sr1.found && nr2.found && mnr3.found  # case 1
+          result = matchNameParts nr2, mnr3, sr1
+      else if nr2.found && sr3.found
+          result = matchNameAndSurname nr2, sr3
 
 
       return result
