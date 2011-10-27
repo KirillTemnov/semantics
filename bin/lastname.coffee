@@ -1,7 +1,7 @@
 #!/usr/bin/env coffee
 #
 lastname = require "../lib/index"
-sys = require "sys"
+sys = require "util"
 
 word = process.argv[2]
 switch word

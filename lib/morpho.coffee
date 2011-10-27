@@ -3,7 +3,7 @@ Morphological analysis for russian texts
 ###
 
 ruW = require "./ru-words"
-sys = require "sys"
+sys = require "util"
 
 exceptions = (word) ->
 
