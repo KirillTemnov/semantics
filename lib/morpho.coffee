@@ -5,6 +5,77 @@ Morphological analysis for russian texts
 ruW = require "./ru-words"
 sys = require "util"
 
+exports.getAdjectiveEnds = ->
+  feminine:
+    ends: /((ая)|(ой)|(ую)|(яя)|(ей)|(юю))$/g
+    hard: /((ая)|(ой)|(ую))$/g
+    sort: /((яя)|(ей)|(юю))$/g
+    hardNominativeEnd: "ая"
+    softNominativeEnd: "яя"
+    gender: "feminine"
+    singular: yes
+    incline: (word) ->
+      end = word[-2..]
+      word = word[..-3]
+      if end is "ая"
+        ["#{word}ая", "#{word}ой", "#{word}ой", "#{word}ую", "#{word}ой", "#{word}ой"]
+      else
+        ["#{word}яя", "#{word}ей", "#{word}ей", "#{word}юю", "#{word}ей", "#{word}ей"]
+  masculine:
+    ends: /((ый)|(ого)|(ому)|(ым)|(ом)|(ий)|(его)|(ему)|(им)|(ем))$/g
+    hard: /((ый)|(ого)|(ому)|(ым)|(ом))$/g
+    soft: /((ий)|(его)|(ему)|(им)|(ем))$/g
+    hardNominativeEnd: "ый"
+    softNominativeEnd: "ий"
+    gender: "masculine"
+    singular: yes
+    incline: (word) ->
+      end = word[-2..]
+      word = word[..-3]
+      if end is "ый"
+        if /[жшцчщгкх]$/.test word
+          ["#{word}ий", "#{word}ого", "#{word}ому", "#{word}ий", "#{word}им", "#{word}ом"]
+        else
+          ["#{word}ый", "#{word}ого", "#{word}ому", "#{word}ый", "#{word}ым", "#{word}ом"]
+      else
+        ["#{word}ий", "#{word}его", "#{word}ему", "#{word}ий", "#{word}им", "#{word}ем"]
+
+  neuter:
+    ends: /((ое)|(ого)|(ому)|(ым)|(ом)|(ее)|(его)|(ему)|(им)|(ем))$/g
+    hard: /((ое)|(ого)|(ому)|(ым)|(ом))$/g
+    soft: /((ее)|(его)|(ему)|(им)|(ем))$/g
+    hardNominativeEnd: "ое"
+    softNominativeEnd: "ее"
+    gender: "neuter"
+    singular: yes
+    incline: (word) ->
+      end = word[-2..]
+      word = word[..-3]
+      if end is "ое"
+        ["#{word}ое", "#{word}ого", "#{word}ому", "#{word}ое", "#{word}ым", "#{word}ом"]
+      else
+        ["#{word}ее", "#{word}его", "#{word}ему", "#{word}ее", "#{word}им", "#{word}ем"]
+
+  plural:
+    ends: /((ые)|(ых)|(ым)|(ыми)|(ых)|(ие)|(их)|(им)|(ими)|(их))$/g
+    hard: /((ые)|(ых)|(ым)|(ыми)|(ых))$/g
+    soft: /((ие)|(их)|(им)|(ими)|(их))$/g
+    hardNominativeEnd: "ые"
+    softNominativeEnd: "ие"
+    gender: "unknown"
+    singular: no
+    incline: (word) ->
+      end = word[-2..]
+      word = word[..-3]
+      if end is "ые"
+        if /[жшцчщгкх]$/.test word
+          ["#{word}ие", "#{word}их", "#{word}им", "#{word}ие", "#{word}ими", "#{word}их"]
+        else
+          ["#{word}ые", "#{word}ых", "#{word}ым", "#{word}ые", "#{word}ыми", "#{word}ых"]
+      else
+        ["#{word}ие", "#{word}их", "#{word}им", "#{word}ие", "#{word}ими", "#{word}их"]
+
+
 exceptions = (word) ->
 
 # заяв[ил] заяв[лять]

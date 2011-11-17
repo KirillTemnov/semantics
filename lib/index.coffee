@@ -1,10 +1,14 @@
 
-exports.version  = "0.2.8"
-sys              = require "util"
-fs               = require "fs"
-morphoRu         = require("./morpho").morphoRu
-ref              = require "./ref"
-exec             = require('child_process').exec
+exports.version   = "0.2.8"
+sys               = require "util"
+fs                = require "fs"
+morpho            = require "./morpho"
+getAdjectiveEnds  = morpho.getAdjectiveEnds
+morphoRu          = morpho.morphoRu
+ref               = require "./ref"
+exec              = require('child_process').exec
+
+cases = ["nominative", "genitive", "dative", "accusative", "instrumental", "prepositional"]
 
 Capitalize = (s) -> if s then "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
 
@@ -627,6 +631,56 @@ exports.findInFile = fileName = (filename, opts={}) ->
     result.text = text
   result
 
+inclineAdjective = (srcWord) ->
+  word      = srcWord.toLowerCase()
+  adj       = getAdjectiveEnds()
+
+  notFound  = found: no, src: srcWord
+
+  matchAdjective = (adjective, word, result) ->
+    m = word.match adjective.ends
+    if m
+      len = m[0].length
+      wordWithoutEnd   = word[..-(len+1)]
+      result.gender    = adjective.gender
+      result.singular  = adjective.singular
+
+      if adjective.hard.test word # hard adjective
+        result.nominative = "#{wordWithoutEnd}#{adjective.hardNominativeEnd}"
+      else
+        result.nominative = "#{wordWithoutEnd}#{adjective.softNominativeEnd}"
+
+      result.cases = adjective.incline result.nominative
+      result.possible_cases = []
+      for adjCase, i in result.cases
+        if adjCase is word
+          result.possible_cases.push cases[i]
+    else
+      result.found = no
+    result
+
+  for a in [adj.feminine, adj.masculine, adj.neuter, adj.plural]
+    result = matchAdjective a, word, src: srcWord, found: yes
+    return result if result.found
+
+
+  notFound
+
+###
+Incline bounded words.
+
+We dont know gender and incline of words, plural is not known also.
+@param {Array} wordsList Array of words
+###
+exports.inclineWords = (wordsList) ->
+  result = {}
+  if /^[а-я\-ё\d]+$/ig.test wordsList.join "" # russian
+    result = []
+    wordsList.map (w) ->
+      result.push inclineAdjective w
+  else
+    result = error: "only russian inclines supported."
+  result
 
 exports.expandUrl = expandUrl = (url, fn) ->
   lastLocation = url
@@ -676,7 +730,8 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   else
     urls = []
 
-  punctuationRe = /\.|,|:|\/|\\|\?|!|\-|\+|\'|\"|\«|\»|\*|\(|\)|\[|\]|\&|\№|RT|“|”\—/g
+  punctuationRe = /[\.,:\/\\\?!\-\+\*\(\)\[\]\&\№\—]/gm
+  endOfSentenceRe = /[\.\?\!]/gm
   text = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
   properNamesArray.map (pn) ->
     text = text.replace pn, ""
@@ -685,13 +740,18 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   # quoted text
   ruQuotesRe = /(\"[а-яё\d]+(\s[а-яё\d]+){0,8}\")|(\'[а-яё\d]+(\s[а-яё\d]+){0,8}\')|(\«[а-яё\d]+(\s[а-яё\d]+){0,8}\»)|(\„[а-яё\d]+(\s[а-яё\d]+){0,8}\“)/mig
   enQuotesRe = /(\"[a-z\d]+(\s[a-z\d]+){0,8}\")|(\'[a-z\d]+(\s[a-z\d]+){0,8}\')/mig
-  qt = /(\"\w\s[\w\s]{0,7}\")/mig
+
 
   ruMatchQuotes = unique text.match(ruQuotesRe) || []
   enMatchQuotes = unique text.match(enQuotesRe) || []
 
   console.log "resulting test: #{text}"
-  console.log "\n\nquotes: #{ruMatchQuotes}"
+  console.log "\n\nquotes: #{ruMatchQuotes.join '\n'}"
+  console.log "sentences:"
+  text.split(endOfSentenceRe).map (s) ->
+    console.log s
+
+  null
   # if opts.expandLinks and urls.length > 0
   #   expandUrls urls, (expUrls) ->
   #     console.log "urls = #{sys.inspect expUrls}"
