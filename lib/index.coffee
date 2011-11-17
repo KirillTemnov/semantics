@@ -1,9 +1,10 @@
-sys = require "util"
-fs = require "fs"
-morphoRu = require("./morpho").morphoRu
-exports.version = "0.2.7"
-ref = require "./ref"
 
+exports.version  = "0.2.8"
+sys              = require "util"
+fs               = require "fs"
+morphoRu         = require("./morpho").morphoRu
+ref              = require "./ref"
+exec             = require('child_process').exec
 
 Capitalize = (s) -> if s then "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
 
@@ -615,39 +616,93 @@ exports.find = find = (text) ->
       pnDict[id].count = 1
   return pnDict
 
-
 exports.findInFile = fileName = (filename, opts={}) ->
   try
     text = fs.readFileSync filename, "utf8"
   catch e
-    return
-      found: no
-      error: "can't read file '#{filename}'"
+    return found: no, error: "can't read file '#{filename}'"
 
   result = find text
   if opts.includeText
     result.text = text
   result
 
-exports.analyseText = analyseText = (text, opts={}) ->
+
+exports.expandUrl = expandUrl = (url, fn) ->
+  lastLocation = url
+  exec "curl --connect-timeout 5 -IL #{url}", (error, stdout) ->
+    m = stdout.match /^Location\:\s+(https?:\/\/\S+)*$/mig
+    if m
+      lastLocation = m[-1..][0].match(/https?:\/\/\S+/).toString()
+    if error
+      lastLocation = "error"
+    fn url, lastLocation
+
+
+exports.expandUrls = expandUrls = (urls, fn) ->
+  urlsArray  = []
+  urls.map (url) ->
+    expandUrl url, (destUrl, originUrl) ->
+      urlsArray.push [destUrl, originUrl]
+      if urlsArray.length is urls.length
+        fn urlsArray
+
+exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   properNames = find text                # find proper names
+
+  properNamesArray = []
+  for id, pn of properNames
+    pn.src.map (pnSrc) ->
+      properNamesArray.push pnSrc unless pnSrc in properNamesArray
+
   # search regular words and links
   ruRe = /^[а-я\-ё]+$/ig
   enRe = /^[a-z\-]+$/ig
   wordRe = /^[а-яё\-\da-z]+$/ig
-
+  urlRe = /https?:\/\/\S+/g
   if opts.all
     opts =
       useTwitterTags: yes
       searchLinks: yes
       expandLinks: yes
+  else
+    opts.useTwitterTags  = no if undefined is opts.useTwitterTags
+    opts.searchLinks     = no if undefined is opts.searchLinks
+    opts.expandLinks     = no if undefined
 
-  opts.useTwitterTags = no if undefined is opts.useTwitterTags
-  opts.searchLinks = no if undefined is opts.searchLinks
-  opts.expandLinks = no if undefined
+  if opts.searchLinks
+    urls = text.match urlRe
+    text = text.replace urlRe, ""
+  else
+    urls = []
+
+  punctuationRe = /\.|,|:|\/|\\|\?|!|\-|\+|\'|\"|\«|\»|\*|\(|\)|\[|\]|\&|\№|RT|“|”\—/g
+  text = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
+  properNamesArray.map (pn) ->
+    text = text.replace pn, ""
 
 
+  # quoted text
+  ruQuotesRe = /(\"[а-яё\d]+(\s[а-яё\d]+){0,8}\")|(\'[а-яё\d]+(\s[а-яё\d]+){0,8}\')|(\«[а-яё\d]+(\s[а-яё\d]+){0,8}\»)|(\„[а-яё\d]+(\s[а-яё\d]+){0,8}\“)/mig
+  enQuotesRe = /(\"[a-z\d]+(\s[a-z\d]+){0,8}\")|(\'[a-z\d]+(\s[a-z\d]+){0,8}\')/mig
+  qt = /(\"\w\s[\w\s]{0,7}\")/mig
 
+  ruMatchQuotes = unique text.match(ruQuotesRe) || []
+  enMatchQuotes = unique text.match(enQuotesRe) || []
+
+  console.log "resulting test: #{text}"
+  console.log "\n\nquotes: #{ruMatchQuotes}"
+  # if opts.expandLinks and urls.length > 0
+  #   expandUrls urls, (expUrls) ->
+  #     console.log "urls = #{sys.inspect expUrls}"
+
+
+exports.analyseFile = analyseFile = (filename, opts) ->
+  try
+    text = fs.readFileSync filename, "utf8"
+  catch e
+    return found: no, error: "can't read file '#{filename}'"
+  analyseText text, opts
 
   # twitter
   # todo analyse text by splitting words, searching lunks etc.
