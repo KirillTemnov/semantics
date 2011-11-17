@@ -730,26 +730,38 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   else
     urls = []
 
-  punctuationRe = /[\.,:\/\\\?!\-\+\*\(\)\[\]\&\№\—]/gm
-  endOfSentenceRe = /[\.\?\!]/gm
+  punctuationRe = /([,:\/\\\?!\-\+\*\(\)\[\]\&\№\—])/gm
+  endOfSentenceRe = /([\?\!])|(\.\s+)/gm
   text = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
-  properNamesArray.map (pn) ->
-    text = text.replace pn, ""
+  # properNamesArray.map (pn) ->
+  #   text = text.replace pn, ""
 
 
   # quoted text
-  ruQuotesRe = /(\"[а-яё\d]+(\s[а-яё\d]+){0,8}\")|(\'[а-яё\d]+(\s[а-яё\d]+){0,8}\')|(\«[а-яё\d]+(\s[а-яё\d]+){0,8}\»)|(\„[а-яё\d]+(\s[а-яё\d]+){0,8}\“)/mig
-  enQuotesRe = /(\"[a-z\d]+(\s[a-z\d]+){0,8}\")|(\'[a-z\d]+(\s[a-z\d]+){0,8}\')/mig
+  ruQuotesRe = /(\"[-а-яё\d]+(\s[-а-яё\d]+){0,}\")|(\'[-а-яё\d]+(\s[-а-яё\d]+){0,}\')|(«[-а-яё\d]+(\s[-а-яё\d]+){0,}»)|(„[-а-яё\d]+(\s[-а-яё\d]+){0,}\“)/mig
+  enQuotesRe = /(\"[-a-z\d]+(\s[-a-z\d]+){0,}\")|(\'[-a-z\d]+(\s[-a-z\d]+){0,}\')/mig
+  quotedRe = /(\"[^\"]+\")|(\'[^\']+\')|(«[^»]+»)|(„[^“]“)/mig
 
 
   ruMatchQuotes = unique text.match(ruQuotesRe) || []
   enMatchQuotes = unique text.match(enQuotesRe) || []
+  quoted = []
+  for q in unique text.match(quotedRe)
+    quoted.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
 
   console.log "resulting test: #{text}"
   console.log "\n\nquotes: #{ruMatchQuotes.join '\n'}"
-  console.log "sentences:"
-  text.split(endOfSentenceRe).map (s) ->
-    console.log s
+  console.log "\nquoted: #{quoted.join '\n'}"
+  sentences = []
+  prev = ""
+  for s, i in (text.split(endOfSentenceRe).filter (s) -> !!s)
+    if i % 2 is 1
+      sentences.push prev + s
+    else
+      prev = s
+  console.log "sentences: #{sys.inspect sentences}"
+  # text.split(endOfSentenceRe).map (s) ->
+  #   console.log "#{s}<--"
 
   null
   # if opts.expandLinks and urls.length > 0
