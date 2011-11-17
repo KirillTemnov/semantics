@@ -1,9 +1,9 @@
 {
   "name": "lastname",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Package for search proper names in text. Can be used for incline some proper names.",
   "engines": {
-   "node": "0.4 || 0.5"
+   "node": ">= 0.4.0 < 0.7.0"
   },
   "dependencies": {"coffee-script": ">= 1.0.1"},
   "main": "./lib/index",
