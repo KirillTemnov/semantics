@@ -387,7 +387,7 @@ exports.parseRuSentence = (sentences) ->
 
 
 
-      else if /^[а-яё\-]+$/i.test word
+      else if /^[а-яё\-]+$/i.test(word) and not /^\-+$/.test word
         w = word.toLowerCase()
         result = morphoRu w
         unless result.type in ["adverb", "preposition", "union"]
