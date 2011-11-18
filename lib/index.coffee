@@ -741,6 +741,7 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   ruQuotesRe = /(\"[-а-яё\d]+(\s[-а-яё\d]+){0,}\")|(\'[-а-яё\d]+(\s[-а-яё\d]+){0,}\')|(«[-а-яё\d]+(\s[-а-яё\d]+){0,}»)|(„[-а-яё\d]+(\s[-а-яё\d]+){0,}\“)/mig
   enQuotesRe = /(\"[-a-z\d]+(\s[-a-z\d]+){0,}\")|(\'[-a-z\d]+(\s[-a-z\d]+){0,}\')/mig
   quotedRe = /(\"[^\"]+\")|(\'[^\']+\')|(«[^»]+»)|(„[^“]“)/mig
+  numRe = /((([а-яё]+)\s+){0,1}\d[\.\d]{0,}(\s+(([a-яё]+)|([\.\d]+))){1,4})|([12]\d\d\d)/mig
 
 
   ruMatchQuotes = unique text.match(ruQuotesRe) || []
@@ -752,6 +753,8 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   console.log "resulting test: #{text}"
   console.log "\n\nquotes: #{ruMatchQuotes.join '\n'}"
   console.log "\nquoted: #{quoted.join '\n'}"
+  console.log "\n numbers: #{unique(text.match numRe).join '\n'}"
+
   sentences = []
   prev = ""
   for s, i in (text.split(endOfSentenceRe).filter (s) -> !!s)
@@ -759,7 +762,8 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
       sentences.push prev + s
     else
       prev = s
-  console.log "sentences: #{sys.inspect sentences}"
+#  console.log "sentences: #{sys.inspect sentences}"
+
   # text.split(endOfSentenceRe).map (s) ->
   #   console.log "#{s}<--"
 
