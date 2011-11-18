@@ -1,5 +1,8 @@
+###
+Module provide api for library
+###
 
-exports.version   = "0.2.8"
+exports.version   = "0.3.1"
 sys               = require "util"
 fs                = require "fs"
 morpho            = require "./morpho"
@@ -7,41 +10,17 @@ getAdjectiveEnds  = morpho.getAdjectiveEnds
 morphoRu          = morpho.morphoRu
 ref               = require "./ref"
 exec              = require('child_process').exec
+util              = require "./util"
+
 
 cases = ["nominative", "genitive", "dative", "accusative", "instrumental", "prepositional"]
 
-Capitalize = (s) -> if s then "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
-
-isCapitalized = (word) ->
-  if 0 <= word.indexOf "-"
-    cap = yes
-    word.split("-").map (wrd) -> cap &&= isCapitalized wrd
-    cap
-  else
-    word &&  word is "#{word[0].toUpperCase()}#{word[1..].toLowerCase()}" || no
-
-unique = (array) ->
-  output = {}
-  output[array[key]] = array[key] for key in [0...array.length]
-  value for key, value of output
-
 ###
-merge two lists
-###
-merge = (l1, l2) ->
-  l = []
-  l1.map (x) -> l.push x
-  l2.map (x) -> l.push x
-  unique l
+Incline female name in nominative.
 
+@param {String} name Female name
+@return {Array} result Array of cases for this name
 ###
-Get first intersection of two lists
-###
-intersection = (l1, l2) ->
-  for i in l1
-    return i if i in l2
-  null
-
 exports.doInclineFemaleName = doInclineFemaleName = (name) ->
   aNotAfterHissingAndOthersRe = /[^жшщцгкхч]а$/g
   aAfterHissingAndOthersRe = /[жшщцгкхч]а$/g
@@ -65,7 +44,12 @@ exports.doInclineFemaleName = doInclineFemaleName = (name) ->
   else                          # not inclined
     [name, name, name, name, name, name]
 
+###
+Incline male name in nominative.
 
+@param {String} name Male name
+@return {Array} result Array of cases for this name
+###
 exports.doInclineMaleName = doInclineMaleName = (name) ->
   hardConsonants = /[бвгдзклмнпрстфх]$/g
   hissingAndChe = /[жшщцч]$/g
@@ -100,6 +84,11 @@ exports.doInclineMaleName = doInclineMaleName = (name) ->
   else
     null
 
+###
+Incline by incline function and return result.
+
+
+###
 inclineAndGetResult = (fn, args) ->
   r = null
   for i, name of args
@@ -304,7 +293,7 @@ exports.inclineName = inclineName = (name) ->
     # word may be a name
     if fn.possible_yes && mn.possible_yes
 
-      result = {found: "maybe", src: name, gender: ["male", "female"], female_cases: fn.cases, male_cases: mn.cases, possible_cases: merge fn.possible_cases, mn.possible_cases}
+      result = {found: "maybe", src: name, gender: ["male", "female"], female_cases: fn.cases, male_cases: mn.cases, possible_cases: util.merge fn.possible_cases, mn.possible_cases}
       result.guess_case = if fn.guess_case_index <= mn.guess_case_index then fn.guess_case else mn.guess_case
     else if fn.possible_yes
       result = {found: "maybe", src: name, gender: "female", female_cases: fn.cases, guess_case: fn.cases, possible_cases: fn.possible_cases}
@@ -401,7 +390,7 @@ inclineMiddleNameOrSurname = (src, fem, male) ->
     if fem.cases.length is 6 # not inclined
       if male.cases.length is 6   # not inclined too, unknown
         result.guess_sex = "unknown"
-        result.possible_cases = merge fem.cases, male.cases
+        result.possible_cases = util.merge fem.cases, male.cases
       else # suppose, that it's a man
         result.guess_sex = "male"
         result.nominative = male.found
@@ -412,7 +401,7 @@ inclineMiddleNameOrSurname = (src, fem, male) ->
       result.nominative = fem.found
       result.possible_cases = fem.cases
     else
-      result.possible_cases = merge fem.cases, male.cases
+      result.possible_cases = util.merge fem.cases, male.cases
   else if !fem.found
     result = {found: yes, src: src, gender: "male", male_cases: male.cases, guess_case: male.guess_case, nominative: male.found, possible_cases: male.cases}
   else if !male.found
@@ -476,7 +465,7 @@ genderMatch = (g1, g2) ->
 match gender of first name (comes first) middlename and surname
 ###
 matchNameParts = (fn, mn, sn) ->
-  theCase = intersection fn.possible_cases, mn.possible_cases
+  theCase = util.intersection fn.possible_cases, mn.possible_cases
   overallGender = genderMatch genderMatch(fn.gender, mn.gender), sn.gender
   if overallGender && (theCase in sn.possible_cases)||(theCase in sn["#{overallGender}_cases"])
     surname = sn.nominative || sn["nominative_#{overallGender}"]
@@ -486,12 +475,12 @@ matchNameParts = (fn, mn, sn) ->
 
 matchNameAndSurname = (fn, sn) ->
   overallGender = genderMatch fn.gender, sn.gender
-  theCase = intersection fn.possible_cases, sn.possible_cases
+  theCase = util.intersection fn.possible_cases, sn.possible_cases
   # if case not found
   if !theCase                   # try extract cases (and nominative) from custom gender
     sn.possible_cases = sn["#{overallGender}_cases"]
     sn.nominative = sn["nominative_#{overallGender}"]
-    theCase = intersection fn.possible_cases, sn.possible_cases
+    theCase = util.intersection fn.possible_cases, sn.possible_cases
 
   if overallGender && (theCase in sn.possible_cases)||(theCase in sn["#{overallGender}_cases"])
     surname = sn.nominative || sn["nominative_#{overallGender}"]
@@ -585,25 +574,27 @@ exports.find = find = (text) ->
   for t in text.split " "
     ruRe = /^[а-я\-ё]+$/ig
     enRe = /^[a-z\-]+$/ig
-    wordRe = /^[а-яё\-\da-z]+$/ig
+#    wordRe = /^[а-яё\-\da-z]+$/ig
 
-    r =  morphoRu t.toLowerCase()
-
-    if isCapitalized(t) && wordRe.test(t) && !(r.type in ["adverb", "union", "preposition"])
-      if !properNameLang        # first part
-        curProperName.push t
-        if ruRe.test(t)
-          properNameLang = "ru"
-        else if enRe.test(t)
-          properNameLang = "en"
-        else                    # drop it
-          curProperName = []                 #?
-      else
-        # continue padding
-        if (properNameLang is "ru" && ruRe.test t) || (properNameLang is "en" && enRe.test t)
+    if /^[а-яё\-]+$/ig.test t # is it russian word?
+      r =  morphoRu t.toLowerCase()
+      if util.isCapitalized(t) && !(r.type in ["adverb", "union", "preposition"])
+        if !properNameLang        # first part
           curProperName.push t
-        else                    # save previous result
-          resetProperName()
+          if ruRe.test(t)
+            properNameLang = "ru"
+          else if enRe.test(t)
+            properNameLang = "en"
+          else                    # drop it
+            curProperName = []                 #?
+        else
+          # continue padding
+          if (properNameLang is "ru" && ruRe.test t) || (properNameLang is "en" && enRe.test t)
+            curProperName.push t
+          else                    # save previous result
+            resetProperName()
+      else
+        resetProperName()
     else
       resetProperName()
 
@@ -722,7 +713,7 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   else
     opts.useTwitterTags  = no if undefined is opts.useTwitterTags
     opts.searchLinks     = no if undefined is opts.searchLinks
-    opts.expandLinks     = no if undefined
+    opts.expandLinks     = no if undefined is opts.expandLinks
 
   if opts.searchLinks
     urls = text.match urlRe
@@ -730,30 +721,34 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   else
     urls = []
 
-  punctuationRe = /([,:\/\\\?!\-\+\*\(\)\[\]\&\№\—])/gm
+  punctuationRe = /([,:\/\\\?!\+\*\(\)\[\]\&\№\—])/gm
   endOfSentenceRe = /([\?\!])|(\.\s+)/gm
   text = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
-  # properNamesArray.map (pn) ->
-  #   text = text.replace pn, ""
+  properNamesArray.map (pn) ->
+    text = text.replace pn, ""
 
 
   # quoted text
-  ruQuotesRe = /(\"[-а-яё\d]+(\s[-а-яё\d]+){0,}\")|(\'[-а-яё\d]+(\s[-а-яё\d]+){0,}\')|(«[-а-яё\d]+(\s[-а-яё\d]+){0,}»)|(„[-а-яё\d]+(\s[-а-яё\d]+){0,}\“)/mig
-  enQuotesRe = /(\"[-a-z\d]+(\s[-a-z\d]+){0,}\")|(\'[-a-z\d]+(\s[-a-z\d]+){0,}\')/mig
+  ruQuotesRe = /(\"[-а-яё\d]+(\s[-а-яё\d]+){0,}\")|(\'[-а-яё\d]+(\s[-а-яё\d]+){0,}\')|(«[-а-яё\d]+(\s[-а-яё\d]+){0,}»)|(„[-а-яё\d]+(\s[-а-яё\d]+){0,}\“)/ig
+  enQuotesRe = /(\"[-a-z\d]+(\s[-a-z\d]+){0,}\")|(\'[-a-z\d]+(\s[-a-z\d]+){0,}\')/ig
   quotedRe = /(\"[^\"]+\")|(\'[^\']+\')|(«[^»]+»)|(„[^“]“)/mig
-  numRe = /((([а-яё]+)\s+){0,1}\d[\.\d]{0,}(\s+(([a-яё]+)|([\.\d]+))){1,4})|([12]\d\d\d)/mig
+  numRe = /((([а-яё]+)\s+){0,1}\d[\.\d]{0,}(\s+(([a-яё]+)|([\.\d]+))){1,6})|([12]\d\d\d)/mig
 
 
-  ruMatchQuotes = unique text.match(ruQuotesRe) || []
-  enMatchQuotes = unique text.match(enQuotesRe) || []
-  quoted = []
-  for q in unique text.match(quotedRe)
-    quoted.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
+  ruMatchQuotes = util.unique text.match(ruQuotesRe) || []
+  enMatchQuotes = util.unique text.match(enQuotesRe) || []
+  numbers = util.unique text.match(numRe) || []
 
-  console.log "resulting test: #{text}"
-  console.log "\n\nquotes: #{ruMatchQuotes.join '\n'}"
-  console.log "\nquoted: #{quoted.join '\n'}"
-  console.log "\n numbers: #{unique(text.match numRe).join '\n'}"
+  quotes = []
+  for q in util.unique text.match(quotedRe) || []
+    quotes.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
+
+
+  # console.log "\n\nquotes: #{ruMatchQuotes.join '\n'}"
+  # console.log "\nquoted: #{quoted.join '\n'}"
+
+  ruDates = util.extractRuDates numbers
+
 
   sentences = []
   prev = ""
@@ -762,15 +757,19 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
       sentences.push prev + s
     else
       prev = s
-#  console.log "sentences: #{sys.inspect sentences}"
 
-  # text.split(endOfSentenceRe).map (s) ->
-  #   console.log "#{s}<--"
+  parsedTextData = util.parseRuSentence sentences
+  if util.dictKeys(ruDates.intervals).length > 0
+    parsedTextData.date_intervals = util.packIntervals ruDates.intervals
+  if util.dictKeys(ruDates.dates).length > 0
+    parsedTextData.dates = util.packDates ruDates.dates
+  if quotes.length > 0
+    parsedTextData.quotes = quotes
+  if properNamesArray.length > 0
+    parsedTextData.properNames = properNamesArray
+  parsedTextData
+#  console.log "analysis: #{sys.inspect parsedTextData}"
 
-  null
-  # if opts.expandLinks and urls.length > 0
-  #   expandUrls urls, (expUrls) ->
-  #     console.log "urls = #{sys.inspect expUrls}"
 
 
 exports.analyseFile = analyseFile = (filename, opts) ->
