@@ -1,5 +1,9 @@
-ref = require "./ref"
-sys = require "util"
+ref               = require "./ref"
+morpho            = require "./morpho"
+getAdjectiveEnds  = morpho.getAdjectiveEnds
+morphoRu          = morpho.morphoRu
+
+sys               = require "util"
 
 ###
 DateObject reference:
@@ -13,7 +17,7 @@ dd.mm.[yyyy]
 ------------------------------
 Interval - diapazone of dates
 
-Interval dict reference:
+Interval dict object reference:
   from:                         # string representation of from_value
   from_value:                   # Date object
   to:                           # string representation of to_value
@@ -26,7 +30,59 @@ or
 dd.mm.??[yyyy[, yyyy...]]-dd.mm.??[yyyy[, yyyy...]]
 ###
 
+###
+Capitalize word.
 
+@param {String} s Source word
+@return  {String} result Capitalized word
+###
+exports.capitalize = capitalize = (s) ->
+  if s
+    "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
+
+
+###
+Get keys from dictionary.
+
+@param {Object} dict Dictonary object
+@return {Array} result Array of keys
+###
+exports.dictKeys = dictKeys = (dict) ->
+  keys = []
+  keys.push k for k,v of dict
+  keys
+
+
+###
+Check if word capitalized. Word can contain several words, like "Петров-Водкин"
+
+@param {String} s Source word
+@return {Boolean} result Return true if word capitalized
+###
+exports.isCapitalized = isCapitalized = (word) ->
+  if 0 <= word.indexOf "-"
+    cap = yes
+    word.split("-").map (wrd) -> cap &&= isCapitalized wrd
+    cap
+  else
+    word &&  word is capitalize(word) || no
+
+###
+Check if word in upper case.
+
+@param {String} word Word for check
+@param {Boolean} result
+###
+exports.isUpperCase = isUpperCase = (word) ->  word is word.toUpperCase()
+
+
+###
+Check if word in lower case.
+
+@param {String} word Word for check
+@param {Boolean} result
+###
+exports.isLowerCase = isLowerCase = (word) ->  word is word.toLowerCase()
 
 ###
 Remove duplicates from array.
@@ -38,6 +94,33 @@ exports.unique = unique = (array) ->
   output = {}
   output[array[key]] = array[key] for key in [0...array.length]
   value for key, value of output
+
+
+###
+Merge two arrays.
+
+@param {Array} arr1 First array
+@param {Array} arr2 Seconds array
+@return {Array} arr Array contain unique values from arr1 and arr2
+###
+exports.merge = merge = (l1, l2) ->
+  l = []
+  l1.map (x) -> l.push x
+  l2.map (x) -> l.push x
+  unique l
+
+###
+Get first intersection of two arrays.
+
+@param {Array} arr1 First array
+@param {Array} arr2 Seconds array
+@return {Object|null} elem First element, that appear in arr1 and arr2
+###
+exports.intersection = intersection = (l1, l2) ->
+  for i in l1
+    return i if i in l2
+  null
+
 
 
 ###
@@ -199,12 +282,43 @@ exports.extractRuDates = (strArr) ->
 
 
 ###
-Pack intervals dict to compact representation
+Pack dates dict to compact representation.
 
-@param {IntervalsDict} intervals Intervals dictionary, @see top of module
+@param {DateObjectsDict} intervals Dates dictionary, @see top of module
 @param {Number|null} defaultYear Default year, :optional null
                                  if default year not set, we try to guess
                                  it by looking at all passed dates (years).
+@return {Object} result Packed dictionary
+###
+exports.packDates = (dates, defaultYear=null) ->
+  out = {}
+  if defaultYear is null
+    years = []
+    for id, dateObj of dates
+      unless "undefined" is typeof dateObj.value.y
+        years.push dateObj.value.y
+    years = unique years.sort()
+    if years.length > 1         #
+      defaultYear = "????[#{years.join ','}]"
+    else if years.length is 1
+      defaultYear = years[0]
+    else
+      defaultYear = "????"
+  for id, dateObj of dates
+    if "undefined" is typeof dateObj.value.y
+      dateObj.value.y = defaultYear
+    out["#{dateObjectToString dateObj.value}"] = dateObj.count
+  out
+  console.log "out = #{sys.inspect out}"
+
+###
+Pack intervals dict to compact representation.
+
+@param {IntervalObjectDict} intervals Intervals dictionary, @see top of module
+@param {Number|null} defaultYear Default year, :optional null
+                                 if default year not set, we try to guess
+                                 it by looking at all passed dates (years).
+@return {Object} result Packed dictionary
 ###
 exports.packIntervals = (intervals, defaultYear=null) ->
   out = {}
@@ -217,12 +331,11 @@ exports.packIntervals = (intervals, defaultYear=null) ->
         years.push interval.to_value.y
     years = unique years.sort()
     if years.length > 1         #
-      defaultYear = "??[#{years.join ','}]"
+      defaultYear = "????[#{years.join ','}]"
     else if years.length is 1
       defaultYear = years[0]
     else
-      defaultYear = "??"
-  console.log "defaultYear = #{defaultYear}\t#{sys.inspect years}"
+      defaultYear = "????"
   for id, interval of intervals
     if "undefined" is typeof interval.from_value.y
       interval.from_value.y = defaultYear
@@ -230,3 +343,66 @@ exports.packIntervals = (intervals, defaultYear=null) ->
       interval.to_value.y = defaultYear
     out["#{dateObjectToString interval.from_value}-#{dateObjectToString interval.to_value}"] = interval.count
   out
+
+
+###
+Parse russian centense and extract abbrevs/ words beginning with an uppercase letter.
+
+@param {Array|String} sentence Sentence or array of sentences.
+@return {Object} result Return dict of special words, dict of abbrevs and dict of
+                       regular words with its frequencies
+###
+exports.parseRuSentence = (sentences) ->
+  sentences = [sentences] unless sentences instanceof Array
+  abbrevs = {}
+  special_words = {}            # Capitalized words
+  digits = {}                   # digits, including floating point digits
+  common_used_words = {}        # adverbs, prepositions, unions
+  regular_words = {}            # all other russian words, except common_used_words
+  sentences.map (sent) ->
+    words = sent.split " "
+    for word, i in words
+                                    # digit?
+      if /^(\d+(|(\.(|\d+))))$/.test word
+        unless digits[word]
+          digits[word] = 1
+        else
+          digits[word]++
+                                    # abbrev?
+      else if isUpperCase(word) and /^[а-яё\-]{2,}$/i.test word
+        unless abbrevs[word]
+          abbrevs[word] = 1
+        else
+          abbrevs[word]++
+
+
+                                    # proper name?
+      # todo proper name can be the first word in sentence
+      else if i > 0 && isCapitalized(word) and /^[а-яё\-]{2,}$/i.test word
+        # more analysis here, including next and previous words
+        unless special_words[word]
+          special_words[word] = 1
+        else
+          special_words[word]++
+
+
+
+      else if /^[а-яё\-]+$/i.test word
+        w = word.toLowerCase()
+        result = morphoRu w
+        unless result.type in ["adverb", "preposition", "union"]
+          unless regular_words[w]
+            regular_words[w] = 1
+          else
+            regular_words[w]++
+
+        else
+          unless common_used_words[w]
+            common_used_words[w] = 1
+          else
+            common_used_words[w]++
+  abbrevs: abbrevs
+  common_used_words: common_used_words
+  special_words: special_words
+  regular_words: regular_words
+  digits: digits
