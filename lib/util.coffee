@@ -9,7 +9,35 @@ DateObject reference:
 
 String representation:
 dd.mm.[yyyy]
+
+------------------------------
+Interval - diapazone of dates
+
+Interval dict reference:
+  from:                         # string representation of from_value
+  from_value:                   # Date object
+  to:                           # string representation of to_value
+  to_value:                     # Date object
+  count:                        # times appeared
+
+String representation:
+dd.mm.[yyyy]-dd.mm.[yyyy]
+or
+dd.mm.??[yyyy[, yyyy...]]-dd.mm.??[yyyy[, yyyy...]]
 ###
+
+
+
+###
+Remove duplicates from array.
+
+@param {Array} array Array that may contain duplicates
+@param {Array} newArray New array without duplicates
+###
+exports.unique = unique = (array) ->
+  output = {}
+  output[array[key]] = array[key] for key in [0...array.length]
+  value for key, value of output
 
 
 ###
@@ -19,7 +47,7 @@ Date object to string.
 @param {String} dateStr DateStr, @see string representation on top.
 ###
 dateObjectToString = (dateObj) ->
-  y = ("number" is typeof dateObj.y) and  dateObj.y or ""
+  y = (typeof dateObj.y in ["number", "string"]) and  dateObj.y or ""
   m = dateObj.m + 1
   m = m > 9 and m or "0#{m}"
   d = dateObj.d > 9 and dateObj.d or "0#{dateObj.d}"
@@ -170,3 +198,35 @@ exports.extractRuDates = (strArr) ->
   dates: dates, sources: sources, intervals: intervals
 
 
+###
+Pack intervals dict to compact representation
+
+@param {IntervalsDict} intervals Intervals dictionary, @see top of module
+@param {Number|null} defaultYear Default year, :optional null
+                                 if default year not set, we try to guess
+                                 it by looking at all passed dates (years).
+###
+exports.packIntervals = (intervals, defaultYear=null) ->
+  out = {}
+  if defaultYear is null
+    years = []
+    for id, interval of intervals
+      unless "undefined" is typeof interval.from_value.y
+        years.push interval.from_value.y
+      unless "undefined" is typeof interval.to_value.y
+        years.push interval.to_value.y
+    years = unique years.sort()
+    if years.length > 1         #
+      defaultYear = "??[#{years.join ','}]"
+    else if years.length is 1
+      defaultYear = years[0]
+    else
+      defaultYear = "??"
+  console.log "defaultYear = #{defaultYear}\t#{sys.inspect years}"
+  for id, interval of intervals
+    if "undefined" is typeof interval.from_value.y
+      interval.from_value.y = defaultYear
+    if "undefined" is typeof interval.to_value.y
+      interval.to_value.y = defaultYear
+    out["#{dateObjectToString interval.from_value}-#{dateObjectToString interval.to_value}"] = interval.count
+  out
