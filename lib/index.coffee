@@ -11,10 +11,7 @@ Module provide api for library
 
 
 #((exports) ->
-exports.version   = "0.3.3"
-morpho            = require "./morpho"
-getAdjectiveEnds  = morpho.getAdjectiveEnds
-morphoRu          = morpho.morphoRu
+exports.version   = "0.3.4"
 util              = require "./util"
 fs                = require "fs"
 exec              = require('child_process').exec
@@ -58,8 +55,13 @@ exports.expandUrl = (urls, fn) ->
         fn urlsArray
 
 
+exports.findProperName = (lang, args...) ->
+  inclines = require "./plugins/#{lang}/inclines"
+  inclines.findProperName.apply @, args
+
 exports.find = find = (text, lang="ru") ->
   morpho = require "./plugins/#{lang}/morpho"
+  inclines = require "./plugins/#{lang}/inclines"
   punctuationRe = /\.|,|:|\/|\\|\?|!|\+|\'|\"|\«|\»|\*|\(|\)|\[|\]|\&|\№|(RT)|“|”\—/g
   doubleSpaceRe = /\s+/g
 
@@ -68,7 +70,7 @@ exports.find = find = (text, lang="ru") ->
   properNameLang = ""
   resetProperName = ->
     if curProperName && 1 < curProperName.length <= 3
-      pn = findProperName curProperName
+      pn = inclines.findProperName curProperName
       if pn && pn.found
         properNames.push pn# {value: curProperName, lang: properNameLang}
     curProperName = []

@@ -7,11 +7,13 @@ if "undefined" is typeof global
     window.lastName.plugins.ru.inclines = {}
     exports = window.lastName.plugins.ru.inclines
     util = window.lastName.util
+    ref = window.lastName.plugins.ru.ref
 else
+    exports = module.exports
     util = require "../../util"
+    ref = require "./ref"
 
-
-((exports, util) ->
+((exports, util, ref) ->
 
   cases = ["nominative", "genitive", "dative", "accusative", "instrumental", "prepositional"]
 
@@ -548,4 +550,4 @@ else
     result
 
 
-)(exports, util)
+)(exports, util, ref)

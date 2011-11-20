@@ -6,6 +6,8 @@ if "undefined" is typeof global
     window.lastName ||= {}
     window.lastName.util ||= {}
     exports = window.lastName.util
+else
+    exports = module.exports
 
 ((exports) ->
   ###

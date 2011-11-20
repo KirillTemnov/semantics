@@ -37,7 +37,7 @@ switch word
   when "-a"
     console.log lastname.analyseFile process.argv[3], all: yes
   else
-    console.log "#{sys.inspect lastname.findProperName process.argv[2..]}"
+    console.log "#{sys.inspect lastname.findProperName 'ru', process.argv[2..]}"
 
 
 
