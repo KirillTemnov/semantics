@@ -359,9 +359,12 @@ exports.parseRuSentence = (sentences) ->
   digits = {}                   # digits, including floating point digits
   common_used_words = {}        # adverbs, prepositions, unions
   regular_words = {}            # all other russian words, except common_used_words
+  total_words = 0
   sentences.map (sent) ->
     words = sent.split " "
     for word, i in words
+      unless /^[[,:\/\\\?!\+\-\*\(\)\[\]\&\№\—]]+$/.test words
+        total_words++
                                     # digit?
       if /^(\d+(|(\.(|\d+))))$/.test word
         unless digits[word]
@@ -406,3 +409,5 @@ exports.parseRuSentence = (sentences) ->
   special_words: special_words
   regular_words: regular_words
   digits: digits
+  total_words: total_words
+
