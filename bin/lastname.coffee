@@ -30,6 +30,9 @@ switch word
   when "-f"
     console.log  lastname.findInFile process.argv[3]
   when "-i"
+        # unless result.found       # todo get rid of this message
+        #   console.log "not found((, name? \n#{sys.inspect inclineName listOfWords[0]}"
+
     console.log  lastname.inclineWords process.argv[3..]
   when "-a"
     console.log lastname.analyseFile process.argv[3], all: yes
