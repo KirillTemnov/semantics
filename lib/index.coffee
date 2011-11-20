@@ -749,6 +749,8 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
 
   ruDates = util.extractRuDates numbers
 
+  unless /\./.test text
+    text += "."
 
   sentences = []
   prev = ""
