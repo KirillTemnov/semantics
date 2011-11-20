@@ -10,10 +10,18 @@ if "undefined" is typeof global
     exports = window.lastName.plugins.ru.morpho
     ruWords = window.lastName.plugins.ru.words
 else
+    exports = module.exports
     ruWords = require "./words"
 
 
 ((exports, ruWords) ->
+  ###
+  Get regular expression for test words in russian language.
+
+  @param {RegExp} wordRe
+  ###
+  exports.getWordRe = -> /^[а-я\-ё\d]+$/ig
+
   ###
   Get endings for russian adjectives.
   ###
@@ -93,23 +101,25 @@ else
   # получ[ил] получ[ать]
 
 
-  getRulesVerb = [
-    [/нул[aи]{0,1}$/g, "ать"]
-    [/еть$/g, "ать"]
-    [/(ает)|(ают)$/g, "ать"]
-    [/ал[aи]{0,1}$/g, "ать"]
-    [/ул[aи]{0,1}$/g, "ать"]
-    [/((ить)|(ать))$/g, "ать"]
-    [/ая$/g, "ать"]
-    [/((ил)|(или)|(ила)|(ило))$/g, "лять"]
-    [/(ятся)|(ится)|(ился)|(илась)|(илось)$/g, "ится"]
-    [/(яться)|(иться)$/g, "иться"]]
+  getRulesVerb = ->
+    [
+      [/нул[aи]{0,1}$/g, "ать"]
+      [/еть$/g, "ать"]
+      [/(ает)|(ают)$/g, "ать"]
+      [/ал[aи]{0,1}$/g, "ать"]
+      [/ул[aи]{0,1}$/g, "ать"]
+      [/((ить)|(ать))$/g, "ать"]
+      [/ая$/g, "ать"]
+      [/((ил)|(или)|(ила)|(ило))$/g, "лять"]
+      [/(ятся)|(ится)|(ился)|(илась)|(илось)$/g, "ится"]
+      [/(яться)|(иться)$/g, "иться"]]
 
 
-  getRulesAdjective = [
-    [/в((ая)|(ые)|(ый)|(ое))$/, "вый"]
-    [/((ая)|(ой)|(ие)|(ые)|(ый)|(ую))$/, "ый"]
-    [/((яя)|(ее)|(ий)|(юю))$/, "ий"]]
+  getRulesAdjective = ->
+    [
+      [/в((ая)|(ые)|(ый)|(ое))$/, "вый"]
+      [/((ая)|(ой)|(ие)|(ые)|(ый)|(ую))$/, "ый"]
+      [/((яя)|(ее)|(ий)|(юю))$/, "ий"]]
 
 
   exports.morpho = morphoRu = (word) ->

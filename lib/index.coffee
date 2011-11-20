@@ -62,7 +62,7 @@ exports.findProperName = (lang, args...) ->
 exports.find = find = (text, lang="ru") ->
   morpho = require "./plugins/#{lang}/morpho"
   inclines = require "./plugins/#{lang}/inclines"
-  punctuationRe = /\.|,|:|\/|\\|\?|!|\+|\'|\"|\«|\»|\*|\(|\)|\[|\]|\&|\№|(RT)|“|”\—/g
+  punctuationRe = /[\.,:\/\\\?!\+\'\"«»\*\(\)\[\]\&\№“”\—]/g
   doubleSpaceRe = /\s+/g
 
   properNames = []
@@ -132,7 +132,6 @@ exports.findInFile = fileName = (filename, opts={}) ->
 
 inclineAdjective = (srcWord, adj) ->
   word      = srcWord.toLowerCase()
-
   notFound  = found: no, src: srcWord
 
   matchAdjective = (adjective, word, result) ->
@@ -152,7 +151,7 @@ inclineAdjective = (srcWord, adj) ->
       result.possible_cases = []
       for adjCase, i in result.cases
         if adjCase is word
-          result.possible_cases.push cases[i]
+          result.possible_cases.push ["nominative", "genitive", "dative", "accusative", "instrumental", "prepositional"][i]
     else
       result.found = no
     result
@@ -172,15 +171,15 @@ We dont know gender and incline of words, plural is not known also.
 @param {String} lang Language, depends on plugins language :default "ru",
 ###
 exports.inclineWords = (wordsList, lang="ru") ->
-  adj = require("./plugins/#{lang}/morpho").getAdjectiveEnds()
+  morpho = require "./plugins/#{lang}/morpho"
 
   result = {}
-  if /^[а-я\-ё\d]+$/ig.test wordsList.join "" # russian
+  if morpho.getWordRe().test wordsList.join "" # russian
     result = []
     wordsList.map (w) ->
-      result.push inclineAdjective w, adj
+      result.push inclineAdjective w, morpho.getAdjectiveEnds()
   else
-    result = error: "only russian inclines supported."
+    result = error: "can't incline words."
   result
 
 

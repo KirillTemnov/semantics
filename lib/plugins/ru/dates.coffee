@@ -37,6 +37,7 @@ if "undefined" is typeof global
     exports = window.lastName.plugins.ru.dates
     ref = window.lastName.plugins.ru.ref
 else
+    exports = module.exports
     ref = require "./ref"
 
 
