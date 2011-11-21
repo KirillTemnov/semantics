@@ -1,12 +1,12 @@
 
 
 ((lastname) ->
-  lastname.version = util.version
+  lastname.version = "111"
 
 #  lastname.inclineWords ...
 
   lastname.findProperName = (lang, args...) ->
-    inclines = lastname["plugins.#{lang}.inclines"]
+    inclines = lastname["plugins"]["#{lang}"]["inclines"]
     inclines.findProperName.apply @, args
 
 )(window.lastName ||= {})
