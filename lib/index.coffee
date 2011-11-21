@@ -11,8 +11,9 @@ Module provide api for library
 
 
 #((exports) ->
-exports.version   = "0.3.4"
 util              = require "./util"
+exports.version   = util.version
+
 fs                = require "fs"
 exec              = require('child_process').exec
 
