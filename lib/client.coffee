@@ -1,7 +1,7 @@
 
 
 ((lastname) ->
-  lastname.version = "111"
+  lastname.version = "0.3.5"
 
 #  lastname.inclineWords ...
 

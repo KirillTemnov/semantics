@@ -120,7 +120,7 @@ exports.find = find = (text, lang="ru") ->
       pnDict[id].count = 1
   return pnDict
 
-exports.findInFile = fileName = (filename, opts={}) ->
+exports.findInFile = (filename, opts={}) ->
   try
     text = fs.readFileSync filename, "utf8"
   catch e
@@ -264,7 +264,13 @@ exports.analyseText = analyseText = (text, opts={}, fn=->) ->
   parsedTextData
 
 
+###
+Analyse file content.
 
+@param {String} filename Name of text file
+@param {Object} opts Options :default {}, [not used]
+@return {Object} parsedData Result of analysis.
+###
 exports.analyseFile = analyseFile = (filename, opts) ->
   try
     text = fs.readFileSync filename, "utf8"

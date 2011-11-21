@@ -26,9 +26,6 @@ dd.mm.??[yyyy[, yyyy...]]-dd.mm.??[yyyy[, yyyy...]]
 ###
 
 
-#
-#export.filter = (sourceText, statObject) ->
-
 if "undefined" is typeof global
     window.lastName ||= {}
     window.lastName.plugins ||= {}
@@ -36,12 +33,18 @@ if "undefined" is typeof global
     window.lastName.plugins.ru.dates = {}
     exports = window.lastName.plugins.ru.dates
     ref = window.lastName.plugins.ru.ref
+    util = window.lastName.util
 else
     exports = module.exports
     ref = require "./ref"
+    util = require "../../util"
 
 
-((exports, ref) ->
+((exports, util, ref) ->
+
+  ruMonthInDates = ["января", "февраля", "марта", "аперля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+
+
 
   ###
   Date object to string.
@@ -78,13 +81,13 @@ else
   ###
   Extract month number from russian name.
 
-  @param {String} str Rusian name of month in GENETIVE case.
+  @param {String} str Russian name of month in GENETIVE case.
   @return {Number} num Number of month, e.g. 0 - jan, 1 - feb, ect.
   ###
   getRuMonthIndex = (str) ->
     m = str.toLowerCase().match /(\s|^)(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(\s|$)/g
     if m
-      ref.ruMonthInDates.indexOf m[0].replace /\s/g, ""
+      ruMonthInDates.indexOf m[0].replace /\s/g, ""
     else
       -1
 
@@ -109,7 +112,7 @@ else
   @param {Object} resultObject Result object contain sources (for source strings)
                                and valid dates.
   ###
-  exports.extractRuDates = (strArr) ->
+  exports.extractDates = extractDates = (strArr) ->
     dates = {}
     sources = []
     intervals = {}
@@ -161,9 +164,9 @@ else
       else
         wordsArr = str.split " "
         found = no
-        while wordsArr.length > 0 and not found
+        while wordsArr.length > 2 and not found
           if /^\d[\d]$/.test wordsArr[0]
-            mIndex = ref.ruMonthInDates.indexOf wordsArr[1].toLowerCase()
+            mIndex = ruMonthInDates.indexOf wordsArr[1].toLowerCase()
             if mIndex >= 0
               date =
                 d: parseInt wordsArr[0], 10
@@ -210,14 +213,14 @@ else
                                    it by looking at all passed dates (years).
   @return {Object} result Packed dictionary
   ###
-  exports.packDates = (dates, defaultYear=null) ->
+  exports.packDates = packDates = (dates, defaultYear=null) ->
     out = {}
     if defaultYear is null
       years = []
       for id, dateObj of dates
         unless "undefined" is typeof dateObj.value.y
           years.push dateObj.value.y
-      years = unique years.sort()
+      years = util.unique years.sort()
       if years.length > 1         #
         defaultYear = "????[#{years.join ','}]"
       else if years.length is 1
@@ -239,7 +242,7 @@ else
                                    it by looking at all passed dates (years).
   @return {Object} result Packed dictionary
   ###
-  exports.packIntervals = (intervals, defaultYear=null) ->
+  exports.packIntervals = packIntervals = (intervals, defaultYear=null) ->
     out = {}
     if defaultYear is null
       years = []
@@ -248,7 +251,7 @@ else
           years.push interval.from_value.y
         unless "undefined" is typeof interval.to_value.y
           years.push interval.to_value.y
-      years = unique years.sort()
+      years = util.unique years.sort()
       if years.length > 1         #
         defaultYear = "????[#{years.join ','}]"
       else if years.length is 1
@@ -263,4 +266,21 @@ else
       out["#{dateObjectToString interval.from_value}-#{dateObjectToString interval.to_value}"] = interval.count
     out
 
-)(exports, ref)
+  ###
+  Filter before text processings. Extract russian dates from text.
+
+  @param {String} text Source text
+  @param {Object} result Resulting object, that may contain `dates` and `intervals`
+                         fields after applying this filter.
+  ###
+  exports.preFilter = (text, result) ->
+    numRe = /((([а-яё]+)\s+){0,1}\d[\.\d]{0,}(\s+(([a-яё]+)|([\.\d]+))){1,6})|([12]\d\d\d)/mig
+    dates = extractDates util.unique text.match(numRe) || []
+    if util.dictKeys(dates.dates).length > 0
+      result.dates = packDates dates.dates
+    if util.dictKeys(dates.intervals).length > 0
+      result.intervals = packIntervals dates.intervals
+    if dates.sources.length > 0
+      result.date_sources = dates.sources
+
+)(exports, util, ref)

@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <script type="text/javascript" src="lastname.js"></script>
+    <style type="text/css">
+      textarea {
+        width: 800px;
+        height: 350px;
+        font-family: Monaco, terminal, Courier New;
+      }
+    </style>
+  </head>
+<body>
+  <textarea id="in-text">
+  </textarea>
+  <br/>
+  <br/>
+  <button id="find-proper-name">имя собственное</button>
+  <button id="find-dates">даты</button>
+  <button id="clear">очистить</button>
+  <br/>
+  <br/>
+  <textarea id="out-text" disabled>
+  </textarea>
+
+    <script type="text/javascript">
+      var fpn = document.getElementById("find-proper-name"),
+          clear = document.getElementById("clear"),
+          fdates = document.getElementById("find-dates"),
+          input = document.getElementById("in-text"),
+          output = document.getElementById("out-text");
+
+      clear.addEventListener("click", function() {
+          input.value = "";
+          output.value = "";
+        }, false);
+
+      fpn.addEventListener("click", function() {
+          var value = input.value,
+              words = value.split(" ");
+          if (words.length < 4) {
+              output.value = JSON.stringify(lastName.findProperName("ru", words));
+          } else {
+              output.value = "Введите не более 3 слов."
+          }
+        }, false);
+
+      fdates.addEventListener("click", function () {
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.dates]));
+        }, false);
+    </script>
+  
+</body>
+</html>
