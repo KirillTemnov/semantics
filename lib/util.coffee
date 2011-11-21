@@ -10,7 +10,7 @@ else
     exports = module.exports
 
 ((exports) ->
-  exports.version   = "0.3.5"
+  exports.version   = "0.3.9"
 
   ###
   Capitalize word.
@@ -103,4 +103,24 @@ else
       return i if i in l2
     null
 
+  ###
+  Translate array to dics with counters.
+
+  @example
+  a = [1,2,1,2,3]
+  util.arrayToDict a
+  # result:
+  {1: 2, 2: 2, 3: 1}
+
+  @param {Array} arr Array
+  @return {Object} result
+  ###
+  exports.arrayToDict = (arr) ->
+    d = {}
+    for i in arr
+      unless d[i]
+        d[i] = 1
+      else
+        d[i]++
+    d
 )(exports)

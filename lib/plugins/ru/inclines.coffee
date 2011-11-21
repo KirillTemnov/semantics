@@ -501,13 +501,19 @@ else
     result = {found: no}
     switch listOfWords.length
       when 1                      # just surname
-        result =  inclinePersonSurname listOfWords[0]
+        result  = inclineName listOfWords[0]
+        unless result.found
+          result  = inclinePersonSurname listOfWords[0]
+          if result.found
+            result.surname = result.nominative
+        else
+          result.first_name = result.nominative
       when 2
-        sr1 = inclinePersonSurname listOfWords[0]
-        sr2 = inclinePersonSurname listOfWords[1]
+        sr1     = inclinePersonSurname listOfWords[0]
+        sr2     = inclinePersonSurname listOfWords[1]
 
-        nr1 = inclineName listOfWords[0]
-        nr2 = inclineName listOfWords[1]
+        nr1     = inclineName listOfWords[0]
+        nr2     = inclineName listOfWords[1]
 
         if nr1.found && sr2.found
           result = matchNameAndSurname nr1, sr2
@@ -515,16 +521,16 @@ else
           result = matchNameAndSurname sr1, nr2
 
       when 3
-        sr1 = inclinePersonSurname listOfWords[0]
-        sr2 = inclinePersonSurname listOfWords[1]
-        sr3 = inclinePersonSurname listOfWords[2]
+        sr1   = inclinePersonSurname listOfWords[0]
+        sr2   = inclinePersonSurname listOfWords[1]
+        sr3   = inclinePersonSurname listOfWords[2]
 
-        mnr2 = inclineMiddleName listOfWords[1]
-        mnr3 = inclineMiddleName listOfWords[2]
+        mnr2  = inclineMiddleName listOfWords[1]
+        mnr3  = inclineMiddleName listOfWords[2]
 
-        nr1 = inclineName listOfWords[0]
-        nr2 = inclineName listOfWords[1]
-        nr3 = inclineName listOfWords[2]
+        nr1   = inclineName listOfWords[0]
+        nr2   = inclineName listOfWords[1]
+        nr3   = inclineName listOfWords[2]
 
         # the cases are:
         # #1 Surname Name MiddleName
@@ -546,6 +552,14 @@ else
         else if nr2.found && sr3.found
             result = matchNameAndSurname nr2, sr3
 
+
+    result.first_name  ||= ""
+    result.middle_name ||= ""
+    result.surname     ||= ""
+    unless (result.first_name || result.middle_name || result.surname)
+      result =
+        found: no
+        error: "person not found"
     result.src = listOfWords.join " "
     result
 

@@ -16,37 +16,44 @@
   <br/>
   <button id="find-proper-name">имя собственное</button>
   <button id="find-dates">даты</button>
+  <button id="digits">счетчики</button>
+  <button id="misc">цифры и смайлы</button>
   <button id="clear">очистить</button>
   <br/>
   <br/>
-  <textarea id="out-text" disabled>
+  <textarea id="out-text">
   </textarea>
 
     <script type="text/javascript">
-      var fpn = document.getElementById("find-proper-name"),
-          clear = document.getElementById("clear"),
-          fdates = document.getElementById("find-dates"),
-          input = document.getElementById("in-text"),
-          output = document.getElementById("out-text");
+      var fpn      = document.getElementById("find-proper-name"),
+          clear    = document.getElementById("clear"),
+          fdates   = document.getElementById("find-dates"),
+          fdigits  = document.getElementById("digits"),
+          fmisc    =  document.getElementById("misc"),
+          input    = document.getElementById("in-text"),
+          output   = document.getElementById("out-text");
 
       clear.addEventListener("click", function() {
-          input.value = "";
-          output.value = "";
+          input.value   = "";
+          output.value  = "";
         }, false);
 
       fpn.addEventListener("click", function() {
-          var value = input.value,
-              words = value.split(" ");
-          if (words.length < 4) {
-              output.value = JSON.stringify(lastName.findProperName("ru", words));
-          } else {
-              output.value = "Введите не более 3 слов."
-          }
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.propernames]));
         }, false);
 
       fdates.addEventListener("click", function () {
           output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.dates]));
         }, false);
+
+      fdigits.addEventListener("click", function () {
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.counters]));
+        }, false);
+
+      fmisc.addEventListener("click", function () {
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc]));
+        }, false);
+
     </script>
   
 </body>
