@@ -563,5 +563,25 @@ else
     result.src = listOfWords.join " "
     result
 
+  ###
+  Get inital form of adjective (мужской род, именительный падеж, единственное число)
+
+  @param {String} adj Adjective word (or we suspect so)
+  @return {Array|null} result Return multiple variants in array or null, if not found
+  ###
+  exports.getInitialFormOfAdjective = (adj) ->
+    # masculine : ый, ий, ой, ого, ому, ым, им, ом
+    # feminine  : ая, яя, ой, ую, юю, ою
+    # neuter    : ое, ее, ого, ому, ым, им, ом
+    # plural    : ые, ие, ых, их, ым, им, ыми, ими
+    # min length: 6 chars (парный, верный)
+    adj = adj.toLowerCase()
+    unless /^[а-яё]{4,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/gi.test adj
+      return null
+    if /^[а-яё]{4,}(ими|ого|его|ому|ыми)$/gi.test adj
+      base = adj[..-4]
+    else
+      base = adj[..-3]
+    ["#{base}ый", "#{base}ий", "#{base}ой"]
 
 )(exports, util, ref)
