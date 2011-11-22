@@ -32,8 +32,24 @@ else
           tempTxt = tempTxt.replace emo, ""
           ind -= (emo.length + 2)
 
+    # split text on sentences
+    punctuationRe = /[\.,:\/\\\?!\+\'\"«»\*\(\)\[\]\&\№“”\—]/g
+    tempTxt = text.replace(/\n/g, " ").replace(punctuationRe, " $& ").replace /\s+/g, " "
+    unless /\./.test tempTxt
+      tempTxt += ". "
+
+    sentences = []
+    prev = ""
+    for s, i in (tempTxt.split(/([\?\!])|(\.\s+)/gm).filter (s) -> !!s)
+      if i % 2 is 1
+        sentences.push prev + s
+      else
+        prev = s
+
+
     result.misc =
       digits: util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
       emoticons: util.arrayToDict findEmo
+      sentences: sentences
     result
 )(exports)

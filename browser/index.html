@@ -18,6 +18,7 @@
   <button id="find-dates">даты</button>
   <button id="digits">счетчики</button>
   <button id="misc">цифры и смайлы</button>
+  <button id="feelings">эмоции</button>
   <button id="clear">очистить</button>
   <br/>
   <br/>
@@ -25,16 +26,16 @@
   </textarea>
 
     <script type="text/javascript">
-      var fpn      = document.getElementById("find-proper-name"),
-          clear    = document.getElementById("clear"),
-          fdates   = document.getElementById("find-dates"),
-          fdigits  = document.getElementById("digits"),
-          fmisc    =  document.getElementById("misc"),
-          input    = document.getElementById("in-text"),
-          output   = document.getElementById("out-text");
+      var fpn        = document.getElementById("find-proper-name"),
+          clear      = document.getElementById("clear"),
+          fdates     = document.getElementById("find-dates"),
+          fdigits    = document.getElementById("digits"),
+          fmisc      =  document.getElementById("misc"),
+          ffeelings  = document.getElementById("feelings"),
+          input      = document.getElementById("in-text"),
+          output     = document.getElementById("out-text");
 
       clear.addEventListener("click", function() {
-          input.value   = "";
           output.value  = "";
         }, false);
 
@@ -52,6 +53,10 @@
 
       fmisc.addEventListener("click", function () {
           output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc]));
+        }, false);
+
+      ffeelings.addEventListener("click", function () {
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.feelings]));
         }, false);
 
     </script>

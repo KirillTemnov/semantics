@@ -15,6 +15,7 @@ client:
 	cat lib/plugins/ru/inclines.js  >> out.js
 	cat lib/plugins/ru/morpho.js  >> out.js
 	cat lib/plugins/ru/propernames.js  >> out.js
+	cat lib/plugins/ru/feelings.js  >> out.js
 
 	rm -f lib/plugins/ru/*.js
 	rm -f lib/*.js

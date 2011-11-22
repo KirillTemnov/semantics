@@ -1,4 +1,9 @@
+###
+Find proper names, depends on misc plugin.
 
+# todo refactor misc dependency.
+
+###
 
 if "undefined" is typeof global
     window.lastName                       ||= {}
@@ -23,7 +28,7 @@ else
   @param {Object} result Resulting object, that contain `propernames`
                          field after applying this filter.
   ###
-  exports.postFilter = (text, result) ->
+  exports.postFilter = (text, result) -> # todo add sentence numbers
     # copy code from index
     punctuationRe = /[\.,:\/\\\?!\+\'\"«»\*\(\)\[\]\&\№“”\—]/g
 
