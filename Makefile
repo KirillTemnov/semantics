@@ -4,7 +4,6 @@ client:
 	coffee -b -c lib/plugins/ru
 	coffee -b -c lib/client.coffee 
 	coffee -b -c lib/util.coffee 
-	coffee -b -c lib/counters.coffee
 	coffee -b -c lib/misc.coffee
 	coffee -b -c lib/analysis.coffee
 	cat lib/*.js >> out.js
@@ -20,7 +19,7 @@ client:
 	rm -f lib/plugins/ru/*.js
 	rm -f lib/*.js
 	uglifyjs -nm -b -i 2 out.js > browser/lastname.js
-	rm out.js
+	#rm out.js
 
 
 server:

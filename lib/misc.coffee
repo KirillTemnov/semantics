@@ -15,10 +15,29 @@ else
   Extract digits, emoticons and split text into sentences.
 
   @param {String} text Source text
-  @param {Object} result Resulting object, that may contain `digits`, `emoticons`
-                         and `sentences` fields after applying this filter.
+  @param {Object} result Resulting object, that contain fields:
+      misc.digits    : Dictionary of numbers and count of occurrences for each of them
+      misc.emoticons : Dictionary of emoticons and count of occurrences for each of them
+      misc.sentences : Array of tex sentences
+
+
+      counters.chars_total           : total characters in text
+      counters.words_total           : total words in text
+      counters.signs_total           : total signs in text (include signs in urls)
+      counters.spaces_total          : total space chars (' ', '\t', '\n', '\r') in text
+      counters.word_length_mid       : middle length of word in text (measured in chars)
+      counters.words_in_sentence_mid : middle length of sentences, measured in words
   ###
   exports.preFilter = (text, result) ->
+    signs            = text.match /[-\+=\/\.,\!\?\@\#\$\%\^\&\*\(\)\[\]\{\}\<\>\`\~\"\':;\|\\_]{1}/g
+    signs_total      = signs and signs.length or 0
+    spaces_total     = if /\s/.test text then text.match(/\s/g).length else 0
+    chars_total      = text.length
+    words_total      = (text.split(/\s/).filter (wrd) ->
+         wrd.length > 0 and not /^[-\+=\/\.\!\?\@\#\$\%\^\&\*\(\)\[\]\{\}\<\>\`\~\"\':;\|\\_]+$/.test wrd).length
+    word_length_mid  = if words_total  then (chars_total - spaces_total - signs_total) / words_total else 0
+
+
     # source http://luvca.blogspot.com/2006/10/text-smiles.html
     emoticons = [":-)", "(-:", ":o)", ":)", "(:", ":->", ":-}", ":-t", ":*)", ":-)))", ":-D", "(-D", ":'-)", "%-)", ":-/", ":-I", ":~)", "(:-(", ":-(", ":-c", ":-(((", ":-<", ">:-(", ":-[", "(:-&", "%-(", ">:-<", "~ :-(", "%-(", ":/)", ":-|", ":-e", ":-X", ":-v", ":-I", ":-8(", ":-O", ":-@", ":,-(", ":'-(", "~:-o", "]:-)>", "):-)", ";->", ":-x", ":-*", "8-]", ":-J", ":-&", ":-p", ":-P", ";-)", ";)", "'-)", ":-7", "?-(", "B-D", ":-B", ":-*)", ":-9", "|-p", ":-b", "-]:-)[-", "8-I", "8-|", "|:-|", ":-]", "|-)", "|-I", "I^o", "|-O", ":-\"", ":-s", ":-#", ":-!", ":-()", ":-D", "(:-$", ":-(*)", ":-')", ":-R", "%+|", "%+{", "X-(", "<:-)", "*:o)", "@;-)", "X:-)", ":>)", "&:-)", "#:-)", "8-)", "8:-)", "B-)", "B-]", "O:-)", "&8-|", ":-{", ":-)}", ":-)#", ":-Q", ":-I", ":-d~", ":-?", ":-/I", ":-) X", "{(:-)", ":-{}", "[:-)", "d :-o", "~:-(", "~~:-(", "))", "(:-I", "3:-o", "[: |]", "M-)", ":X)", ":-M", "*8((:", "O+", "O->", "||*(", "||*)", "<{:-)}", "(-: :-)", "@->-", "@==", "<')))))- <"]
     emoticons.sort (a,b) -> b.length - a.length
@@ -51,5 +70,14 @@ else
       digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
       emoticons : util.arrayToDict findEmo
       sentences : sentences
+
+
+    result.counters =
+      chars_total           : chars_total
+      words_total           : words_total
+      signs_total           : signs_total
+      spaces_total          : spaces_total
+      word_length_mid       : word_length_mid
+      words_in_sentence_mid : if sentences.length then words_total / sentences.length else 0
     result
 )(exports)

@@ -17,8 +17,7 @@
   <br/>
   <button id="find-proper-name">имя собственное</button>
   <button id="find-dates">даты</button>
-  <button id="digits">счетчики</button>
-  <button id="misc">цифры и смайлы</button>
+  <button id="misc">счетчики</button>
   <button id="feelings">эмоции</button>
   <button id="verb-infinitive"> инфинитив глагола</button>
   <button id="clear">очистить</button>
@@ -31,7 +30,6 @@
       var fpn        = document.getElementById("find-proper-name"),
           clear      = document.getElementById("clear"),
           fdates     = document.getElementById("find-dates"),
-          fdigits    = document.getElementById("digits"),
           fmisc      = document.getElementById("misc"),
           ffeelings  = document.getElementById("feelings"),
           fverbinf   = document.getElementById("verb-infinitive"),
@@ -54,16 +52,12 @@
           output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()));
         }, false);
 
-      fdigits.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.counters]));
-        }, false);
-
       fmisc.addEventListener("click", function () {
           output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc]));
         }, false);
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.counters, lastName.misc, lastName.plugins.ru.feelings]));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.feelings]));
         }, false);
 
     </script>

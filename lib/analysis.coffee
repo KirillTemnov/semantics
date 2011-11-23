@@ -18,7 +18,17 @@ else
   @param {Object} result Resulting object
   ###
   exports.analyse = (text, plugins=[]) ->
+    if "undefined" is typeof global
+      misc = window.lastName.misc
+      util = window.lastName.util
+    else
+      misc = require "./misc"
+      util = require "./util"
+
+
+
     result = {}
+    misc.preFilter text, result
     preFilters = plugins.filter (plugin) -> "function" is typeof plugin.preFilter
     postFilter = plugins.filter (plugin) -> "function" is typeof plugin.postFilter
 
@@ -28,6 +38,7 @@ else
     for f in postFilter
       f.postFilter text, result
 
+    result.version = util.version
     result
 
 )(exports)

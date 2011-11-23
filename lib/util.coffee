@@ -10,7 +10,7 @@ else
     exports = module.exports
 
 ((exports) ->
-  exports.version   = "0.3.14"
+  exports.version   = "0.3.17"
 
   ###
   Capitalize word.
@@ -19,8 +19,7 @@ else
   @return  {String} result Capitalized word
   ###
   exports.capitalize = capitalize = (s) ->
-    if s
-      "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
+    if s then "#{s[0].toUpperCase()}#{s[1..].toLowerCase()}"
 
 
   ###
