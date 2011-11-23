@@ -576,12 +576,24 @@ else
     # plural    : ые, ие, ых, их, ым, им, ыми, ими
     # min length: 6 chars (парный, верный)
     adj = adj.toLowerCase()
-    unless /^[а-яё]{4,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/gi.test adj
+    unless /^[а-яё]{4,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/.test adj
       return null
     if /^[а-яё]{4,}(ими|ого|его|ому|ыми)$/gi.test adj
       base = adj[..-4]
     else
       base = adj[..-3]
     ["#{base}ый", "#{base}ий", "#{base}ой"]
+
+  ###
+  Get verb infinitive
+
+  @param {String} verb Verb in any form
+  ###
+  exports.getVerbInfinitive = (verb) ->
+    verb = verb.toLowerCase()
+    if /^[а-яё]{3,}(ать|аться)$/.test verb # infinitive
+      return verb
+    else
+      return null
 
 )(exports, util, ref)
