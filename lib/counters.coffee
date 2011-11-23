@@ -19,11 +19,19 @@ else
                          and `signs_total` fields after applying this filter.
   ###
   exports.preFilter = (text, result) ->
-    signs = text.match /[-\+=\/\.\!\?\@\#\$\%\^\&\*\(\)\[\]\{\}\<\>\`\~\"\':;\|\\_]{1}/g
-    result.counters =
-      chars_total: text.length
-      words_total: (text.split(/\s/).filter (wrd) ->
+    signs            = text.match /[-\+=\/\.,\!\?\@\#\$\%\^\&\*\(\)\[\]\{\}\<\>\`\~\"\':;\|\\_]{1}/g
+    signs_total      = signs and signs.length or 0
+    spaces_total     = if /\s/.test text then text.match(/\s/g).length else 0
+    chars_total      = text.length
+    words_total      = (text.split(/\s/).filter (wrd) ->
          wrd.length > 0 and not /^[-\+=\/\.\!\?\@\#\$\%\^\&\*\(\)\[\]\{\}\<\>\`\~\"\':;\|\\_]+$/.test wrd).length
-      signs_total: signs and signs.length or 0
+    word_length_mid  = if words_total  then (chars_total - spaces_total - signs_total) / words_total else 0
+    result.counters =
+      chars_total     : chars_total
+      words_total     : words_total
+      signs_total     : signs_total
+      spaces_total    : spaces_total
+      word_length_mid : word_length_mid
+
     result
 )(exports)
