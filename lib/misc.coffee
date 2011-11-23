@@ -18,7 +18,8 @@ else
   @param {Object} result Resulting object, that contain fields:
       misc.digits    : Dictionary of numbers and count of occurrences for each of them
       misc.emoticons : Dictionary of emoticons and count of occurrences for each of them
-      misc.sentences : Array of tex sentences
+      misc.romans    : Dictionary of roman digits and count of occurrences for each of them
+      misc.sentences : Array of text sentences
 
 
       counters.chars_total           : total characters in text
@@ -52,6 +53,7 @@ else
           tempTxt = tempTxt.replace emo, ""
           ind -= (emo.length + 2)
 
+
     # split text on sentences
     punctuationRe = /(https?\:\/\/.*[\s$])|(\.\s)|(,\s)|(\s\:)|(:\s)|(\s\/)|(\/\s)|(\s\\)(\\\s)|\?|!|\+|\'|\"|«|»|\*|\(|\)|\[|\]|\&|\№|“|”|\—/g
 
@@ -66,9 +68,16 @@ else
     sentences = tempTxt.replace(/\s\?\s/gm, " ?? ").replace(/\s\!\s/gm, " !! ").replace(/\s\.\s/gm, " .. ").split(/[\?\!\.](\s+|$)/gm).filter (s) -> not /^\s{0,}$/.test s
 
 
+
+    # romans regex from http://stackoverflow.com/questions/2577734/single-regex-for-filtering-roman-numerals-from-the-text-files
+    # some good ideas in http://bililite.com/blog/2009/03/09/roman-numerals-in-javascript/
+    romans = text.match /([X]{0,3}I[VX])|(M*(D?C{0,3}|C[DM])(L?X{0,3}|X[LC])(V?I{0,3}|I[VX]))/g
+    romans = unless romans then [] else romans.filter (s) -> not /^\s{0,}$/.test s
+
     result.misc =
       digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
       emoticons : util.arrayToDict findEmo
+      romans    : util.arrayToDict romans
       sentences : sentences
 
 
