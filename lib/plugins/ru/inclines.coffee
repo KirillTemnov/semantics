@@ -574,11 +574,11 @@ else
     # feminine  : ая, яя, ой, ую, юю, ою
     # neuter    : ое, ее, ого, ому, ым, им, ом
     # plural    : ые, ие, ых, их, ым, им, ыми, ими
-    # min length: 6 chars (парный, верный)
+    # min length: 5 chars (ясный, голый, белый) 4 chars (ярый)
     adj = adj.toLowerCase()
-    unless /^[а-яё]{4,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/.test adj
+    unless /^[а-яё]{2,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/.test adj
       return null
-    if /^[а-яё]{4,}(ими|ого|его|ому|ыми)$/gi.test adj
+    if /^[а-яё]{2,}(ими|ого|его|ому|ыми)$/gi.test adj
       base = adj[..-4]
     else
       base = adj[..-3]
@@ -591,9 +591,34 @@ else
   ###
   exports.getVerbInfinitive = (verb) ->
     verb = verb.toLowerCase()
-    if /^[а-яё]{3,}(ать|аться)$/.test verb # infinitive
+    if /^[а-яё]{3,}(ать|аться|ить|иться|еть|еться|оть|оться|уть|утся|ются|ть|ться)$/.test verb # infinitive
       return verb
+
+
+    if /^[а-яё]{3,}(сь|ся)$/.test verb    # возвратные
+      verbEnd = verb[-2..]
+      verb = verb[..-3]
     else
-      return null
+      verbEnd = ""
+
+    # past time
+    pastTime = verb.match /^[а-яё]{3,}(л|ла|ло|ли)$/
+    if pastTime
+      result = verb[..-(1+pastTime[1].length)] + "ть"
+    # todo remove verb conjugations at all?
+    else if /[а-яё]{3,}(у|ю|ем|ешь|ете|ет|ут|ют|им|ишь|ите|ит|ат|ят)$/.test verb # невозвратные
+      # II спряжение (I conjugation)
+      # [у, ю,] ишь, ит, им, ите, ат, ят
+      # ить, еть, ать
+      if /[а-яё]{3,}(ишь|ит|им|ите|ат|ят)$/.test verb
+        result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}"]
+      else if /[а-яё]{3,}(у|ю|ешь|ет|ем|ете|ут|ют)$/.test verb
+      # I спряжение (II conjugation)
+      # у, ю, ешь, ет, ем, ете, ут, ют
+      # ить, еть, ать, оть, уть, ть
+        result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}", "#{verb}оть#{verbEnd}", "#{verb}уть#{verbEnd}", "#{verb}ть#{verbEnd}"]
+      else
+        result = null
+    result
 
 )(exports, util, ref)

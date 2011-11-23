@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/javascript" src="lastname.js"></script>
     <style type="text/css">
       textarea {
@@ -19,6 +20,7 @@
   <button id="digits">счетчики</button>
   <button id="misc">цифры и смайлы</button>
   <button id="feelings">эмоции</button>
+  <button id="verb-infinitive"> инфинитив глагола</button>
   <button id="clear">очистить</button>
   <br/>
   <br/>
@@ -30,8 +32,9 @@
           clear      = document.getElementById("clear"),
           fdates     = document.getElementById("find-dates"),
           fdigits    = document.getElementById("digits"),
-          fmisc      =  document.getElementById("misc"),
+          fmisc      = document.getElementById("misc"),
           ffeelings  = document.getElementById("feelings"),
+          fverbinf   = document.getElementById("verb-infinitive"),
           input      = document.getElementById("in-text"),
           output     = document.getElementById("out-text");
 
@@ -47,6 +50,10 @@
           output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.dates]));
         }, false);
 
+      fverbinf.addEventListener("click", function () {
+          output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()));
+        }, false);
+
       fdigits.addEventListener("click", function () {
           output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.counters]));
         }, false);
@@ -56,7 +63,7 @@
         }, false);
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.feelings]));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.counters, lastName.misc, lastName.plugins.ru.feelings]));
         }, false);
 
     </script>
