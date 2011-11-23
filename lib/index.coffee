@@ -2,18 +2,9 @@
 Module provide api for library
 ###
 
-# if "undefined" is typeof global
-#     window.lastName ||= {}
-#     exports = window.lastName
-#     ruWords = window.lastName.plugins.ru.words
-# else
-#     ruWords = require "./words"
-
-
-#((exports) ->
 util              = require "./util"
 exports.version   = util.version
-
+analysis          = require "./analysis"
 fs                = require "fs"
 exec              = require('child_process').exec
 
@@ -56,81 +47,13 @@ exports.expandUrl = (urls, fn) ->
         fn urlsArray
 
 
-exports.findProperName = (lang, args...) ->
-  inclines = require "./plugins/#{lang}/inclines"
-  inclines.findProperName.apply @, args
+###
+Incline adjective word
 
-exports.find = find = (text, lang="ru") ->
-  morpho = require "./plugins/#{lang}/morpho"
-  inclines = require "./plugins/#{lang}/inclines"
-  punctuationRe = /[\.,:\/\\\?!\+\'\"«»\*\(\)\[\]\&\№“”\—]/g
-  doubleSpaceRe = /\s+/g
-
-  properNames = []
-  curProperName = []
-  properNameLang = ""
-  resetProperName = ->
-    if curProperName && 1 < curProperName.length <= 3
-      pn = inclines.findProperName curProperName
-      if pn && pn.found
-        properNames.push pn# {value: curProperName, lang: properNameLang}
-    curProperName = []
-    properNameLang = ""
-
-  # add point at the end
-  text = text.replace(punctuationRe, " $& ").replace(doubleSpaceRe, " ") + " ."
-
-  for t in text.split " "
-    ruRe = /^[а-я\-ё]+$/ig
-    enRe = /^[a-z\-]+$/ig
-#    wordRe = /^[а-яё\-\da-z]+$/ig
-
-    if /^[а-яё\-]+$/ig.test t # is it russian word?
-      r =  morpho.morpho t.toLowerCase()
-      if util.isCapitalized(t) && !(r.type in ["adverb", "union", "preposition"])
-        if !properNameLang        # first part
-          curProperName.push t
-          if ruRe.test(t)
-            properNameLang = "ru"
-          else if enRe.test(t)
-            properNameLang = "en"
-          else                    # drop it
-            curProperName = []                 #?
-        else
-          # continue padding
-          if (properNameLang is "ru" && ruRe.test t) || (properNameLang is "en" && enRe.test t)
-            curProperName.push t
-          else                    # save previous result
-            resetProperName()
-      else
-        resetProperName()
-    else
-      resetProperName()
-
-  pnDict = {}
-  for p in properNames
-    id = "#{p.first_name || ''}-#{p.middle_name || ''}-#{p.surname}"
-    if pnDict[id]
-      pnDict[id].count += 1
-      unless p.src in pnDict[id].src
-        pnDict[id].src.push p.src
-    else
-      pnDict[id] = p
-      pnDict[id].src = [p.src]
-      pnDict[id].count = 1
-  return pnDict
-
-exports.findInFile = (filename, opts={}) ->
-  try
-    text = fs.readFileSync filename, "utf8"
-  catch e
-    return found: no, error: "can't read file '#{filename}'"
-
-  result = find text
-  if opts.includeText
-    result.text = text
-  result
-
+@param {String} src Source word
+@param {Object} adj Adjective object, @see plugins.ru.morpho module
+@return {Object} result Incline result, field `found` set to true on success
+###
 inclineAdjective = (srcWord, adj) ->
   word      = srcWord.toLowerCase()
   notFound  = found: no, src: srcWord
@@ -183,85 +106,30 @@ exports.inclineWords = (wordsList, lang="ru") ->
     result = error: "can't incline words."
   result
 
+###
+Analyse text and return result as json object.
 
-exports.analyseText = analyseText = (text, opts={}, fn=->) ->
-  properNames = find text                # find proper names
-
-  properNamesArray = []
-  for id, pn of properNames
-    pn.src.map (pnSrc) ->
-      properNamesArray.push pnSrc unless pnSrc in properNamesArray
-
-  # search regular words and links
-  ruRe = /^[а-я\-ё]+$/ig
-  enRe = /^[a-z\-]+$/ig
-  wordRe = /^[а-яё\-\da-z]+$/ig
-  urlRe = /https?:\/\/\S+/g
+@param {String} test Source text
+@param {Object} opts Plugin options.
+                opts.all     : if set to true, enable all default plugins
+                opts.plugins : array of plugins. If plugin type is string,
+                               try to load it from current location, otherwise
+                               just add it to applied plugins.
+@return {Object} obj Fields of returned object depends on applied plugins
+###
+exports.analyseText = analyseText = (text, opts={}) ->
   if opts.all
-    opts =
-      useTwitterTags: yes
-      searchLinks: yes
-      expandLinks: yes
+    pluginsArray = ["plugins.ru.feelings"]
   else
-    opts.useTwitterTags  = no if undefined is opts.useTwitterTags
-    opts.searchLinks     = no if undefined is opts.searchLinks
-    opts.expandLinks     = no if undefined is opts.expandLinks
+    pluginsArray = opts.plugins || []
 
-  if opts.searchLinks
-    urls = text.match urlRe
-    text = text.replace urlRe, ""
-  else
-    urls = []
-
-  punctuationRe = /([,:\/\\\?!\+\*\(\)\[\]\&\№\—])/gm
-  endOfSentenceRe = /([\?\!])|(\.\s+)/gm
-  text = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
-  properNamesArray.map (pn) ->
-    text = text.replace pn, ""
-
-
-  # quoted text
-  ruQuotesRe = /(\"[-а-яё\d]+(\s[-а-яё\d]+){0,}\")|(\'[-а-яё\d]+(\s[-а-яё\d]+){0,}\')|(«[-а-яё\d]+(\s[-а-яё\d]+){0,}»)|(„[-а-яё\d]+(\s[-а-яё\d]+){0,}\“)/ig
-  enQuotesRe = /(\"[-a-z\d]+(\s[-a-z\d]+){0,}\")|(\'[-a-z\d]+(\s[-a-z\d]+){0,}\')/ig
-  quotedRe = /(\"[^\"]+\")|(\'[^\']+\')|(«[^»]+»)|(„[^“]“)/mig
-  numRe = /((([а-яё]+)\s+){0,1}\d[\.\d]{0,}(\s+(([a-яё]+)|([\.\d]+))){1,6})|([12]\d\d\d)/mig
-
-
-  ruMatchQuotes = util.unique text.match(ruQuotesRe) || []
-  enMatchQuotes = util.unique text.match(enQuotesRe) || []
-  numbers = util.unique text.match(numRe) || []
-
-  quotes = []
-  for q in util.unique text.match(quotedRe) || []
-    quotes.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
-
-
-  # console.log "\n\nquotes: #{ruMatchQuotes.join '\n'}"
-  # console.log "\nquoted: #{quoted.join '\n'}"
-
-  ruDates = util.extractRuDates numbers
-
-  unless /\./.test text
-    text += "."
-
-  sentences = []
-  prev = ""
-  for s, i in (text.split(endOfSentenceRe).filter (s) -> !!s)
-    if i % 2 is 1
-      sentences.push prev + s
+  plugins = []
+  pluginsArray.map (plg) ->
+    if "string" is typeof plg
+      plugins.push require "./#{plg.replace /\./g, '/'}"
     else
-      prev = s
-
-  parsedTextData = util.parseRuSentence sentences
-  if util.dictKeys(ruDates.intervals).length > 0
-    parsedTextData.date_intervals = util.packIntervals ruDates.intervals
-  if util.dictKeys(ruDates.dates).length > 0
-    parsedTextData.dates = util.packDates ruDates.dates
-  if quotes.length > 0
-    parsedTextData.quotes = quotes
-  if properNamesArray.length > 0
-    parsedTextData.properNames = properNamesArray
-  parsedTextData
+      plugins.push plg
+  return analysis.analyse text, plugins
 
 
 ###
@@ -277,7 +145,4 @@ exports.analyseFile = analyseFile = (filename, opts) ->
   catch e
     return found: no, error: "can't read file '#{filename}'"
   analyseText text, opts
-
-  # twitter
-  # todo analyse text by splitting words, searching lunks etc.
 

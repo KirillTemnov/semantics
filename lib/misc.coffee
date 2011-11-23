@@ -3,13 +3,15 @@ Misc params, like digits, emoticons and maybe others.
 ###
 
 if "undefined" is typeof global
-    window.lastName ||= {}
+    window.lastName      ||= {}
     window.lastName.misc ||= {}
-    exports = window.lastName.misc
+    exports                = window.lastName.misc
+    util                   = window.lastName.util
 else
-    exports = module.exports
+    exports                = module.exports
+    util                   = require "./util"
 
-((exports) ->
+((exports, util) ->
 
   ###
   Extract digits, emoticons and split text into sentences.
@@ -89,4 +91,4 @@ else
       word_length_mid       : word_length_mid
       words_in_sentence_mid : if sentences.length then words_total / sentences.length else 0
     result
-)(exports)
+)(exports, util)
