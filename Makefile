@@ -6,20 +6,24 @@ client:
 	coffee -b -c lib/util.coffee 
 	coffee -b -c lib/misc.coffee
 	coffee -b -c lib/analysis.coffee
-	cat lib/*.js >> out.js
+	cat lib/client.js > out.js
+	cat lib/util.js >> out.js
+	cat lib/misc.js >> out.js
+	cat lib/analysis.js >> out.js
 
 	cat lib/plugins/ru/ref.js  >> out.js
 	cat lib/plugins/ru/words.js  >> out.js
 	cat lib/plugins/ru/dates.js  >> out.js
 	cat lib/plugins/ru/inclines.js  >> out.js
 	cat lib/plugins/ru/morpho.js  >> out.js
+	cat lib/plugins/ru/quotes.js  >> out.js
 	cat lib/plugins/ru/propernames.js  >> out.js
 	cat lib/plugins/ru/feelings.js  >> out.js
 
 	rm -f lib/plugins/ru/*.js
 	rm -f lib/*.js
 	uglifyjs -nm -b -i 2 out.js > browser/lastname.js
-	#rm out.js
+	mv out.js browser/not-uglifyed.js
 
 
 server:
