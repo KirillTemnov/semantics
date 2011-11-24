@@ -122,4 +122,23 @@ else
       else
         d[i]++
     d
+
+  ###
+  Get top of dictionary by analyse elements count (@see arrayToDict)
+
+  @param {Object} obj Dictionary object
+  @param {Number} maxNum Maximum number of elements
+  @return {Object} result Return new dictionary, containing maxNum or less elements and counts.
+  ###
+  exports.topFromDict = (obj, maxNum=10) ->
+    arr = []
+    for k,v of obj
+      arr.push [v, k]
+    arr.sort (a, b) -> b[0] - a[0]
+    result = {}
+    for elem, i in arr
+      break if i >= maxNum
+      result[elem[1]] = elem[0]
+    result
+
 )(exports)
