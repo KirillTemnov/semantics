@@ -90,5 +90,5 @@ else
       spaces_total          : spaces_total
       word_length_mid       : word_length_mid
       words_in_sentence_mid : if sentences.length then words_total / sentences.length else 0
-    result
+
 )(exports, util)

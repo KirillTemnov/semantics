@@ -4,12 +4,14 @@ Feeling words
 ###
 # depends on inclines and counters
 if "undefined" is typeof global
-    window.lastName.plugins.ru.feelings = {}
-    exports = window.lastName.plugins.ru.feelings
-    inclines = window.lastName.plugins.ru.inclines
+    window.lastName.plugins.ru.feelings  = {}
+    exports                              = window.lastName.plugins.ru.feelings
+    inclines                             = window.lastName.plugins.ru.inclines
+    pn                                   = window.lastName.plugins.ru.propernames
 else
-    exports = module.exports
-    inclines = require "./inclines"
+    exports                              = module.exports
+    inclines                             = require "./inclines"
+    pn                                   = require "./propernames"
 
 ((exports, inclines) ->
 
@@ -51,7 +53,7 @@ else
     ]
       #"кричать на"
 
-  exports.evaluateSentenceNeutrality = evaluateSentenceNeutrality = (sentence) ->
+  exports.evaluateSentenceNeutrality = evaluateSentenceNeutrality = (sentence, resultObject) ->
     index      = 0                   # check out proper names!
     cur_index  = 0
     words      = []
@@ -104,16 +106,19 @@ else
     [index, words]
 
   exports.postFilter = (text, result) ->
-    emoIndex = []
-    overallIndex = 0
+    emoIndex      = []
+    overallIndex  = 0
+    properNames   = pn.getProperNames result.misc.sentences.join " "
     for s,i in result.misc.sentences
-      [index, emoWords] = evaluateSentenceNeutrality s
+      [index, emoWords] = evaluateSentenceNeutrality s, result
       emoIndex.push [index, emoWords]
       overallIndex += index
+
 
     result.feelings =
       emoIndex     : emoIndex
       overallIndex : overallIndex
-      emoScore     :  overallIndex / result.counters.words_total || 1
+      emoScore     : overallIndex / result.counters.words_total || 1
+      properNames  : properNames
 
-)(exports, inclines)
+)(exports, inclines, pn)

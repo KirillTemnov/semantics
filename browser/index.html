@@ -15,7 +15,7 @@
   </textarea>
   <br/>
   <br/>
-  <button id="find-proper-name">имя собственное</button>
+  <button id="quotes">цитаты</button>
   <button id="find-dates">даты</button>
   <button id="misc">счетчики</button>
   <button id="feelings">эмоции</button>
@@ -27,7 +27,7 @@
   </textarea>
 
     <script type="text/javascript">
-      var fpn        = document.getElementById("find-proper-name"),
+      var fquotes    = document.getElementById("quotes"),
           clear      = document.getElementById("clear"),
           fdates     = document.getElementById("find-dates"),
           fmisc      = document.getElementById("misc"),
@@ -40,8 +40,8 @@
           output.value  = "";
         }, false);
 
-      fpn.addEventListener("click", function() {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.propernames]));
+      fquotes.addEventListener("click", function() {
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.quotes]));
         }, false);
 
       fdates.addEventListener("click", function () {
@@ -53,7 +53,7 @@
         }, false);
 
       fmisc.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc]));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words]));
         }, false);
 
       ffeelings.addEventListener("click", function () {
