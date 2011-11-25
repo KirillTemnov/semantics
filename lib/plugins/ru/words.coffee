@@ -71,8 +71,9 @@ else
 
   @param {String} text Source text
   @param {Object} result Resulting object, that contain fields:
-                 ru.words     : Dict of russian words and count of occurrences for each of them
-                 ru.reg_words : Dict of russian immutable words and count of occurrences
+                 ru.words      : Dict of russian words and count of occurrences for each
+                 ru.reg_words  : Dict of russian immutable words and count of occurrences
+                 ru.stop_words : Dict of russian stop words and count of occurrences
   ###
   exports.preFilter = (text, result) ->
     result.words ||= {}
