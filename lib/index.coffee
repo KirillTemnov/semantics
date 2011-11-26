@@ -146,3 +146,17 @@ exports.analyseFile = analyseFile = (filename, opts) ->
     return found: no, error: "can't read file '#{filename}'"
   analyseText text, opts
 
+
+plugins = {}
+# export plugins
+fs = require "fs"
+pluginsPrefix = "#{__dirname}/plugins/"
+for lang in fs.readdirSync pluginsPrefix
+  if fs.statSync("#{pluginsPrefix}#{lang}").isDirectory()
+    plugins[lang] = {}
+    for p in fs.readdirSync("#{pluginsPrefix}#{lang}").filter((x) -> /.coffee$/.test x).map((x) -> x[...-7])
+      plugins[lang][p] = require "#{pluginsPrefix}#{lang}/#{p}"
+
+exports.analysis = analyse : analysis.analyse
+
+exports.plugins = plugins

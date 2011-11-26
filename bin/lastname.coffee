@@ -28,9 +28,9 @@ switch word
   when "-i"
     console.log  lastname.inclineWords process.argv[3..]
   when "-a"
-    console.log lastname.analyseFile process.argv[3], all: yes
+    console.log sys.inspect lastname.analyseFile(process.argv[3], all: yes), yes, null
   else
-    console.log "#{sys.inspect lastname.findProperName 'ru', process.argv[2..]}"
+    console.log sys.inspect lastname.plugins.ru.inclines.findProperName process.argv[2..]
 
 
 
