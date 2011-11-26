@@ -79,9 +79,9 @@ else
     result.words ||= {}
     words          = []
     reg_words      = []
-    stop_words      = []
-    for s in result?.misc?.sentences || []
-      reduce = s.toLowerCase().split(" ").filter( (wrd) -> (not wrd is "-" ) and /^[-а-яё]+$/.test wrd)
+    stop_words     = []
+    for s in result.misc.sentences || []
+      reduce = s.toLowerCase().split(" ").filter( (wrd) ->  /^[-а-яё]+$/.test(wrd) and not /^\-+$/.test wrd)
       for w in reduce
         if w in stopWords
           stop_words.push w
@@ -94,5 +94,9 @@ else
       words      : util.arrayToDict words
       reg_words  : util.arrayToDict reg_words
       stop_words : util.arrayToDict stop_words
+
+    result.counters.stop_words_total ||= 0
+    result.counters.stop_words_total  += stop_words.length
+    result.counters.stop_words_persent = result.counters.stop_words_total / result.counters.words_total
 
 )(exports, util)
