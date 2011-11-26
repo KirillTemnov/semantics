@@ -122,59 +122,15 @@ else
       resetCurIndex()
       [index, words]
 
-
-
     # evaluate negative score
     sentenceWords = sentence.split /\s/
     [negIndex, negWords] = evalScore(sentenceWords, getNegativePhrasesRe(), negativeWordsIncline, negativeVerbs, negativeAdjectives, (x) -> -Math.abs x)
+
+    # evaluate positive score
     [posIndex, posWords] = evalScore(sentenceWords, getPositivePhrasesRe(), positiveWordsIncline, positiveVerbs, positiveAdjectives, (x) -> x)
 
     [posIndex + negIndex, posIndex, posWords, negIndex, negWords]
-    # for nr in getNegativePhrasesRe()
-    #   m = sentence.match nr[0]
-    #   if m
-    #     m.map (wordsSequence) -> words.push wordsSequence
-    #     index -= nr[1] * m.length
 
-    # for wrd in
-    #   if wrd in ".,-—!?()[]"
-    #     cur_index = -cur_index
-    #     resetCurIndex()
-    #     continue
-
-    #   ind = negativeWordsIncline[wrd.toLowerCase()]
-    #   if ind
-    #     curWords.push wrd
-    #     cur_index = cur_index * ind || ind
-    #   else
-    #     adjArray = inclines.getInitialFormOfAdjective wrd
-    #     unless adjArray
-    #       # check for verbs
-    #       verb = inclines.getVerbInfinitive wrd
-    #       vIndex = negativeVerbs[verb]
-    #       if vIndex
-    #         curWords.push wrd
-    #         cur_index = cur_index * vIndex || vIndex
-    #       else
-    #         cur_index = -cur_index
-    #         resetCurIndex()
-    #     else
-    #       for adj in adjArray
-    #         adjIndex = negativeAdjectives[adj]
-    #         if adjIndex
-    #           curWords.push wrd
-    #           cur_index = cur_index * adjIndex || adjIndex
-    #           break
-    # cur_index = -cur_index unless cur_index > 0
-    # resetCurIndex()
-
-
-    # negativeWords = words
-    # words = []
-    # # evaluate positive score
-
-    # positiveWords = words
-    # [index, words]
 
   exports.postFilter = (text, result) ->
     # todo add persons as actiong objects
@@ -190,7 +146,9 @@ else
 
 
     emoScore = overallIndex / result.counters.words_total || 1
+    emoScore = 0 if -1 <= emoScore <= 1
     emoScore *= 1/result.counters.stop_words_persent if result.counters.stop_words_persent
+
     result.feelings =
       emoIndex     : emoIndex
       overallIndex : overallIndex
