@@ -82,7 +82,6 @@ else
         namesForRemove.push id
 
       else if /^.+\-\-$/.test id       # just first name
-          console.log "found!!! #{id}"
           for person in pnList
             if (p.first_name is person[0]) and (person[1] or person[2])
               pnDict[person[3]].count  += p.count
