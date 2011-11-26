@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## v 0.3.3
+## v 0.3.30
 
   Browser support
 

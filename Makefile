@@ -14,6 +14,7 @@ client:
 	cat lib/plugins/ru/ref.js  >> out.js
 	cat lib/plugins/ru/words.js  >> out.js
 	cat lib/plugins/ru/dates.js  >> out.js
+	cat lib/plugins/ru/abbrevs.js  >> out.js
 	cat lib/plugins/ru/inclines.js  >> out.js
 	cat lib/plugins/ru/morpho.js  >> out.js
 	cat lib/plugins/ru/quotes.js  >> out.js

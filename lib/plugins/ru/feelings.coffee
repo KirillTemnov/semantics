@@ -188,10 +188,13 @@ else
       overallIndex += index
       absIndex     += posIndex - negIndex
 
+
+    emoScore = overallIndex / result.counters.words_total || 1
+    emoScore *= 1/result.counters.stop_words_persent if result.counters.stop_words_persent
     result.feelings =
       emoIndex     : emoIndex
       overallIndex : overallIndex
-      emoScore     : overallIndex / result.counters.words_total || 1
+      emoScore     : emoScore
       absIndex     : absIndex
       properNames  : properNames
 
