@@ -68,6 +68,8 @@ else
 
   ###
   Extract russian words.
+  Update result.counter.stop_words_total (incremental) and result.counter.stop_words_persent.
+
 
   @param {String} text Source text
   @param {Object} result Resulting object, that contain fields:
@@ -76,7 +78,7 @@ else
                  ru.stop_words : Dict of russian stop words and count of occurrences
   ###
   exports.preFilter = (text, result) ->
-    result.words ||= {}
+    result.ru    ||= {}
     words          = []
     reg_words      = []
     stop_words     = []
@@ -90,10 +92,10 @@ else
           reg_words.push w unless w in stopWords
         else
           words.push w
-    result.ru =
-      words      : util.arrayToDict words
-      reg_words  : util.arrayToDict reg_words
-      stop_words : util.arrayToDict stop_words
+    result.ru.words       = util.arrayToDict words
+    result.ru.reg_words   = util.arrayToDict reg_words
+    result.ru.stop_words  = util.arrayToDict stop_words
+
 
     result.counters.stop_words_total ||= 0
     result.counters.stop_words_total  += stop_words.length
