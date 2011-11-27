@@ -146,7 +146,7 @@ else
 
 
     emoScore = overallIndex / result.counters.words_total || 1
-    emoScore = 0 if -1 <= emoScore <= 1
+    emoScore = 0 unless -1 < emoScore < 1
     emoScore *= 1/result.counters.stop_words_persent if result.counters.stop_words_persent
 
     result.feelings =
