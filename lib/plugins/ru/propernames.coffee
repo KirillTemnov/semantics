@@ -35,7 +35,7 @@ else
     pnList         = []
 
     properNamesRe = /[А-Я][а-яё]+(\s+[А-Я][а-яё]+){0,2}/gm
-    for pn in text.match properNamesRe
+    for pn in text.match(properNamesRe) || []
       curProperName = pn.replace(/\s+/g, " ").split " "
       if curProperName
         pn = inclines.findProperName curProperName
@@ -129,6 +129,5 @@ else
         pnDict[id].src = [p.src]
         pnDict[id].count = 1
     result.propernames = pnDict
-
 
 )(exports, morpho, inclines)
