@@ -3,11 +3,16 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script type="text/javascript" src="lastname.js"></script>
     <style type="text/css">
-      textarea {
+      #out-text, #in-text {
         width: 800px;
         height: 350px;
         font-family: Monaco, terminal, Courier New;
       }
+
+      #in-text {
+        height: 150px;
+      }
+
     </style>
   </head>
 <body>
@@ -15,10 +20,8 @@
   </textarea>
   <br/>
   <br/>
-  <button id="quotes">цитаты</button>
-  <button id="find-dates">даты</button>
-  <button id="misc">счетчики</button>
-  <button id="feelings">эмоции</button>
+  <button id="analysis">анализ</button>
+  <button id="feelings">все данные</button>
   <button id="verb-infinitive"> инфинитив глагола</button>
   <button id="clear">очистить</button>
   <br/>
@@ -27,10 +30,8 @@
   </textarea>
 
     <script type="text/javascript">
-      var fquotes    = document.getElementById("quotes"),
+      var fanalysis  = document.getElementById("analysis"),
           clear      = document.getElementById("clear"),
-          fdates     = document.getElementById("find-dates"),
-          fmisc      = document.getElementById("misc"),
           ffeelings  = document.getElementById("feelings"),
           fverbinf   = document.getElementById("verb-infinitive"),
           input      = document.getElementById("in-text"),
@@ -40,24 +41,30 @@
           output.value  = "";
         }, false);
 
-      fquotes.addEventListener("click", function() {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.quotes]));
-        }, false);
-
-      fdates.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.plugins.ru.dates]));
+      fanalysis.addEventListener("click", function () {
+          result = lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings])
+          out = [ "Всего слов: \t\t" + result.counters.words_total,
+                  "Стоп слов: \t\t" + result.counters.stop_words_total,
+                  "Предложений: \t\t" + result.misc.sentences.length,
+                  "Длина слова: \t\t" + result.counters.word_length_mid.toFixed(2) + " букв",
+                  "Длина предложения:\t" + result.counters.words_in_sentence_mid.toFixed(2)+ " слов",
+                  "Вода:\t\t\t" + (100 * result.counters.stop_words_persent).toFixed(2) +  " %",
+                  "Эмоциональная окраска:\t" + (100 * result.feelings.emoScore).toFixed(2) + " % (" + result.feelings.emoTone + ")",
+                  (lastName.util.dictKeys(result.ru.abbrevs).length > 0 ? "Аббревиатуры:\t\t" + lastName.util.dictKeys(result.ru.abbrevs).join(", ") : ""),
+                  (lastName.util.dictKeys(result.ru.persons).length > 0 ? "Люди:\t\t\t" + lastName.util.dictKeys(result.ru.persons).map(function (x) {
+      return x.replace(/-/g, " ").trim();}).join(", ") : ""),
+                  (result.ru.addresses.length > 0 ? "Адреса:\n\t\t\t\t" + result.ru.addresses.join("\n\t\t\t\t") : "")
+      ].filter(function(x) { return !!x;});
+          output.value = out.join("\n");
         }, false);
 
       fverbinf.addEventListener("click", function () {
           output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()));
         }, false);
 
-      fmisc.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words]));
-        }, false);
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.feelings]));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings]));
         }, false);
 
     </script>

@@ -7,11 +7,9 @@ if "undefined" is typeof global
     window.lastName.plugins.ru.feelings  = {}
     exports                              = window.lastName.plugins.ru.feelings
     inclines                             = window.lastName.plugins.ru.inclines
-    pn                                   = window.lastName.plugins.ru.propernames
 else
     exports                              = module.exports
     inclines                             = require "./inclines"
-    pn                                   = require "./propernames"
 
 ((exports, inclines) ->
 
@@ -180,7 +178,8 @@ else
     emoIndex      = []
     overallIndex  = 0
     absIndex      = 0
-    properNames   = pn.getProperNames result.misc.sentences.join " "
+    properNames   = if result.ru?.persons? then result.ru.persons else {}
+
     for s,i in result.misc.sentences
       [index, posIndex, posWords, negIndex, negWords] = evaluateSentenceNeutrality s, result
       emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
@@ -195,6 +194,10 @@ else
       for k, p of properNames
         p.src.map (refName) -> excludeWc += refName.split(" ").length
 
+      if result.ru?.abbrevs?
+        for a, count of result.ru.abbrevs
+          excludeWc += count
+
       emoScore = overallIndex / excludeWc
 
     result.feelings =
@@ -203,6 +206,6 @@ else
       emoScore     : emoScore
       emoTone      : getEmotionalToneByScore emoScore
       absIndex     : absIndex
-      properNames  : properNames
+#      properNames  : properNames
 
-)(exports, inclines, pn)
+)(exports, inclines)

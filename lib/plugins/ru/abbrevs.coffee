@@ -21,7 +21,7 @@ else
   @return {Array} result Array of abbrevs
   ###
   exports.extract = extractAbbr = (text) ->
-    abbrevsRe = /([А-Я][А-Я\d\.]+(\s+[А-Я\d]{2,}){0,5})|([A-Z][A-Z\d\-\!]+(\s+[A-Z\d\-\!]+){0,5})/gm
+    abbrevsRe = /([А-Я][А-Я\d]+(\s+[А-Я\d]{2,}){0,5})|([A-Z][A-Z\d\-]+(\s+[A-Z\d\-]+){0,5})/gm
     text.match(abbrevsRe) || []
 
   ###
