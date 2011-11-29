@@ -590,35 +590,117 @@ else
   @param {String} verb Verb in any form
   ###
   exports.getVerbInfinitive = (verb) ->
+    value = {found: no, src: verb, person: no, time: no, plural: no, infinitive: no, reflexive: no}
     verb = verb.toLowerCase()
-    if /^[а-яё]{3,}(ать|аться|ить|иться|еть|еться|оть|оться|уть|утся|ются|ть|ться)$/.test verb # infinitive
-      return verb
 
-
+    # verbs with other incline:  хотеть, бежать, брезжить
     if /^[а-яё]{3,}(сь|ся)$/.test verb    # возвратные
-      verbEnd = verb[-2..]
-      verb = verb[..-3]
+      value.reflexive  = yes
+      verbEnd          = "ся"
+      verb             = verb[..-3]
     else
-      verbEnd = ""
+      verbEnd          = ""
 
     # past time
     pastTime = verb.match /^[а-яё]{3,}(л|ла|ло|ли)$/
     if pastTime
-      result = verb[..-(1+pastTime[1].length)] + "ть"
-    # todo remove verb conjugations at all?
-    else if /[а-яё]{3,}(у|ю|ем|ешь|ете|ет|ут|ют|им|ишь|ите|ит|ат|ят)$/.test verb # невозвратные
-      # II спряжение (I conjugation)
-      # [у, ю,] ишь, ит, им, ите, ат, ят
-      # ить, еть, ать
-      if /[а-яё]{3,}(ишь|ит|им|ите|ат|ят)$/.test verb
-        result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}"]
-      else if /[а-яё]{3,}(у|ю|ешь|ет|ем|ете|ут|ют)$/.test verb
-      # I спряжение (II conjugation)
-      # у, ю, ешь, ет, ем, ете, ут, ют
-      # ить, еть, ать, оть, уть, ть
-        result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}", "#{verb}оть#{verbEnd}", "#{verb}уть#{verbEnd}", "#{verb}ть#{verbEnd}"]
+      value.time = "past"       # todo add person ??
+      if /ли$/.test verb
+        value.plural = yes
+      value.found = yes
+      value.infinitive = verb[..-(1+pastTime[1].length)] + "ть#{verbEnd}"
+    else
+      # exceptions verbs: брить, стелить, зиждиться, видеть, ненавидеть, обидеть, зависеть, терпеть, вертеть, смотреть, гнать, дышать, держать, слышать
+      exceptVerbs = [
+        ["брить", "брею", "бреешь", "бреет", "бреем", "бреете", "бреют"]
+        ["стелить", "стелю", "стелишь", "стелит", "стелим", "стелите", "стелят"]
+        ["зиждиться", "зиждюсь", "зиждишься", "зиждится", "зиждимся", "зиждитесь", "зиждются"]
+        ["видеть", "вижу", "видишь", "видит", "видим", "видите", "видят"]
+        ["ненавидеть", "ненавижу", "ненавидишь", "ненавидит", "ненавидим", "ненавидите", "ненавидят"]
+        ["обидеть", "обижу", "обидишь", "обидит", "обидим", "обидите", "обидят"]
+        ["зависеть", "завишу", "зависишь", "зависит", "зависим", "зависите", "зависят"]
+        ["терпеть", "терплю", "терпишь", "терпит", "терпим", "терпите", "терпят"]
+        ["вертеть", "верчу", "вертишь", "вертит", "вертим", "вертите", "вертят"]
+        ["смотреть", "смотрю", "смотришь", "смотрит", "смотрим", "смотрите", "смотрят"]
+        ["гнать", "гоню", "гонишь", "гонит", "гоним", "гоните", "гонят"]
+        ["дышать", "дышу", "дышишь", "дышит", "дышим", "дышите", "дышат"]
+        ["держать", "держу", "держишь", "держит", "держим", "держите", "держат"]
+        ["слышать", "слышу", "слышишь", "слышит", "слышим", "слышите", "слышат"]
+        ["быть", "есть", "есть", "есть", "есть", "есть", "есть"]
+        ["дать", "дам", "дашь", "даст", "дадим", "дадите", "дадут"]
+        ["создать", "создам", "создашь", "создаст", "создадим", "создадите", "создадут"]
+        ["есть", "ем", "ешь", "ест", "едим", "едите", "едят"]
+        ["хотеть", "хочу", "хочешь", "хочет", "хотим", "хотите", "хотят"]
+        ["бежать", "бегу", "бежишь", "бежит", "бежим", "бежите", "бегут"]
+        ["брезжить", "брезжу", "брезжишь", "брезжит", "брезжим", "брезжите", "брезжут"]
+        ["чтить", "чту", "чтишь", "чтит", "чтим", "чтите", "чтят"]
+        ]
+      for verbs in exceptVerbs
+        ind = verbs.indexOf verb
+        if ind >= 0
+          value.found       = yes
+          value.infinitive  = verbs[0] + verbEnd
+          value.time        = "present"
+          value.plural      = ind > 3
+          value.person      = 1 + (ind - 1) % 3
+          return value
+
+      if /^[а-яё]{3,}(ать|ить|еть|оть|оться|уть|утся|ются|ть|ться)$/.test verb # infinitive
+        value.infinitive = verb
+        value.found = yes
+        return value
+
+      value.found = yes
+      value.time = "present"
+      # present time
+      # оть, -уть, -ть  ???
+      if /[ую]$/.test verb      # I спр. 1-е лицо, ед. число
+        value.infinitive = "#{verb[..-2]}ать"
+        value.person = 1
+      else if /ем$/.test verb      # I спр. 1-е лицо, мн. число
+        value.infinitive = "#{verb[..-3]}ать"
+        value.person = 1
+
+      else if /(ешь|ете|ёте)$/.test verb # I спр. 2-е лицо, ед. и мн. число
+        value.infinitive = "#{verb[..-4]}ать"
+        value.person = 2
+        value.plural = verb[-1] is "е"
+
+      else if /(ишь|ите)$/.test verb  # II спр. 2-е лицо, ед. и мн. число
+        value.infinitive = "#{verb[..-4]}ить"
+        value.person = 2
+        value.plural = verb[-1] is "е"
+
+      else if verb[..-3] is "ет"      # I спр. 3-е лицо, ед. число
+        value.infinitive = "#{verb[..-3]}ать"
+        value.person = 3
+        value.plural = no
+
+      else if verb[..-3] is "ет"      # I спр. 3-е лицо, мн. число
+        value.infinitive = "#{verb[..-3]}ать"
+        value.person = 3
+        value.plural = yes
+
+      else if /(ит|ат|ят)$/.test verb # II спр. 2-е лицо, ед. и мн. число
+        value.infinitive = "#{verb[..-4]}ить"
+        value.person = 2
+        value.plural = verb[-2] isnt "и"
       else
-        result = null
-    result
+        value.found = no
+        value.time = no
+
+      # # todo remove verb conjugations at all?
+      # if /[а-яё]{3,}(у|ю|ем|ешь|ете|ет|ут|ют|им|ишь|ите|ит|ат|ят)$/.test verb # невозвратные
+      #   # II спряжение (I conjugation)
+      #   # [у, ю,] ишь, ит, им, ите, ат, ят
+      #   # ить, еть, ать
+      #   if /[а-яё]{3,}(ишь|ит|им|ите|ат|ят)$/.test verb
+      #     result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}"]
+      #   else if /[а-яё]{3,}(у|ю|ешь|ет|ем|ете|ут|ют)$/.test verb
+      #   # I спряжение (II conjugation)
+      #   # у, ю, ешь, ет, ем, ете, ут, ют
+      #   # ить, еть, ать, оть, уть, ть
+      #     result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}", "#{verb}оть#{verbEnd}", "#{verb}уть#{verbEnd}", "#{verb}ть#{verbEnd}"]
+    value
 
 )(exports, util, ref)
