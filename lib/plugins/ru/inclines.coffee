@@ -570,14 +570,66 @@ else
   @return {Array|null} result Return multiple variants in array or null, if not found
   ###
   exports.getInitialFormOfAdjective = (adj) ->
-    # masculine : ый, ий, ой, ого, ому, ым, им, ом
-    # feminine  : ая, яя, ой, ую, юю, ою
+    # masculine : ый, ий, его, ого, ему, ому, ым, им, ом
+    # feminine  : ая, яя, ой, ей, ую, юю, ою
     # neuter    : ое, ее, ого, ому, ым, им, ом
     # plural    : ые, ие, ых, их, ым, им, ыми, ими
     # min length: 5 chars (ясный, голый, белый) 4 chars (ярый)
+
+    value =
+      found      : no
+      src        : adj
+      gender     : no
+      plural     : no
+      infinitive : no
+      cases      : []
+
     adj = adj.toLowerCase()
-    unless /^[а-яё]{2,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/.test adj
-      return null
+    match = adj.match /^[а-яё]{2,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/
+    unless match
+      return value
+    adjNoEnd = adj[...-(match[0].length)]
+
+    if /(ые|ие|ых|их|ым|им|ыми|ими)$/.test adj
+      value.plural = yes        # todo add cases
+
+    # cases
+    if /(ый|ий|ая|яя|ое|ее)$/.test adj
+      value.cases = ["nominative"]
+
+    # infinitive - nominative
+    if adj[-2] in ["ий", "ый"]
+      value.gender = "masculine"
+      value.infinitive = adj
+    else if adj[-2..] in ["ая", "яя"]
+      value.infinitive = "#{adjNoEnd}#{adj[-2] is 'а' and 'ый' or 'ий'}"
+      value.gender = "feminine"
+    else if adj[-2..] in ["ое", "ее"]
+      value.infinitive = "#{adjNoEnd}#{adj[-2] is 'о' and 'ый' or 'ий'}"
+      value.gender = "neuter"
+    else if adj[-2..] in ["ые", "ие"]
+      value.infinitive = "#{adjNoEnd}#{adj[-2] is 'ы' and 'ый' or 'ий'}"
+
+    # infinitive - genetive
+    else if adj[-3..] in ["ого", "его"]
+      value.gender = ["masculine", "neuter"]
+      value.infinitive = "#{adjNoEnd}#{adj[-3] is 'о' and 'ый' or 'ий'}"
+    else if adj[-2..] in ["ой", "ей"]
+      value.gender = "feminine"
+      value.infinitive = "#{adjNoEnd}#{adj[-2] is 'о' and 'ый' or 'ий'}"
+    else if adj[-2..] in ["ых", "их"]
+      value.infinitive = "#{adjNoEnd}#{adj[-2] is 'ы' and 'ый' or 'ий'}"
+
+    # infinitive - dative
+    else if adj[-3..] in ["ому", "ему"]
+      value.gender = ["masculine", "neuter"]
+      value.infinitive = "#{adjNoEnd}#{adj[-3] is 'о' and 'ый' or 'ий'}"
+    else if
+
+value.gender =
+      value.infinitive = "#{adj[..-3]}"
+    else
+
     if /^[а-яё]{2,}(ими|ого|его|ому|ыми)$/gi.test adj
       base = adj[..-4]
     else
@@ -588,9 +640,25 @@ else
   Get verb infinitive
 
   @param {String} verb Verb in any form
+  @return {Object} result If result.found is false, other fields, except src can be ommited.
+          result.found      : verb found {true|false}
+          result.src        : source strings
+          result.person     : verb person {false|1|2|3}, false for infinitive
+          result.time       : verb time {false|"past"|"present"}, false for infinitive
+          result.plural     : verb plural {true|false}
+          result.infinitive : verb infinirtive form {String|Array}, array if multiple
+                              forms applyed, all forms in lover case
+          result.reflexive  : verb in reflexive form {true|false}
   ###
   exports.getVerbInfinitive = (verb) ->
-    value = {found: no, src: verb, person: no, time: no, plural: no, infinitive: no, reflexive: no}
+    value =
+      found      : no
+      src        : verb
+      person     : no
+      time       : no
+      plural     : no
+      infinitive : no
+      reflexive  : no
     verb = verb.toLowerCase()
 
     # verbs with other incline:  хотеть, бежать, брезжить
