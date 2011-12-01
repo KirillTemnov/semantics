@@ -563,6 +563,103 @@ else
     result.src = listOfWords.join " "
     result
 
+  exports.analyseNoun = (noun) ->
+    # suffixes:
+    # ек, енк, енств, еньк, еств, ец, ечк, изн, ик, ин, инк, иц, ичк,
+    # ишк, ищ, л, ность, овств, оньк, ость, от, отн, ств, ушк, чик, щик, ышк, юшк
+    # +
+    # есть, овн
+    #
+    # ends:
+    # (null), а, е, ей, ем, ею, и, о, ой, ом, ою, у, ью, ю, я
+    # +
+    # ам, ям, ыми, ими, ов, ев, ей, ами, ями, ах, ях
+    #
+    noun       = noun.toLowerCase()
+    wordEndRe  = /[а-яё]{2,}(енств|ность|овств|еньк|еств| есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ей|ем|ею|ой|ом|ою|ью|а|е|и|о|у|ю|я|)$/g
+    if wordEndRe.test noun
+      endRe          = /(ами|ями|ам|ах|ей|ею|ой|ою|ям|ях|а|е|и|о|у|ы|ю|)$/g
+      end            = noun.match(endRe)[0]
+      suffixes       = []
+      rest           = if end.length > 0 then noun[...-(end.length)] else noun
+      longestSuffix  = 0
+      found          = 0
+
+      for suff in "енств|ность|овств|еньк|еств| есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|к|л|".split "|"
+        ind = rest.indexOf suff
+        if ind > 2 and (ind + suff.length) is rest.length
+          longestSuffix = suff.length if suff.length > longestSuffix
+          suffixes.push suff
+
+      # end analysis
+      # source http://rich62.ru/lib/misc/pravila.html
+      switch end
+        when "а", "я"
+          infinitive  = [noun, rest, "#{rest}о", "#{rest}е"]
+          cases       = ["nominative", "genetive"]
+        when "ы"
+          infinitive  = ["#{rest}а", noun]
+          cases       = ["nominative", "genetive"]
+        when "и"
+          infinitive  = ["#{rest}я", "#{rest}о", "#{rest}е", rest, noun]
+          cases       = ["nominative", "genetive", "dative", "accusative", "prepositional"]
+        when "о"
+          infinitive  = [noun]
+          cases       = ["nominative", "accusative"]
+        when "е"
+          infinitive  = [noun, "#{rest}а"]
+          cases       =  ["nominative", "dative", "accusative", "prepositional"]
+        when "у"
+          infinitive  = ["#{rest}а", "#{rest}е", "#{rest}ь"]
+          cases       = ["dative", "accusative"]
+        when "ю"
+          infinitive  = ["#{rest}я", "#{rest}е", "#{rest}ь"]
+          cases       = ["dative", "accusative", "instrumental"]
+        when "ой", "ою"
+          infinitive  = ["#{rest}а"]
+          cases       = ["instrumental"]
+        when "ею"
+          infinitive  = ["#{rest}я"]
+          cases       = ["instrumental"]
+        when ""
+          infinitive  = [noun, "#{rest}а", "#{rest}ы"]
+          cases       = ["nominative", "genetive", "accusative"]
+        when "ей"
+          infinitive  = ["#{rest}и", "#{rest}я"]
+          cases       = ["genetive", "accusative", "instrumental"]
+        when "ам", "ям"
+          infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
+          cases       = ["dative"]
+        when "ами", "ями"
+          infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
+          cases       = ["instrumental"]
+        when "ах", "ях"
+          infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
+          cases       = ["prepositional"]
+        else
+          found       = no
+          infinitive  = []
+          cases       = []
+
+
+      rest = rest[...-longestSuffix] if longestSuffix > 0
+      found        : found
+      infinitive   : infinitive
+      cases        : cases
+      suffix       : suffixes
+      end          : end
+      rest         : rest
+      probably     : end.length + suffixes.length
+      prepositions :
+        "nominative"    : null
+        "genetive"      : "без,у,до,от,с,около,из,возле,после,для,вокруг".split ","
+        "dative"        : "к,по".split ","
+        "accusative"    : "в,за,на,про,через".split ","
+        "instrumental"  : "за,над,под,перед,с".split ","
+        "prepositional" : "в,на,о,об,обо,при".split ","
+    else
+      {found: no}
+
   ###
   Get inital form of adjective (мужской род, именительный падеж, единственное число)
 
@@ -624,11 +721,11 @@ else
     else if adj[-3..] in ["ому", "ему"]
       value.gender = ["masculine", "neuter"]
       value.infinitive = "#{adjNoEnd}#{adj[-3] is 'о' and 'ый' or 'ий'}"
-    else if
+#     else if
 
-value.gender =
-      value.infinitive = "#{adj[..-3]}"
-    else
+# value.gender =
+#       value.infinitive = "#{adj[..-3]}"
+#     else
 
     if /^[а-яё]{2,}(ими|ого|его|ому|ыми)$/gi.test adj
       base = adj[..-4]
