@@ -563,6 +563,127 @@ else
     result.src = listOfWords.join " "
     result
 
+  exports.inclineNoun =  inclineNoun = (noun) ->
+    match  = noun.match /(а|е|и|о|ы|я)$/g
+    rest   = if match then noun[..-2] else noun
+
+    i =
+      genitive      : []
+      dative        : []
+      accusative    : []
+      instrumental  : []
+      prepositional : []
+    m = if match then match[0] else ""
+    switch (m)
+      when "а", "я"
+       i.genitive        = [
+          "#{rest}и"
+          "#{rest}ы"
+          "#{rest}а"
+          "#{rest}я"
+          "#{rest}"
+          "#{rest}ов"
+          "#{rest}ев"
+          "#{rest}ей"
+          ]
+       i.dative          = [
+          "#{rest}и"
+          "#{rest}е"
+          "#{rest}ам"
+          "#{rest}ям"
+          ]
+       i.accusative      = [
+          "#{rest}у"
+          "#{rest}ю"
+          "#{rest}а"
+          "#{rest}я"
+          "#{rest}ы"
+          "#{rest}и"
+          ]
+       i.instrumental    = [
+          "#{rest}ой"
+          "#{rest}ою"
+          "#{rest}ей"
+          "#{rest}ею"
+          "#{rest}ами"
+          "#{rest}ями"
+          ]
+       i.prepositional  = [
+          "#{rest}е"
+          "#{rest}и"
+          "#{rest}ах"
+          "#{rest}ях"
+          ]
+      when "ы", "и"
+        i.genitive       = [
+          "#{rest}"
+          "#{rest}ей"
+          "#{rest}ов"
+          "#{rest}ев"
+          ]
+        i.dative         = [
+          "#{rest}ам"
+          "#{rest}ям"
+          ]
+        i.accusative     = [
+          "#{rest}"
+          "#{rest}и"
+          "#{rest}ы"
+          "#{rest}ей"
+          "#{rest}а"
+          "#{rest}я"
+          ]
+        i.instrumental   = [
+          "#{rest}ами"
+          "#{rest}ями"
+          ]
+        i.prepositional  = [
+          "#{rest}ах"
+          "#{rest}ях"
+          ]
+      when "о", "е"
+        i.genitive       = [
+          "#{rest}а"
+          "#{rest}я"
+          ]
+        i.dative         = [
+          "#{rest}у"
+          "#{rest}ю"
+          ]
+        i.accusative     = [ noun ]
+        i.instrumental   = [
+          "#{rest}ом"
+          "#{rest}ем"
+          ]
+        i.prepositional  = [
+          "#{rest}и"
+          "#{rest}е"
+          ]
+      when ""
+        i.genitive       = [
+          "#{rest}а"
+          "#{rest}я"
+          "#{rest}и"
+          ]
+        i.dative         = [
+          "#{rest}у"
+          "#{rest}ю"
+          "#{rest}и"
+          ]
+        i.accusative     = [ noun ]
+        i.instrumental   = [
+          "#{rest}ом"
+          "#{rest}ем"
+          "#{rest}ю"
+          ]
+        i.prepositional  = [
+          "#{rest}и"
+          "#{rest}е"
+          ]
+
+    i
+
+
   exports.analyseNoun = (noun) ->
     # suffixes:
     # ек, енк, енств, еньк, еств, ец, ечк, изн, ик, ин, инк, иц, ичк,
@@ -596,13 +717,13 @@ else
       switch end
         when "а", "я"
           infinitive  = [noun, rest, "#{rest}о", "#{rest}е"]
-          cases       = ["nominative", "genetive"]
+          cases       = ["nominative", "genitive"]
         when "ы"
           infinitive  = ["#{rest}а", noun]
-          cases       = ["nominative", "genetive"]
+          cases       = ["nominative", "genitive"]
         when "и"
           infinitive  = ["#{rest}я", "#{rest}о", "#{rest}е", rest, noun]
-          cases       = ["nominative", "genetive", "dative", "accusative", "prepositional"]
+          cases       = ["nominative", "genitive", "dative", "accusative", "prepositional"]
         when "о"
           infinitive  = [noun]
           cases       = ["nominative", "accusative"]
@@ -623,10 +744,10 @@ else
           cases       = ["instrumental"]
         when ""
           infinitive  = [noun, "#{rest}а", "#{rest}ы"]
-          cases       = ["nominative", "genetive", "accusative"]
+          cases       = ["nominative", "genitive", "accusative"]
         when "ей"
           infinitive  = ["#{rest}и", "#{rest}я"]
-          cases       = ["genetive", "accusative", "instrumental"]
+          cases       = ["genitive", "accusative", "instrumental"]
         when "ам", "ям"
           infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
           cases       = ["dative"]
@@ -642,9 +763,23 @@ else
           cases       = []
 
 
+      infinitive = infinitive.map (n) -> n.replace /ьь/, "ь"
+
       rest = rest[...-longestSuffix] if longestSuffix > 0
+
+      finalInfinitives = []
+      for inf in infinitive
+        inclines = inclineNoun inf
+        console.log "inclines for [#{inf}]: #{JSON.stringify(inclines)}"
+        for c in cases
+          console.log "case #{c}: #{inclines[c]}"
+          if inclines[c]
+            for word in inclines[c]
+              finalInfinitives.push inf if word is noun  and not (inf in finalInfinitives)
+
       found        : found
-      infinitive   : infinitive
+      infinitive   : finalInfinitives
+      infinitive0   : infinitive
       cases        : cases
       suffix       : suffixes
       end          : end
@@ -652,7 +787,7 @@ else
       probably     : end.length + suffixes.length
       prepositions :
         "nominative"    : null
-        "genetive"      : "без,у,до,от,с,около,из,возле,после,для,вокруг".split ","
+        "genitive"      : "без,у,до,от,с,около,из,возле,после,для,вокруг".split ","
         "dative"        : "к,по".split ","
         "accusative"    : "в,за,на,про,через".split ","
         "instrumental"  : "за,над,под,перед,с".split ","
@@ -707,7 +842,7 @@ else
     else if adj[-2..] in ["ые", "ие"]
       value.infinitive = "#{adjNoEnd}#{adj[-2] is 'ы' and 'ый' or 'ий'}"
 
-    # infinitive - genetive
+    # infinitive - genitive
     else if adj[-3..] in ["ого", "его"]
       value.gender = ["masculine", "neuter"]
       value.infinitive = "#{adjNoEnd}#{adj[-3] is 'о' and 'ый' or 'ий'}"
