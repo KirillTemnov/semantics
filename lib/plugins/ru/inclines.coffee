@@ -564,7 +564,7 @@ else
     result
 
   exports.inclineNoun =  inclineNoun = (noun) ->
-    nounEndings = ["аб", "ав", "аг", "ад", "аж", "аз", "ай", "ак", "ал", "ам", "ан", "ап", "ар", "ас", "ат", "ау", "аф", "ах", "ац", "ач", "аш", "ащ", "ба", "бе", "би", "бл", "бо", "бр", "бу", "бы", "ва", "ве", "ви", "во", "вр", "ву", "вш", "вы", "вя", "га", "го", "да", "де", "др", "ду", "ды", "еб", "ев", "ег", "ед", "еж", "ез", "ей", "ек", "ел", "ем", "ен", "ер", "ес", "ет", "еф", "ех", "ец", "еч", "ещ", "ея", "жа", "за", "зе", "зи", "зл", "зм", "зу", "зы", "зя", "иа", "иб", "ив", "иг", "ид", "ие", "иж", "из", "ии", "ий", "ик", "ил", "им", "ин", "ио", "ип", "ир", "ис", "ит", "иф", "их", "иц", "ич", "иш", "ищ", "ию", "ия", "ка", "ке", "ки", "ко", "кс", "кт", "ку", "кэ", "кё", "ла", "лб", "лг", "лд", "ле", "лз", "ли", "лк", "лм", "лн", "ло", "лп", "лт", "лу", "лы", "ля", "лё", "ма", "мб", "ме", "мж", "ми", "мн", "мо", "мп", "мс", "мт", "му", "мф", "мы", "мэ", "мя", "на", "нг", "нд", "ни", "нк", "но", "нс", "нт", "нч", "нш", "ню", "нь", "ня", "об", "ов", "ог", "од", "ож", "оз", "ои", "ой", "ок", "ол", "ом", "он", "оп", "ор", "ос", "от", "ох", "оц", "оч", "оэ", "ою", "оя", "па", "пе", "пи", "по", "пу", "пы", "пэ", "ра", "рг", "ре", "ри", "рн", "рп", "рс", "рт", "ру", "рф", "рч", "рщ", "ры", "рю", "ря", "са", "се", "си", "ск", "сл", "см", "со", "сп", "ст", "су", "сы", "сю", "ся", "та", "тв", "те", "ти", "тл", "тм", "то", "тр", "тс", "ту", "тц", "тч", "ты", "тэ", "тю", "тя", "тё", "уа", "уб", "уг", "уд", "уж", "уз", "уй", "ук", "ул", "ум", "ун", "уп", "ур", "ус", "ут", "ух", "уч", "уш", "уя", "фт", "ха", "хв", "ца", "це", "цк", "цо", "цу", "цы", "ча", "чв", "че", "чи", "чо", "чу", "ша", "ши", "ща", "ще", "щи", "щу", "ыб", "ыв", "ыд", "ыж", "ык", "ыл", "ым", "ын", "ыр", "ыс", "ыт", "ыч", "ыш", "ыщ", "ье", "ьи", "ью", "ья", "ьё", "юв", "юг", "юд", "юз", "юй", "юк", "юм", "юн", "юп", "юр", "юс", "ют", "юф", "юх", "юц", "юч", "юш", "ющ", "яб", "яг", "яд", "яж", "яз", "як", "ял", "ям", "ян", "яп", "яр", "яс", "ят", "ях", "яч", "яш", "ящ", "яя", "ёб", "ём", "ёс"]
+    nounEndings = ["аб", "ав", "аг", "ад", "аж", "аз", "ай", "ак", "ал", "ам", "ан", "ап", "ар", "ас", "ат", "ау", "аф", "ах", "ац", "ач", "аш", "ащ", "ба", "бе", "би", "бл", "бо", "бр", "бу", "бы", "ва", "ве", "ви", "во", "вр", "ву", "вш", "вы", "вя", "га", "го", "да", "де", "др", "ду", "ды", "еб", "ев", "ег", "ед", "еж", "ез", "ей", "ек", "ел", "ем", "ен", "ер", "ес", "ет", "еф", "ех", "ец", "еч", "ещ", "ея", "жа", "за", "зе", "зи", "зл", "зм", "зу", "зы", "зя", "иа", "иб", "ив", "иг", "ид", "ие", "иж", "из", "ии", "ий", "ик", "ил", "им", "ин", "ио", "ип", "ир", "ис", "ит", "иф", "их", "иц", "ич", "иш", "ищ", "ию", "ия", "ка", "ке", "ки", "ко", "кс", "кт", "ку", "кэ", "кё", "ла", "лб", "лг", "лд", "ле", "лз", "ли", "лк", "лм", "лн", "ло", "лп", "лт", "лу", "лы", "ля", "лё", "ма", "мб", "ме", "мж", "ми", "мн", "мо", "мп", "мс", "мт", "му", "мф", "мы", "мэ", "мя", "на", "нг", "нд", "ни", "нк", "но", "нс", "нт", "нч", "нш", "ню", "нь", "ня", "об", "ов", "ог", "од", "ож", "оз", "ои", "ой", "ок", "ол", "ом", "он", "оп", "ор", "ос", "от", "ох", "оц", "оч", "оэ", "ою", "оя", "па", "пе", "пи", "по", "пу", "пы", "пэ", "ра", "рг", "ре", "ри", "рн", "рп", "рс", "рт", "ру", "рф", "рч", "рщ", "ры", "рю", "ря", "са", "се", "си", "ск", "сл", "см", "со", "сп", "ст", "су", "сы", "сю", "ся", "та", "тв", "те", "ти", "тл", "тм", "то", "тр", "тс", "ту", "тц", "тч", "ты", "тэ", "тю", "тя", "тё", "уа", "уб", "уг", "уд", "уж", "уз", "уй", "ук", "ул", "ум", "ун", "уп", "ур", "ус", "ут", "ух", "уч", "уш", "уя", "фт", "ха", "хв", "ца", "це", "цк", "цо", "цу", "цы", "ча", "чв", "че", "чи", "чо", "чу", "ша", "ши", "ща", "ще", "щи", "щу", "ыб", "ыв", "ыд", "ыж", "ык", "ыл", "ым", "ын", "ыр", "ыс", "ыт", "ыч", "ыш", "ыщ", "ье", "ьи", "ью", "ья", "ьё", "юв", "юг", "юд", "юз", "юй", "юк", "юм", "юн", "юп", "юр", "юс", "ют", "юф", "юх", "юц", "юч", "юш", "ющ", "яб", "яг", "яд", "яж", "яз", "як", "ял", "ям", "ян", "яп", "яр", "яс", "ят", "ях", "яч", "яш", "ящ", "яя", "ёб", "ём", "ёс", "ён"]
     ending = if noun.length >= 2 then noun[-2..] else "йй"
     unless ending in nounEndings
       return {found: no}
@@ -665,9 +665,9 @@ else
     # ам, ям, ыми, ими, ов, ев, ей, ами, ями, ах, ях
     #
     noun       = noun.toLowerCase()
-    wordEndRe  = /(енств|ность|овств|еньк|еств|есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ей|ем|ею|ой|ом|ою|ью|а|е|и|о|у|ю|я|)$/g
+    wordEndRe  = /(енств|ность|овств|еньк|еств|есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
     if wordEndRe.test noun
-      endRe          = /(ами|ями|ам|ах|ей|ем|ём|ею|ой|ом|ою|ью|а|е|и|о|у|ю|я|)$/g
+      endRe          = /(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
       end            = noun.match(endRe)[0]
       suffixes       = []
       rest           = if end.length > 0 then noun[...-(end.length)] else noun
@@ -680,109 +680,130 @@ else
           longestSuffix = suff.length if suff.length > longestSuffix
           suffixes.push suff
 
-      console.log "end = #{end}"
-
       # end analysis
       # source http://rich62.ru/lib/misc/pravila.html
       switch end
-        when "а", "я"
-          infinitive  = [noun, rest, "#{rest}о", "#{rest}е"]
-          cases       = ["nominative", "genitive"]
-        when "ы"
-          infinitive  = ["#{rest}а", noun]
-          cases       = ["nominative", "genitive"]
-        when "и"
-          infinitive  = ["#{rest}я", "#{rest}о", "#{rest}е", rest, noun]
-          cases       = ["nominative", "genitive", "dative", "accusative", "prepositional"]
-        when "о"
-          infinitive  = [noun]
-          cases       = ["nominative", "accusative"]
-        when "е"
-          infinitive  = [noun, "#{rest}а"]
-          cases       =  ["nominative", "dative", "accusative", "prepositional"]
-        when "у"
-          infinitive  = ["#{rest}а", "#{rest}е", "#{rest}ь"]
-          cases       = ["dative", "accusative"]
-        when "ю"
-          infinitive  = ["#{rest}я", "#{rest}е", "#{rest}ь"]
-          cases       = ["dative", "accusative"]
-        when "ой", "ою"
-          infinitive  = ["#{rest}а"]
-          cases       = ["instrumental"]
-        when "ею"
-          infinitive  = ["#{rest}я"]
-          cases       = ["instrumental"]
         when ""
-          infinitive  = [noun, "#{rest}а", "#{rest}ы"]
-          cases       = ["nominative", "genitive", "accusative"]
+          infinitive           = [noun, "#{rest}а", "#{rest}ы"]
+          personal_cases       = ["nominative", "accusative"]
+          plural_cases         = ["genitive"]
+        when "а"
+          personalInfinitives  = [noun, rest, "#{rest}о"]
+          pluralInfinitives    = [noun]
+          personal_cases       = ["nominative", "genitive", "accusative"]
+          plural_cases         = ["nominative"] # средний род
+        when "я"
+          infinitive           = [noun, "#{rest}ь", "#{rest}е"]
+          personal_cases       = ["nominative", "genitive", "accusative"]
+          plural_cases         = []
+        when "ы"
+          infinitive           = ["#{rest}а", noun]
+          personal_cases       = ["genitive"]
+          plural_cases         = ["nominative", "accusative"]
+        when "и"
+          infinitive           = ["#{rest}я", "#{rest}о", "#{rest}е", rest, noun]
+          personal_cases       = ["genitive", "dative", "prepositional"]
+          plural_cases         = ["nominative", "accusative", "instrumental"]
+        when "о"
+          personalInfinitives  = [noun]
+          pluralInfinitives    = []
+          personal_cases       = ["nominative", "accusative"]
+          plural_cases         = []
+        when "е"
+          infinitive           = [noun, "#{rest}а"]
+          personal_cases       = ["nominative", "dative", "accusative", "prepositional"]
+          plural_cases         = ["nominative"]
+        when "у"
+          infinitive           = ["#{rest}а", "#{rest}е", "#{rest}ь"]
+          personal_cases       = ["dative", "accusative"]
+          plural_cases         = []
+        when "ю"
+          infinitive           = ["#{rest}я", "#{rest}е", "#{rest}ь"]
+          cases                = ["dative", "accusative"]
+          personal_cases       = []
+          plural_cases         = ["dative", "accusative"]
+        when "ой", "ою"
+          infinitive           = ["#{rest}а"]
+          personal_cases       = ["instrumental"]
+          plural_cases         = []
+        when "ею"
+          infinitive           = ["#{rest}я"]
+          personal_cases       = ["instrumental"]
+          plural_cases         = []
         when "ей"
-          infinitive  = ["#{rest}и", "#{rest}я"]
-          cases       = ["genitive", "accusative", "instrumental"]
-        when "ам", "ям"
-          infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
-          cases       = ["dative"]
-        when "ами", "ями"
-          infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
-          cases       = ["instrumental"]
+          infinitive           = ["#{rest}и", "#{rest}я"]
+          personal_cases       = [ "instrumental"]
+          plural_cases         = ["genetive", "accusative"]
+        when "ам"
+          infinitive           = ["#{rest}а", "#{rest}ы"]
+          personal_cases       = []
+          plural_cases         = ["dative"]
+        when "ям"
+          infinitive           = ["#{rest}я", "#{rest}и"]
+          personal_cases       = []
+          plural_cases         = ["dative"]
+        when "ами"
+          infinitive           = ["#{rest}а", "#{rest}ы"]
+          personal_cases       = []
+          plural_cases         = ["instrumental"]
+        when "ями"
+          infinitive           = ["#{rest}я", "#{rest}и"]
+          personal_cases       = []
+          plural_cases         = ["instrumental"]
         when "ах", "ях"
-          infinitive  = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и"]
-          cases       = ["prepositional"]
+          infinitive           = ["#{rest}а", "#{rest}я", "#{rest}ы", "#{rest}и", "#{rest}е"]
+          personal_cases       = []
+          plural_cases         = ["prepositional"]
         when "ом"
-          infinitive  = [ rest]
-          cases       = ["instrumental"]
+          infinitive           = [ rest]
+          personal_cases       = ["instrumental"]
+          plural_cases         = []
         when "ем", "ём"
-          infinitive  = ["#{rest}ь"]
-          cases       = ["instrumental"]
+          infinitive           = ["#{rest}ь", "#{rest}е"]
+          personal_cases       = ["instrumental"]
+          plural_cases         = []
         else
-          found       = no
-          infinitive  = []
-          cases       = []
+          found                = no
+          infinitive           = []
+          personal_cases =[]
+          plural_cases         = []
 
-      infinitive = infinitive.map (n) -> n.replace /ьь/, "ь"
+      unless pluralInfinitives
+        infinitive = infinitive.map (n) -> n.replace /ьь/, "ь"
 
-      rest = rest[...-longestSuffix] if longestSuffix > 0
+        rest = rest[...-longestSuffix] if longestSuffix > 0
 
-      personalInfinitives  = []
-      pluralInfinitives    = []
+        personalInfinitives  = []
+        pluralInfinitives    = []
 
-      console.log "infinitives = #{infinitive}"
-      for inf in infinitive
-        inclines = inclineNoun inf
-        unless inclines.found
-          continue
-        console.log "inclines for [#{inf}]: #{JSON.stringify(inclines)}"
-        for c in cases
-          if inclines.personal[c]
-#            console.log "personal inclines for [#{c} / #{inf}]: #{JSON.stringify(inclines.personal[c])}"
-            for word in inclines.personal[c]
-              personalInfinitives.push inf if word is noun  and not (inf in personalInfinitives)
-          if inclines.plural[c]
-#            console.log "plural inclines for [#{c} / #{inf}]: #{JSON.stringify(inclines.plural[c])}"
+  #      console.log "infinitives = #{infinitive}"
+        for inf in infinitive
+          inclines = inclineNoun inf
+          unless inclines.found
+            continue
+#          console.log "inclines for [#{inf}]: #{JSON.stringify(inclines)}"
+          for c in personal_cases
+            if inclines.personal[c]
+  #            console.log "personal inclines for [#{c} / #{inf}]: #{JSON.stringify(inclines.personal[c])}"
+              for word in inclines.personal[c]
+                personalInfinitives.push inf if word is noun  and not (inf in personalInfinitives)
+          for c in plural_cases
+            if inclines.plural[c]
+  #            console.log "plural inclines for [#{c} / #{inf}]: #{JSON.stringify(inclines.plural[c])}"
 
-            for word in inclines.plural[c]
-              pluralInfinitives.push inf if word is noun  and not (inf in pluralInfinitives)
+              for word in inclines.plural[c]
+                pluralInfinitives.push inf if word is noun  and not (inf in pluralInfinitives)
 
-
-      pi = []
-      pluralInfinitives.map (inf) ->
-        # ья - valid
-        # <other>я - invalid
-        end = inf[-2..]
-        if "я" is end[1]
-          if end in ["ья", "ля"]
-            pi.push inf
-        else
-          pi.push inf
-
-      found        : found
-      infinitive   : personalInfinitives
-      pluralInfinitive : pi
-      infinitive0   : infinitive
-      cases        : cases
-      suffix       : suffixes
-      end          : end
-      rest         : rest
-      probably     : end.length + suffixes.length
+      found            : found
+      infinitive       : personalInfinitives
+      pluralInfinitive : pluralInfinitives
+#      infinitive0      : infinitive
+      personal_cases   : personal_cases
+      plural_cases     : plural_cases
+      suffix           : suffixes
+      end              : end
+      rest             : rest
+      probably         : end.length + suffixes.length
       prepositions :
         "nominative"    : null
         "genitive"      : "без,у,до,от,с,около,из,возле,после,для,вокруг".split ","
