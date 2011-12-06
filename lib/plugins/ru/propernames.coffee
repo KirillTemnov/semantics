@@ -11,15 +11,13 @@ if "undefined" is typeof global
     window.lastName.plugins.ru            ||= {}
     window.lastName.plugins.ru.propernames  = {}
     exports                                 = window.lastName.plugins.ru.propernames
-    morpho                                  = window.lastName.plugins.ru.morpho
     inclines                                = window.lastName.plugins.ru.inclines
 else
     exports                                 = module.exports
-    morpho                                  = require "./morpho"
     inclines                                = require "./inclines"
 
 
-((exports, morpho, inclines) ->
+((exports, inclines) ->
 
   ###
   Get proper names from text. This function merge similar names to one entity.
@@ -133,4 +131,4 @@ else
     result.ru.persons = getProperNames text
     result.ru.addresses = getAddresses text
 
-)(exports, morpho, inclines)
+)(exports, inclines)
