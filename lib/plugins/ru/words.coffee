@@ -76,18 +76,21 @@ else
                  ru.words      : Dict of russian words and count of occurrences for each
                  ru.reg_words  : Dict of russian immutable words and count of occurrences
                  ru.stop_words : Dict of russian stop words and count of occurrences
+  @param {Array} customStopWords Array of custom stop words, :default null
+                                  (use inline stop words array)
   ###
-  exports.preFilter = (text, result) ->
+  exports.preFilter = (text, result, customStopWords) ->
     result.ru    ||= {}
     words          = []
     reg_words      = []
     stop_words     = []
+    swArray        = if customStopWords then customStopWords else stopWords
     for s in result.misc.sentences || []
       reduce = s.toLowerCase().split(" ").filter( (wrd) ->  /^[-а-яё]+$/.test(wrd) and not /^\-+$/.test wrd)
       for w in reduce
-        if w in stopWords
+        if w in swArray
           stop_words.push w
-        if w in stopWords or w in unions or w in personals or w in adverbs or w in prepositions
+        if w in swArray or w in unions or w in personals or w in adverbs or w in prepositions
           stop_words.push w
           reg_words.push w unless w in stopWords
         else
