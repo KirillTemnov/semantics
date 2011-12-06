@@ -23,6 +23,8 @@
   <button id="analysis">анализ</button>
   <button id="feelings">все данные</button>
   <button id="verb-infinitive"> инфинитив глагола</button>
+  <button id="analyse-noon"> существительное</button>
+  <button id="guess-initial-form"> исходное слово </button>
   <button id="clear">очистить</button>
   <br/>
   <br/>
@@ -30,12 +32,14 @@
   </textarea>
 
     <script type="text/javascript">
-      var fanalysis  = document.getElementById("analysis"),
-          clear      = document.getElementById("clear"),
-          ffeelings  = document.getElementById("feelings"),
-          fverbinf   = document.getElementById("verb-infinitive"),
-          input      = document.getElementById("in-text"),
-          output     = document.getElementById("out-text");
+      var fanalysis       = document.getElementById("analysis"),
+          clear           = document.getElementById("clear"),
+          ffeelings       = document.getElementById("feelings"),
+          fverbinf        = document.getElementById("verb-infinitive"),
+          fnoon           = document.getElementById("analyse-noon"),
+          input           = document.getElementById("in-text"),
+          fguessInitForm  = document.getElementById("guess-initial-form"),
+          output          = document.getElementById("out-text");
 
       clear.addEventListener("click", function() {
           output.value  = "";
@@ -57,6 +61,29 @@
       ].filter(function(x) { return !!x;});
           output.value = out.join("\n");
         }, false);
+
+      fguessInitForm.addEventListener("click", function () {
+          var word = input.value.trim(),
+              noun = lastName.plugins.ru.inclines.analyseNoun(word),
+              verb = lastName.plugins.ru.inclines.getVerbInfinitive(word),
+              adj = lastName.plugins.ru.inclines.getInitialFormOfAdjective(word);// + stop words
+          if (verb.found) {
+             output.value = "глагол: " + verb.infinitive;
+          } else if (adj.found) {
+             output.value = "прилагательное: " + adj.infinitive[0];
+          } else if (noun.found) {
+             output.value = "существительное: " +  (noun.infinitive.length > 0 ? noun.infinitive[0] : noun.pluralInfinitive[0]);
+          } else {
+             output.value = "хм... похоже ничего не найдено"
+          }
+//          output.value = "noun :\n" + JSON.stringify(noun) + "\n\nverb :\n" +
+//              JSON.stringify(verb) + "\n\nadj :\n" + JSON.stringify(adj) + "\n\n";
+        }, false);
+
+      fnoon.addEventListener("click", function () {
+          output.value = JSON.stringify(lastName.plugins.ru.inclines.analyseNoun(input.value.trim()));
+        }, false);
+
 
       fverbinf.addEventListener("click", function () {
           output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()));
