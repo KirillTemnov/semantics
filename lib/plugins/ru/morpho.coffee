@@ -7,14 +7,15 @@ if "undefined" is typeof global
     window.lastName.plugins ||= {}
     window.lastName.plugins.ru || = {}
     window.lastName.plugins.ru.morpho = {}
-    exports = window.lastName.plugins.ru.morpho
-    ruWords = window.lastName.plugins.ru.words
+    exports   = window.lastName.plugins.ru.morpho
+    words     = window.lastName.plugins.ru.words
+    inclines  = window.lastName.plugins.ru.inclines
 else
-    exports = module.exports
-    ruWords = require "./words"
+    exports   = module.exports
+    words     = require "./words"
+    inclines  = require "./inclines"
 
-
-((exports, ruWords) ->
+((exports, words, inclines) ->
   ###
   Get regular expression for test words in russian language.
 
@@ -123,11 +124,11 @@ else
 
 
   exports.morpho = morphoRu = (word) ->
-    if word in ruWords.adverbs
+    if word in words.adverbs
       return {type: "abverb", value: word}
-    if (word in ruWords.prepositionAll)
+    if (word in words.prepositionAll)
       return {type: "preposition", value: word}
-    if word in ruWords.unions
+    if word in words.unions
       return {type: "union", value: word}
 
     result = {type: "", value: ""}
@@ -247,5 +248,16 @@ else
     digits: digits
     total_words: total_words
 
-)(exports, ruWords)
+
+  exports.parseSentence = (sentence) ->
+    out = []
+    for word in sentence.split " "
+      if /^[-а-яё]+$/i.test word
+        out.push "#{word} [#{inclines.classifyWord(word).type}]"
+      else
+        out.push word
+    out.join " "
+
+
+)(exports, words, inclines)
 

@@ -25,6 +25,7 @@
   <button id="verb-infinitive"> инфинитив глагола</button>
   <button id="analyse-noon"> существительное</button>
   <button id="guess-initial-form"> исходное слово </button>
+  <button id="sentence">предложение</button>
   <button id="clear">очистить</button>
   <br/>
   <br/>
@@ -37,12 +38,17 @@
           ffeelings       = document.getElementById("feelings"),
           fverbinf        = document.getElementById("verb-infinitive"),
           fnoon           = document.getElementById("analyse-noon"),
-          input           = document.getElementById("in-text"),
+          fsentence       = document.getElementById("sentence"),
           fguessInitForm  = document.getElementById("guess-initial-form"),
+          input           = document.getElementById("in-text"),
           output          = document.getElementById("out-text");
 
       clear.addEventListener("click", function() {
           output.value  = "";
+        }, false);
+
+      fsentence.addEventListener("click", function () {
+         output.value = lastName.plugins.ru.morpho.parseSentence(input.value.trim());
         }, false);
 
       fanalysis.addEventListener("click", function () {
