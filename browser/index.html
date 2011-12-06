@@ -64,20 +64,30 @@
 
       fguessInitForm.addEventListener("click", function () {
           var word = input.value.trim(),
-              noun = lastName.plugins.ru.inclines.analyseNoun(word),
-              verb = lastName.plugins.ru.inclines.getVerbInfinitive(word),
-              adj = lastName.plugins.ru.inclines.getInitialFormOfAdjective(word);// + stop words
-          if (verb.found) {
-             output.value = "глагол: " + verb.infinitive;
-          } else if (adj.found) {
-             output.value = "прилагательное: " + adj.infinitive[0];
-          } else if (noun.found) {
-             output.value = "существительное: " +  (noun.infinitive.length > 0 ? noun.infinitive[0] : noun.pluralInfinitive[0]);
+              sw = lastName.plugins.ru.words.stopWords,
+              wrd = lastName.plugins.ru.inclines.classifyWord(word);
+          if (wrd.type === "verb") {
+             output.value = "глагол: " + wrd.infinitive;
+          } else if (wrd.type === "adv") {
+             output.value = "наречие: " + wrd.infinitive;
+          } else if (wrd.type === "pronouns") {
+             output.value = "местоимение: " + wrd.infinitive;
+          } else if (wrd.type === "union") {
+             output.value = "союз: " + wrd.infinitive;
+          } else if (wrd.type === "part") {
+             output.value = "частица: " + wrd.infinitive;
+          } else if (wrd.type === "prep") {
+             output.value = "предлог: " + wrd.infinitive;
+          } else if (wrd.type === "adj") {
+             output.value = "прилагательное: " + wrd.infinitive;
+          } else if (wrd.type === "noun") {
+             output.value = "существительное: " +  wrd.infinitive;
           } else {
              output.value = "хм... похоже ничего не найдено"
           }
-//          output.value = "noun :\n" + JSON.stringify(noun) + "\n\nverb :\n" +
-//              JSON.stringify(verb) + "\n\nadj :\n" + JSON.stringify(adj) + "\n\n";
+          if (wrd.stopWord) {
+             output.value += " [стоп-слово] ";
+          }
         }, false);
 
       fnoon.addEventListener("click", function () {

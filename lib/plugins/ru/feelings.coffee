@@ -127,7 +127,7 @@ else
                 curWords.push wrd
                 cur_index = cur_index * adjIndex || adjIndex
                 break
-      cur_index = negate unless cur_index is 0
+      cur_index = negate cur_index unless cur_index is 0
       resetCurIndex()
       [index, words]
 

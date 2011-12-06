@@ -8,12 +8,14 @@ if "undefined" is typeof global
     exports = window.lastName.plugins.ru.inclines
     util = window.lastName.util
     ref = window.lastName.plugins.ru.ref
+    words = window.lastName.plugins.ru.words
 else
     exports = module.exports
     util = require "../../util"
     ref = require "./ref"
+    words = require "./words"
 
-((exports, util, ref) ->
+((exports, util, ref, words) ->
 
   cases = ["nominative", "genitive", "dative", "accusative", "instrumental", "prepositional"]
 
@@ -762,7 +764,7 @@ else
                 nObj.prepositions.instrumental  : array of prepositions for instrumental case
                 nObj.prepositions.prepositional : array of prepositions for prepositional case
   ###
-  exports.analyseNoun = (noun) ->
+  exports.analyseNoun = analyseNoun = (noun) ->
     # suffixes:
     # ек, енк, енств, еньк, еств, ец, ечк, изн, ик, ин, инк, иц, ичк,
     # ишк, ищ, л, ность, овств, оньк, ость, от, отн, ств, ушк, чик, щик, ышк, юшк
@@ -929,7 +931,7 @@ else
   @param {String} adj Adjective word (or we suspect so)
   @return {Array|null} result Return multiple variants in array or null, if not found
   ###
-  exports.getInitialFormOfAdjective = (adj) ->
+  exports.analyseAdjective = exports.getInitialFormOfAdjective = analyseAdjective = (adj) ->
     # masculine : ый, ий, его, ого, ему, ому, ым, им, ом
     # feminine  : ая, яя, ой, ей, ую, юю, ою
     # neuter    : ое, ее, ого, ому, ым, им, ом
@@ -1015,7 +1017,7 @@ else
                               forms applyed, all forms in lover case
           result.reflexive  : verb in reflexive form {true|false}
   ###
-  exports.getVerbInfinitive = (verb) ->
+  exports.getVerbInfinitive = exports.analyseVerb = analyseVerb = (verb) ->
     value =
       found      : no
       src        : verb
@@ -1127,4 +1129,82 @@ else
       value.infinitive = value.infinitive.replace "аа", "а"
     value
 
-)(exports, util, ref)
+  ###
+  Classify word for one of class: noun, verb, adjective, stop-word.
+
+  @param {String} word Word for classify
+  @param {Object} refWords dictionary of arrays of word various types.
+                           by default all words gathered from words plugin
+                  refWords.stopWords    : stop words
+                  refWords.adverbs      : adverbs
+                  refWords.pronouns     : pronouns
+                  refWords.unions       : unions
+                  refWords.prepositions : prepositions
+                  refWords.particles    : particles
+
+  @param {Object} result Result object
+                  result.type          : one of  "unknown" | "adv" | "personal" |
+                                                 "union" | "prep" | "verb" | "adj" | "noun"
+                  result.infinitive    : word infinitive form
+                  result.obj           : object (for "verb", "adj", "noun"), with
+                                         additional information
+                  result.stopWord      : true - appears only if this word in stop words list
+  ###
+  exports.classifyWord = classifyWord = (word, refWords={}) ->
+    stopWordsList  = refWords.stopWords    || words.stopWords
+    adverbs        = refWords.adverbs      || words.adverbs
+    pronouns       = refWords.pronouns     || words.allPronouns
+    unions         = refWords.unions       || words.unions
+    prepositions   = refWords.prepositions || words.prepositions
+    particles      = refWords.particles    || words.particles
+    wrd            = word.toLowerCase()
+    r =
+      type       : "unknown"
+      infinitive : wrd
+      obj        : null
+    if wrd in adverbs
+      r.type  = "adv"
+      r.obj   = wrd
+
+    else if wrd in pronouns
+      r.type  = "pronouns"
+      r.obj   = wrd
+
+    else if wrd in particles
+      r.type  = "part"
+      r.obj   = wrd
+
+    else if wrd in unions
+      r.type  = "union"
+      r.obj   = wrd
+
+    else if wrd in prepositions
+      r.type  = "prep"
+      r.obj   = wrd
+
+    else
+      verb = analyseVerb wrd
+      if verb.found
+        r.type        = "verb"
+        r.infinitive  = verb.infinitive
+        r.obj         = verb
+      else
+        adj = analyseAdjective wrd
+        if adj.found
+          r.type        = "adj"
+          r.infinitive  = adj.infinitive[0]
+          r.obj         = adj
+        else
+          noun = analyseNoun wrd
+          if noun.found
+            r.type        = "noun"
+            r.obj         = noun
+            r.infinitive  = if noun.infinitive.length > 0
+                  noun.infinitive[0]
+                else
+                  noun.pluralInfinitive[0]
+    if wrd in stopWordsList
+      r.stopWord = yes
+    r
+
+)(exports, util, ref, words)
