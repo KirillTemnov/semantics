@@ -106,7 +106,21 @@ else
   inclineMaleNameAndGetResult = ->
     inclineAndGetResult inclineMaleName,  arguments
 
+  ###
+  Incline female name in all cases and return `InclineObject`.
 
+  @param {String} name Female name
+  @param {Boolean} nominativeOnly  Flag, that set to true, if female name
+                                   exactly in the nominative case, :default false
+  @return {InclineObject} incObj Incline object
+                      incObj.found          : if name not found, other fields may be omitted
+                      incObj.scr            : source string
+                      incObj.gender         : set to "female"
+                      incObj.cases          : name in valid cases
+                      incObj.guess_case     : the most likely case
+                      incObj.nominative     : name in nominative case
+                      incObj.possible_cases : valid case names for this name
+  ###
   exports.inclineFemaleName = inclineFemaleName = (name, nominativeOnly=no) ->
     nl = name.toLowerCase()
     nominativeRe = /[адежзийклмнорстуьэя]$/g
@@ -168,7 +182,15 @@ else
     result.guess_case = name_cases[0]
     result
 
+  ###
+  Incline incline male name in all cases and return `InclineObject`, @see inclineFemaleName.
 
+  @param {String} name Male name
+  @param {Boolean} nominativeOnly  Flag, that set to true, if male name
+                                   exactly in the nominative case, :default false
+  @return {InclineObject} incObj Incline object (full spec @see in `inclineFemaleName`)
+                          incObj.gender         : set to "male"
+  ###
   exports.inclineMaleName = inclineMaleName = (name, nominativeOnly=no) ->
     name = "Лев" if name is "Льв"
     name = "Павел" if name is "Павл"
@@ -283,6 +305,20 @@ else
     result.guess_case = name_cases[0]
     result
 
+  ###
+  Incline name and return `InclineNameObject`.
+
+  @param {String} name Male or female name
+  @return {InclineNameObject} incObj Inclined name object
+                      incObj.found          : if name not found, other fields may be omitted
+                      incObj.scr            : source string
+                      incObj.gender         : "male" | "female"
+                      incObj.guess_case     : the most likely case
+                      incObj.female_cases   : valid cases name if source name is a feminine name
+                      incObj.male_cases     : valid cases name if source name is a male name
+                      incObj.possible_cases : valid case names for this name
+                      incObj.nominative     : name in nominative case
+  ###
   exports.inclineName = inclineName = (name) ->
     fn = inclineFemaleName name
     mn = inclineMaleName name
@@ -304,6 +340,11 @@ else
         result = {found: no, src: name}
     result
 
+  ###
+  Incline person surname.
+
+  ###
+  # todo this method must be refactored.
   inclineSurname = (surname, noInclinesRe, inclineRe, casesRe) ->
     result = found: null,  src: surname, cases: null, cases_index: null
     if noInclinesRe && noInclinesRe.test(surname)
@@ -331,6 +372,17 @@ else
       result.guess_case = result.surname_cases[0]
     result
 
+
+  ###
+  Incline female surname and return `InclineSurnameObject`.
+
+  @param {String} surname Female surname in any case
+  @return {InclineSurnameObject} incObj Incline surname object
+        incObj.found       : null or surname in nominative
+        incObj.src         : source string
+        incObj.cases       : array of valid case names
+        incObj.cases_index : array of valid case indexes (0 - nominative, .. 5 - prepositional)
+  ###
   exports.inclineFemaleSurname = inclineFemaleSurname = (surname) ->
     noInclinesRe = /((их)|(ых)|(е)|(о)|(э)|(и)|(ы)|(^[нв]у)|(^ую)|(уа)|(иа)|(ман)|(вич)|(ян))$/g
     inclineRe = [
@@ -351,7 +403,12 @@ else
 
     inclineSurname surname, noInclinesRe, inclineRe, casesRe
 
+  ###
+  Incline male surname and return `InclineSurnameObject`.
 
+  @param {String} surname Female surname in any case
+  @return {InclineSurnameObject} incObj Incline surname object, @see inclineFemaleSurname
+  ###
   exports.inclineMaleSurname = inclineMaleSurname = (surname) ->
     noInclinesRe = /((их)|(ых)|(^ве)|(^го)|(э)|(и)|(ы)|(^му)|(ю)|(уа)|(иа))$/g
     inclineRe = [
@@ -378,7 +435,10 @@ else
       ]
     inclineSurname surname, noInclinesRe, inclineRe, casesRe
 
+  ###
+  Incline middle name or surname
 
+  ###
   inclineMiddleNameOrSurname = (src, fem, male) ->
     if fem.found == male.found == null
       result = {found: no, src: src, value: null, gender: null}
@@ -409,7 +469,13 @@ else
       result = {found: yes, src: src, gender: "female", female_cases: fem.cases, guess_case: fem.guess_case, nominative: fem.found, possible_cases: fem.cases}
     result
 
+  ###
+  Incline person surname and return `InclineSurnameObject`.
 
+  @param {String} surname Surname in any case.
+  @return {InclineSurnameObject} incObj ddd
+  ###
+  # todo add descr
   exports.inclineSurname = inclinePersonSurname = (surname) ->
     inclineMiddleNameOrSurname surname, inclineFemaleSurname(surname), inclineMaleSurname(surname)
 
@@ -563,9 +629,28 @@ else
     result.src = listOfWords.join " "
     result
 
+  ###
+  Filter nouns. Remove from nouns array words, that have non-noun endinds.
+
+  @param {Array} nouns Array of russian words
+  @return {Array} rNouns Words, which may be a nouns
+  ###
   exports.filterNounsArray = filterNounsArray = (nouns) ->
     noun for noun in nouns when noun.length >= 2 and noun[-2..] in ["аб", "ав", "аг", "ад", "аж", "аз", "ай", "ак", "ал", "ам", "ан", "ап", "ар", "ас", "ат", "ау", "аф", "ах", "ац", "ач", "аш", "ащ", "ба", "бе", "би", "бл", "бо", "бр", "бу", "бы", "ва", "ве", "ви", "во", "вр", "ву", "вш", "вы", "вя", "га", "го", "да", "де", "др", "ду", "ды", "еб", "ев", "ег", "ед", "еж", "ез", "ей", "ек", "ел", "ем", "ен", "ер", "ес", "ет", "еф", "ех", "ец", "еч", "ещ", "ея", "жа", "за", "зе", "зи", "зл", "зм", "зу", "зы", "зя", "иа", "иб", "ив", "иг", "ид", "ие", "иж", "из", "ии", "ий", "ик", "ил", "им", "ин", "ио", "ип", "ир", "ис", "ит", "иф", "их", "иц", "ич", "иш", "ищ", "ию", "ия", "ка", "ке", "ки", "ко", "кс", "кт", "ку", "кэ", "кё", "ла", "лб", "лг", "лд", "ле", "лз", "ли", "лк", "лм", "лн", "ло", "лп", "лт", "лу", "лы", "ля", "лё", "ль", "ма", "мб", "ме", "мж", "ми", "мн", "мо", "мп", "мс", "мт", "му", "мф", "мы", "мэ", "мя", "на", "нг", "нд", "ни", "нк", "но", "нс", "нт", "нч", "нш", "ню", "нь", "ня", "об", "ов", "ог", "од", "ож", "оз", "ои", "ой", "ок", "ол", "ом", "он", "оп", "ор", "ос", "от", "ох", "оц", "оч", "оэ", "ою", "оя", "па", "пе", "пи", "по", "пу", "пы", "пэ", "ра", "рг", "ре", "ри", "рн", "рп", "рс", "рт", "ру", "рф", "рч", "рщ", "ры", "рю", "ря", "са", "се", "си", "ск", "сл", "см", "со", "сп", "ст", "су", "сы", "сю", "ся", "та", "тв", "те", "ти", "тл", "тм", "то", "тр", "тс", "ту", "тц", "тч", "ты", "тэ", "тю", "тя", "тё", "уа", "уб", "уг", "уд", "уж", "уз", "уй", "ук", "ул", "ум", "ун", "уп", "ур", "ус", "ут", "ух", "уч", "уш", "уя", "фт", "ха", "хв", "ца", "це", "цк", "цо", "цу", "цы", "ча", "чв", "че", "чи", "чо", "чу", "ша", "ши", "ща", "ще", "щи", "щу", "ыб", "ыв", "ыд", "ыж", "ык", "ыл", "ым", "ын", "ыр", "ыс", "ыт", "ыч", "ыш", "ыщ", "ье", "ьи", "ью", "ья", "ьё", "юв", "юг", "юд", "юз", "юй", "юк", "юм", "юн", "юп", "юр", "юс", "ют", "юф", "юх", "юц", "юч", "юш", "ющ", "яб", "яг", "яд", "яж", "яз", "як", "ял", "ям", "ян", "яп", "яр", "яс", "ят", "ях", "яч", "яш", "ящ", "яя", "ёб", "ём", "ёс", "ён"]
 
+  ###
+  Incline noun in nominative  and return `InclinedNoun` instance.
+
+  @param {String} noun Noun in nominative
+  @param {InclinedNoun} incNoun Incline noun instance
+      incNoun.found    : if noun found this flag set to true, and 2
+                         other fields have what ever values
+      incNoun.personal : personal inclines | dictionary, consisting of fields `genetive`,
+      incNoun.plural   : plural inclines   | `dative`, `accusative`, `instrumental`,
+                                           | `prepositional`, each of them consist from
+                                           | array of possible noun strings (one of)
+                                           | or null, if noun can\'t be inclined
+  ###
   exports.inclineNoun =  inclineNoun = (noun) ->
     nouns = filterNounsArray [noun]
 
@@ -580,12 +665,12 @@ else
     m = if match then match[0] else ""
     switch (m)
       when "а", "я"
-        i.genitive       = [ if m is "а" then "#{rest}ы" else "#{rest}и" ]
-        i.dative         = [ "#{rest}и", "#{rest}е" ]
-        i.accusative     = [ "#{rest}у", "#{rest}ю" ]
-        i.instrumental   = [ "#{rest}ой", "#{rest}ою", "#{rest}ей", "#{rest}ею" ]
-        i.prepositional  = ["#{rest}е", "#{rest}и" ]
-
+        i =
+          genitive       : [ if m is "а" then "#{rest}ы" else "#{rest}и" ]
+          dative         : [ "#{rest}и", "#{rest}е" ]
+          accusative     : [ "#{rest}у", "#{rest}ю" ]
+          instrumental   : [ "#{rest}ой", "#{rest}ою", "#{rest}ей", "#{rest}ею" ]
+          prepositional  : ["#{rest}е", "#{rest}и" ]
 
         p =
           genitive      : null
@@ -603,13 +688,21 @@ else
           instrumental  : null
           prepositional : null
 
-        p.genitive       = [ "#{rest}", "#{rest}ей", "#{rest}ов", "#{rest}ев" ]
-        p.dative         = [ "#{rest}ам", "#{rest}ям" ]
-        p.accusative     = [ "#{rest}", "#{rest}и", "#{rest}ы", "#{rest}ей", "#{rest}а", "#{rest}я" ]
-        p.instrumental   = [ "#{rest}ами", "#{rest}ями" ]
-        p.prepositional  = [ "#{rest}ах", "#{rest}ях" ]
+        p =
+          genitive       : [ "#{rest}", "#{rest}ей", "#{rest}ов", "#{rest}ев" ]
+          dative         : [ "#{rest}ам", "#{rest}ям" ]
+          accusative     : [ "#{rest}", "#{rest}и", "#{rest}ы", "#{rest}ей", "#{rest}а", "#{rest}я" ]
+          instrumental   : [ "#{rest}ами", "#{rest}ями" ]
+          prepositional  : [ "#{rest}ах", "#{rest}ях" ]
 
       when "о", "е"
+        i =
+          genitive       : [ "#{rest}а", "#{rest}я" ]
+          dative         : [ "#{rest}у", "#{rest}ю" ]
+          accusative     : [ noun ]
+          instrumental   : [ "#{rest}ом", "#{rest}ем" ]
+          prepositional  : [ "#{rest}и", "#{rest}е" ]
+
         p =
           genitive      : null
           dative        : null
@@ -617,11 +710,6 @@ else
           instrumental  : null
           prepositional : null
 
-        i.genitive       = [ "#{rest}а", "#{rest}я" ]
-        i.dative         = [ "#{rest}у", "#{rest}ю" ]
-        i.accusative     = [ noun ]
-        i.instrumental   = [ "#{rest}ом", "#{rest}ем" ]
-        i.prepositional  = [ "#{rest}и", "#{rest}е" ]
       when "ь"
         i =
           genetive      : ["#{rest}я", "#{rest}и"]
@@ -636,6 +724,12 @@ else
           instrumental  : ["#{rest}ями"]
           prepositional : ["#{rest}ях"]
       when ""
+        i =
+          genitive       : [ "#{rest}а", "#{rest}я", "#{rest}и" ]
+          dative         : [ "#{rest}у", "#{rest}ю", "#{rest}и" ]
+          accusative     : [ noun ]
+          instrumental   : [ "#{rest}ом", "#{rest}ем", "#{rest}ю" ]
+          prepositional  : [ "#{rest}и", "#{rest}е" ]
         p =
           genitive      : null
           dative        : null
@@ -643,18 +737,31 @@ else
           instrumental  : null
           prepositional : null
 
-        i.genitive       = [ "#{rest}а", "#{rest}я", "#{rest}и" ]
-        i.dative         = [ "#{rest}у", "#{rest}ю", "#{rest}и" ]
-        i.accusative     = [ noun ]
-        i.instrumental   = [ "#{rest}ом", "#{rest}ем", "#{rest}ю" ]
-        i.prepositional  = [ "#{rest}и", "#{rest}е" ]
-
 
     personal : i
     plural   : p
     found    : yes
 
+  ###
+  Analyse noun and return `nounObj`.
 
+  @param {Strings} noun Noun in any form
+  @return {nounObj} nObj Noun object
+                nObj.found                      : true if noun found
+                nObj.infinitive                 : array of infinitive forms of noun
+                nObj.pluralInfinitive           : array of infinitive forms of noun in plural
+                nObj.personal_cases             : array of case names for noin in personal
+                nObj.plural_cases               : array of case names for noin in personal
+                nObj.suffix                     : array of suffixes (may be part of word root!)
+                nObj.end                        : word end (for zero end - empty string)
+                nObj.rest                       : word without end
+                nObj.prepositions.nominative    : array of prepositions for nominative case
+                nObj.prepositions.genetive      : array of prepositions for genetive case
+                nObj.prepositions.dative        : array of prepositions for dative case
+                nObj.prepositions.accusative    : array of prepositions for accusative case
+                nObj.prepositions.instrumental  : array of prepositions for instrumental case
+                nObj.prepositions.prepositional : array of prepositions for prepositional case
+  ###
   exports.analyseNoun = (noun) ->
     # suffixes:
     # ек, енк, енств, еньк, еств, ец, ечк, изн, ик, ин, инк, иц, ичк,
@@ -793,17 +900,21 @@ else
               for word in inclines.plural[c]
                 pluralInfinitives.push inf if word is noun  and not (inf in pluralInfinitives)
 
-      found            : found
-      infinitive       : filterNounsArray personalInfinitives
-      pluralInfinitive : filterNounsArray pluralInfinitives
+      personalInfinitives  ||= []
+      pluralInfinitives    ||= []
+
+      infinitive = filterNounsArray personalInfinitives
+      pluralInfinitive = filterNounsArray pluralInfinitives
+      found            : infinitive.length + pluralInfinitives.length > 0
+      infinitive       : infinitive
+      pluralInfinitive : pluralInfinitive
       personal_cases   : personal_cases
       plural_cases     : plural_cases
       suffix           : suffixes
       end              : end
       rest             : rest
-      probably         : end.length + suffixes.length
       prepositions :
-        "nominative"    : null
+        "nominative"    : []
         "genitive"      : "без,у,до,от,с,около,из,возле,после,для,вокруг".split ","
         "dative"        : "к,по".split ","
         "accusative"    : "в,за,на,про,через".split ","
@@ -845,45 +956,50 @@ else
     # cases
     if /(ый|ий|ая|яя|ое|ее)$/.test adj
       value.cases = ["nominative"]
+      value.found = yes
 
     # infinitive - nominative
     if adj[-2] in ["ий", "ый"]
       value.gender = "masculine"
       value.infinitive = adj
+      value.found = yes
     else if adj[-2..] in ["ая", "яя"]
       value.infinitive = "#{adjNoEnd}#{adj[-2] is 'а' and 'ый' or 'ий'}"
       value.gender = "feminine"
+      value.found = yes
     else if adj[-2..] in ["ое", "ее"]
       value.infinitive = "#{adjNoEnd}#{adj[-2] is 'о' and 'ый' or 'ий'}"
       value.gender = "neuter"
+      value.found = yes
     else if adj[-2..] in ["ые", "ие"]
       value.infinitive = "#{adjNoEnd}#{adj[-2] is 'ы' and 'ый' or 'ий'}"
+      value.found = yes
 
     # infinitive - genitive
     else if adj[-3..] in ["ого", "его"]
       value.gender = ["masculine", "neuter"]
       value.infinitive = "#{adjNoEnd}#{adj[-3] is 'о' and 'ый' or 'ий'}"
+      value.found = yes
     else if adj[-2..] in ["ой", "ей"]
       value.gender = "feminine"
       value.infinitive = "#{adjNoEnd}#{adj[-2] is 'о' and 'ый' or 'ий'}"
+      value.found = yes
     else if adj[-2..] in ["ых", "их"]
       value.infinitive = "#{adjNoEnd}#{adj[-2] is 'ы' and 'ый' or 'ий'}"
+      value.found = yes
 
     # infinitive - dative
     else if adj[-3..] in ["ому", "ему"]
       value.gender = ["masculine", "neuter"]
       value.infinitive = "#{adjNoEnd}#{adj[-3] is 'о' and 'ый' or 'ий'}"
-#     else if
-
-# value.gender =
-#       value.infinitive = "#{adj[..-3]}"
-#     else
+      value.found = yes
 
     if /^[а-яё]{2,}(ими|ого|его|ому|ыми)$/gi.test adj
       base = adj[..-4]
     else
       base = adj[..-3]
-    ["#{base}ый", "#{base}ий", "#{base}ой"]
+    value.infinitive = ["#{base}ый", "#{base}ий", "#{base}ой"]
+    value
 
   ###
   Get verb infinitive
@@ -977,6 +1093,7 @@ else
       else if /ем$/.test verb      # I спр. 1-е лицо, мн. число
         value.infinitive = "#{verb[..-3]}ать"
         value.person = 1
+        value.plural = yes
 
       else if /(ешь|ете|ёте)$/.test verb # I спр. 2-е лицо, ед. и мн. число
         value.infinitive = "#{verb[..-4]}ать"
@@ -1006,18 +1123,8 @@ else
         value.found = no
         value.time = no
 
-      # # todo remove verb conjugations at all?
-      # if /[а-яё]{3,}(у|ю|ем|ешь|ете|ет|ут|ют|им|ишь|ите|ит|ат|ят)$/.test verb # невозвратные
-      #   # II спряжение (I conjugation)
-      #   # [у, ю,] ишь, ит, им, ите, ат, ят
-      #   # ить, еть, ать
-      #   if /[а-яё]{3,}(ишь|ит|им|ите|ат|ят)$/.test verb
-      #     result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}"]
-      #   else if /[а-яё]{3,}(у|ю|ешь|ет|ем|ете|ут|ют)$/.test verb
-      #   # I спряжение (II conjugation)
-      #   # у, ю, ешь, ет, ем, ете, ут, ют
-      #   # ить, еть, ать, оть, уть, ть
-      #     result = ["#{verb}ить#{verbEnd}", "#{verb}ать#{verbEnd}", "#{verb}еть#{verbEnd}", "#{verb}оть#{verbEnd}", "#{verb}уть#{verbEnd}", "#{verb}ть#{verbEnd}"]
+    if value.infinitive
+      value.infinitive = value.infinitive.replace "аа", "а"
     value
 
 )(exports, util, ref)
