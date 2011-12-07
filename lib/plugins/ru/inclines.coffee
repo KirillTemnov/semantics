@@ -682,7 +682,7 @@ else
           prepositional : null
 
 
-      when "ы", "и"
+      when "ы", "и"             #
         i =
           genitive      : null
           dative        : null
@@ -777,9 +777,9 @@ else
     # ам, ям, ыми, ими, ов, ев, ей, ами, ями, ах, ях
     #
     noun       = noun.toLowerCase()
-    wordEndRe  = /(енств|ность|овств|еньк|еств|есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
+    wordEndRe  = /(енств|ность|овств|еньк|еств|есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ей|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
     if wordEndRe.test noun
-      endRe          = /(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
+      endRe          = /(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ей|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
       end            = noun.match(endRe)[0]
       suffixes       = []
       rest           = if end.length > 0 then noun[...-(end.length)] else noun
@@ -880,6 +880,7 @@ else
           infinitive           = []
           personal_cases =[]
           plural_cases         = []
+
 
       unless pluralInfinitives
         infinitive = infinitive.map (n) -> n.replace /ьь/, "ь"
@@ -1184,27 +1185,37 @@ else
 
     else
       verb = analyseVerb wrd
+      adj = analyseAdjective wrd
+      noun = analyseNoun wrd
+
       if verb.found
         r.type        = "verb"
         r.infinitive  = verb.infinitive
         r.obj         = verb
-      else
-        adj = analyseAdjective wrd
-        if adj.found
-          r.type        = "adj"
-          r.infinitive  = adj.infinitive[0]
-          r.obj         = adj
-        else
-          noun = analyseNoun wrd
-          if noun.found
+        if noun.found
+          r.type = "verb/noun"
+          r.noun = noun
+      else if adj.found
+        r.type        = "adj"
+        r.infinitive  = adj.infinitive
+        r.obj         = adj
+        if noun.found
+          r.type = "adj/noun"
+          r.noun = noun
+
+      else if noun.found
             r.type        = "noun"
             r.obj         = noun
             r.infinitive  = if noun.infinitive.length > 0
                   noun.infinitive[0]
                 else
                   noun.pluralInfinitive[0]
-    if wrd in stopWordsList
+    if (wrd in stopWordsList) or (r.infinitive in stopWordsList)
       r.stopWord = yes
     r
 
 )(exports, util, ref, words)
+
+
+
+

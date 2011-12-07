@@ -252,7 +252,7 @@ else
   exports.parseSentence = (sentence) ->
     out = []
     for word in sentence.split " "
-      if /^[-а-яё]+$/i.test word
+      if word isnt "-" and /^[-а-яё]+$/i.test word
         out.push "#{word} [#{inclines.classifyWord(word).type}]"
       else
         out.push word
