@@ -1140,7 +1140,7 @@ else
                            by default all words gathered from words plugin
                   refWords.stopWords    : stop words
                   refWords.adverbs      : adverbs
-                  refWords.pronouns     : pronouns
+                  refWords.pron         : pronouns
                   refWords.unions       : unions
                   refWords.prepositions : prepositions
                   refWords.particles    : particles
@@ -1156,21 +1156,39 @@ else
   exports.classifyWord = classifyWord = (word, refWords={}) ->
     stopWordsList  = refWords.stopWords    || words.stopWords
     adverbs        = refWords.adverbs      || words.adverbs
-    pronouns       = refWords.pronouns     || words.allPronouns
+    pronouns       = refWords.pron         || words.allPronouns
     unions         = refWords.unions       || words.unions
     prepositions   = refWords.prepositions || words.prepositions
     particles      = refWords.particles    || words.particles
     wrd            = word.toLowerCase()
+
+    signs =
+      "."  : "dot"
+      "-"  : "dash"
+      ":"  : "colon"
+      ","  : "comma"
+      "!"  : "explam"
+      "?"  : "quest"
+      "\"" : "quote"
+      "\'" : "quote"
+      "...": "three dots"
+
+
     r =
       type       : "unknown"
       infinitive : wrd
+      src        : wrd
       obj        : null
-    if wrd in adverbs
+    if !!signs[wrd]
+      r.type =  signs[wrd]
+      r.obj = signs[wrd]
+
+    else if wrd in adverbs
       r.type  = "adv"
       r.obj   = wrd
 
     else if wrd in pronouns
-      r.type  = "pronouns"
+      r.type  = "pron"
       r.obj   = wrd
 
     else if wrd in particles
@@ -1217,7 +1235,4 @@ else
     r
 
 )(exports, util, ref, words)
-
-
-
 
