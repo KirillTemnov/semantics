@@ -249,13 +249,79 @@ else
     total_words: total_words
 
 
+  ###
+  Extract pattern words from array of word sentence.
+
+  @param {Array} words Array or word objects, @see `plugins.ru.inclines.classifyWord`
+  @param {Array|null} phrasesPatters Array of phrases patterns, :optional
+  ###
+  exports.extractPatterns = extractPatterns = (words, patterns=null) ->
+    unless patterns
+      patterns = [
+        # "pron.adj.noun"            # местоим прил сущ
+        # "pron.noun"                # местоим сущ
+        # "prep.noun"                # предлог сущ
+        # "prep.adj.noun"            # предлог прил сущ
+        # "adj.adj.adj.adj.adj.noun" # 5 прил. cущ
+        # "adj.adj.adj.adj.noun"     # 4 прил. cущ
+        # "adj.adj.adj.noun"         # 3 прил. cущ
+        # "adj.adj.noun"             # 2 прил. cущ
+        "adj.noun"                 # 1 прил. cущ
+#        "verb.noun"
+#        "pron.verb.pron.prep.noun"
+#        "pron.verb.pron.prep.noun"
+      ]
+    arrayOfPhrases = []
+    maxIndex = words.length
+    while words.length > 0
+      shift = 1
+      for pat in patterns
+        pwords = pat.split "."
+        # the search
+        if pwords.length > words.length
+          continue
+
+        found = yes
+        for i in [0...pwords.length]
+          if -1 is words[i].type.indexOf pwords[i]
+            found = no
+            break
+
+        if found
+          phrase = []
+          for j in [0...i]
+            phrase.push words[j].src
+          arrayOfPhrases.push phrase
+          shift = phrase.length
+          break
+      while shift > 0
+        words.shift()
+        shift -= 1
+
+
+    arrayOfPhrases              # todo replace array of phrases by array of word objects
+
+  ###
+  Split sentence by grouping logical words.
+
+
+  @param {String} sentence Normalized sentence.
+  ###
   exports.parseSentence = (sentence) ->
+    extractedWords = []
     out = []
     for word in sentence.split " "
-      if word isnt "-" and /^[-а-яё]+$/i.test word
-        out.push "#{word} [#{inclines.classifyWord(word).type}]"
+      if /^[-!,?\"\'\.а-яё]+$/i.test word
+        iw = inclines.classifyWord(word)
+        extractedWords.push iw
+        out.push "#{word} [#{iw.type}]"
       else
+        prevEntry = null
         out.push word
+
+    out.push "\n------------------------------------------------------------\n"
+    for pat in extractPatterns extractedWords
+      out.push '"' + pat.join(" ") + '"'
     out.join " "
 
 
