@@ -166,6 +166,143 @@ else
     else
       "neutral"
 
+
+
+  ###
+  Extract pattern words from array of word sentence.
+
+  @param {Array} words Array or word objects, @see `plugins.ru.inclines.classifyWord`
+  @param {Array|null} phrasesPatters Array of phrases patterns, :optional
+  ###
+  exports.extractPatterns = extractPatterns = (words, patterns=null) ->
+    unless patterns
+      patterns = [
+        "pron.adj.noun"            # местоим прил сущ
+        "pron.noun"                # местоим сущ
+        "prep.noun"                # предлог сущ
+        "prep.adj.noun"            # предлог прил сущ
+        "adj.adj.adj.adj.adj.noun" # 5 прил. cущ
+        "adj.adj.adj.adj.noun"     # 4 прил. cущ
+        "adj.adj.adj.noun"         # 3 прил. cущ
+        "adj.adj.noun"             # 2 прил. cущ
+        "adj.noun"                 # 1 прил. cущ
+# pron.verb.adj.
+#        "verb.noun"
+#        "pron.verb.pron.prep.noun"
+#        "pron.verb.pron.prep.noun"
+      ]
+    arrayOfPhrases = []
+    maxIndex = words.length
+    while words.length > 0
+      shift = 1
+      for pat in patterns
+        pwords = pat.split "."
+        # the search
+        if pwords.length > words.length
+          continue
+
+        found = yes
+        for i in [0...pwords.length]
+          if -1 is words[i].type.indexOf pwords[i]
+            found = no
+            break
+
+        if found
+          phrase = []
+          for j in [0...i]
+            phrase.push words[j].src#infinitive
+          arrayOfPhrases.push phrase
+          shift = phrase.length
+          break
+      while shift > 0
+        words.shift()
+        shift -= 1
+
+
+    arrayOfPhrases              # todo replace array of phrases by array of word objects
+
+  ###
+  Check if word match any component of name in personsDict (first name, middle name, surname).
+
+  @param {Array} words Array of source words
+  @param {Objects} personsDict dictionary with persons,
+                   @see `plugins.ru.inclines.findProperName`
+  @param {String} result Return key from personsDict if person was found, or null.
+  ###
+  matchPersonName = (words, personsDict={}) ->
+    text = words.join(" ").toLowerCase()
+    result = null
+    if 1 < text.length
+      for k, val of personsDict
+        break if result
+        for s in val.src
+          if 0 is s.toLowerCase().indexOf text
+            result = k
+            break
+
+#        for s in val.src
+#          sl = s.toLowerCase()
+          # match only by 1-st word
+          # if 0 is 1 # sl.indexOf text
+          #   return k
+    result
+
+  ###
+  Split sentence by grouping logical words.
+
+
+  @param {String} sentence Normalized sentence.
+  ###
+  exports.parseSentence = parseSentence = (sentence, personsDict={}) ->
+    extractedWords = []
+    out = []
+    lastPname = null
+    wordsChain = []
+    for word in sentence.split " "
+      if /^[-!,?\"\'\.а-яё]+$/i.test word
+        wordsChain.push word       # remove this chain at all?
+        pnFound = matchPersonName wordsChain, personsDict
+        lastPname = pnFound if pnFound
+        unless pnFound             # match not found
+          if lastPname
+            pnWord =
+              type       : "pron/PN"
+              obj        : personsDict[lastPname] #wordsChain[0..-1]
+              src        : "<#{lastPname}>"
+              infinitive : lastPname.replace("-", " ").replace /\s+/, " "
+            extractedWords.push pnWord
+            out.push "#{lastPname} [#{pnWord.type}]"
+
+          iw = inclines.classifyWord(word)
+          extractedWords.push iw
+          out.push "#{word} [#{iw.type}]"
+          wordsChain = []
+          lastPname = null
+        else
+          console.log "mpn: #{word}"
+      else
+        if lastPname
+          pnWord =
+            type       : "pron/PN"
+            obj        : personsDict[lastPname] #wordsChain[0..-1]
+            src        : "<#{lastPname}>"
+            infinitive : lastPname.replace("-", " ").replace /\s+/, " "
+
+
+          extractedWords.push pnWord
+          out.push "#{word} [#{pnWord.type}]"
+
+        else
+          out.push word
+        wordsChain = []
+        lastPname = null
+
+    out.push "\n------------------------------------------------------------\n"
+    for pat in extractPatterns extractedWords
+      out.push '"' + pat.join(" ") + '"'
+    out.join " "
+
+
   ###
   Extract feelengs from text. This filter use results of misc `filter`.
 
@@ -181,6 +318,8 @@ else
     properNames   = if result.ru?.persons? then result.ru.persons else {}
 
     for s,i in result.misc.sentences
+      pps = parseSentence s, properNames
+      console.log "pps [ #{i} ] = #{pps}"
       [index, posIndex, posWords, negIndex, negWords] = evaluateSentenceNeutrality s, result
       emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
       overallIndex += index

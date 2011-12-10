@@ -562,6 +562,7 @@ else
     nom =  pObj.nominative && pObj.nominative || pObj[gnstr]
     nom
 
+
   exports.findProperName = findProperName = (listOfWords, opts={}) ->
     result = {found: no}
     switch listOfWords.length
@@ -1179,49 +1180,51 @@ else
       infinitive : wrd
       src        : wrd
       obj        : null
+
     if !!signs[wrd]
-      r.type =  signs[wrd]
-      r.obj = signs[wrd]
+      r.type              = signs[wrd]
+      r.obj               = signs[wrd]
+      r.sign              = yes
 
     else if wrd in adverbs
-      r.type  = "adv"
-      r.obj   = wrd
+      r.type              = "adv"
+      r.obj               = wrd
 
     else if wrd in pronouns
-      r.type  = "pron"
-      r.obj   = wrd
+      r.type              = "pron"
+      r.obj               = wrd
 
     else if wrd in particles
-      r.type  = "part"
-      r.obj   = wrd
+      r.type              = "part"
+      r.obj               = wrd
 
     else if wrd in unions
-      r.type  = "union"
-      r.obj   = wrd
+      r.type              = "union"
+      r.obj               = wrd
 
     else if wrd in prepositions
-      r.type  = "prep"
-      r.obj   = wrd
+      r.type              = "prep"
+      r.obj               = wrd
 
     else
-      verb = analyseVerb wrd
-      adj = analyseAdjective wrd
-      noun = analyseNoun wrd
+      verb                = analyseVerb wrd
+      adj                 = analyseAdjective wrd
+      noun                = analyseNoun wrd
 
       if verb.found
-        r.type        = "verb"
-        r.infinitive  = verb.infinitive
-        r.obj         = verb
+        r.type            = "verb"
+        r.infinitive      = verb.infinitive
+        r.obj             = verb
         if noun.found
-          r.type = "verb/noun"
-          r.noun = noun
+          r.type          = "verb/noun"
+          r.noun          = noun
       else if adj.found
-        r.type        = "adj"
-        r.infinitive  = adj.infinitive
-        r.obj         = adj
+        r.type            = "adj"
+        r.infinitive      = adj.infinitive
+        r.obj             = adj
         if noun.found
-          r.type = "adj/noun"
-          r.noun = noun
+          r.type          = "adj/noun"
+          r.noun          = noun
 
       else if noun.found
             r.type        = "noun"
