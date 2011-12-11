@@ -7,11 +7,13 @@ if "undefined" is typeof global
     window.lastName.plugins.ru.feelings  = {}
     exports                              = window.lastName.plugins.ru.feelings
     inclines                             = window.lastName.plugins.ru.inclines
+    quotes                               = window.lastName.plugins.ru.quotes
 else
     exports                              = module.exports
     inclines                             = require "./inclines"
+    quotes                             = require "./quotes"
 
-((exports, inclines) ->
+((exports, inclines, quotes) ->
 
   positiveAdjectives = {"авантюрный": 2, "аккуратный": 2, "активный": 2, "анимационный": 2, "аутентичный": 1.1, "баснословный": 3, "безграничный": 3, "безмятежный": 3, "безопасный": 2, "бесконечный": 2, "благодарный": 2, "благоприятный": 2, "благородный": 2, "благословенный": 2, "благотворительный": 2, "блестящий": 1.1, "богатый": 1.1, "бодрствующий": 1.1, "божественный": 3, "большой": 1.1, "быстрый": 1.1, "вдохновленный": 1.1, "великий": 3, "великолепный": 2, "веселый": 2, "взволнованный": 1.1, "видный": 2, "внимательный": 1.1, "возбужденный": 2, "воздушный": 1.1, "волнующий": 1.1, "воодушевляющий": 2, "восторженный": 2, "восхитительный": 2, "впечатляющий": 2, "врожденный": 2, "выполненный": 2, "гармоничный": 1.1, "глубокий": 1.1, "гордый": 1.1, "готовый": 1.1, "грациозный": 2, "дальновидный": 2, "динамический": 1.1, "доблестный": 2, "доверчивый": 1.1, "достойный": 2, "драгоценный": 2, "дружественный": 2, "духовный": 2, "желательный": 2, "живой": 3, "заинтересованный": 2, "замечательный": 2, "заслуженный": 2, "захватывающий": 2, "здоровый": 2, "зеленый": 1.1, "знакомый": 1.1, "знаменитый": 2, "значимый": 1.1, "игривый": 1.1, "идеальный": 3, "известный": 2, "изобретательный": 2, "изысканный": 2, "инновационный": 2, "интеллектуальный": 2, "интересный": 2, "интуитивный": 2, "исключительный": 2, "искусный": 2, "исцеленный": 2, "каждый": 1.1, "квалифицированный": 2, "классный": 1.1, "компетентный": 1.1, "конечный": 2, "красивый": 2, "красноречивый": 2, "легендарный": 2, "легкий": 1.1, "лестный": 1.1, "ликующий": 2, "лучистый": 1.1, "лучший": 2, "любопытный": 2, "любящий": 2, "магический": 1.1, "мгновенный": 2, "милостивый": 2, "милый": 2, "мирный": 1.1, "могущественный": 2, "молодой": 2, "мощный": 2, "мудрый": 2, "надежный": 2, "наивысший": 3, "напористый": 2, "находчивый": 1.1, "небесный": 2, "невероятный": 2, "независимый": 1.1, "необычный": 1.1, "неотразимый": 2, "непобедимый": 2, "непоколебимый": 2, "обильный": 1.1, "обожаемый": 2, "образный": 1.1, "огромный": 2, "одаренный": 2, "оживленный": 2, "определенный": 1.1, "оптимистичный": 1.1, "опытный": 2, "ослепительный": 3, "основной": 2, "острый": 1.1, "отличный": 2, "охватывающий": 1.1, "освежающий": 2, "очаровательный": 1.1, "ошеломляющий": 2, "питательный": 2, "плавный": 2, "плавучий": 1.1, "победоносный": 3, "повседневный": 1.1, "подготовленный": 2, "подлинный": 3, "показанный": 2, "полезный": 2, "полный": 2, "положительный": 1.1, "популярный": 1.1, "поразительный": 3, "постоянный": 2, "потрясающий": 3, "почитаемый": 2, "правдивый": 2, "превосходный": 3, "предприимчивый": 2, "прекрасный": 2, "прибыльный": 2, "привлекательный": 2, "признанный": 2, "прилежный": 1.1, "приличный": 1.1, "природный": 1.1, "приятный": 1.1, "продуктивный": 1.1, "проницательный": 2, "простой": 1.1, "процветающий": 2, "прямой": 1.1, "пылающий": 2, "радостный": 2, "разносторонний": 1.1, "разумный": 2, "рассудительный": 2, "решительный": 2, "свежий": 1.1, "сверкающий": 1.1, "святой": 3, "сенсационный": 3, "сердечный": 2, "сильный": 1.1, "синхронизированный": 1.1, "сияющий": 2, "славный": 2, "смелый": 2, "смешной": 1.1, "соблазнительный": 2, "сознательный": 2, "сокрушительный": 3, "солнечный": 2, "состоятельный": 2, "спокойный": 1.1, "спонтанный": 2, "способный": 2, "стойкий": 2, "страстный": 2, "счастливый": 2, "тактичный": 1.1, "талантливый": 2, "творческий": 1.1, "теплый": 1.1, "терапевтический": 1.1, "тихий": 1.1, "трудолюбивый": 1.1, "тщательный": 1.1, "уважаемый": 2, "уверенный": 2, "увлекательный": 2, "удивительный": 2, "удобный": 2, "удовлетворенный": 2, "умный": 2, "уникальный": 3, "упорный": 2, "успешный": 2, "установленный": 1.1, "утвердительный": 1.1, "храбрый": 2, "художественный": 1.1, "целебный": 2, "ценный": 2, "цепкий": 2, "честный": 2, "чистый": 1.1, "чувствительный": 1.1, "чудесный": 2, "чудотворный": 3, "шипучий": 1.1, "шокирующий": 1.1, "щедрый": 2, "элегантный": 2, "электризующий": 2, "энергичный": 2, "эффективный": 2, "юмористический": 2, "яркий": 2, "мотивированный": 2, "связанный": 1}
 
@@ -191,6 +193,7 @@ else
 #        "pron.verb.pron.prep.noun"
 #        "pron.verb.pron.prep.noun"
       ]
+    words = words[0..-1]
     arrayOfPhrases = []
     maxIndex = words.length
     while words.length > 0
@@ -239,68 +242,60 @@ else
           if 0 is s.toLowerCase().indexOf text
             result = k
             break
-
-#        for s in val.src
-#          sl = s.toLowerCase()
-          # match only by 1-st word
-          # if 0 is 1 # sl.indexOf text
-          #   return k
     result
 
   ###
   Split sentence by grouping logical words.
 
-
   @param {String} sentence Normalized sentence.
   ###
   exports.parseSentence = parseSentence = (sentence, personsDict={}) ->
-    extractedWords = []
-    out = []
-    lastPname = null
-    wordsChain = []
+    extractedWords  = []
+    lastPname       = null
+    openQuote       = no
+    qq              = quotes.getQuotes sentence
+    wordsChain      = []
+
+
+
     for word in sentence.split " "
       if /^[-!,?\"\'\.а-яё]+$/i.test word
         wordsChain.push word       # remove this chain at all?
-        pnFound = matchPersonName wordsChain, personsDict
-        lastPname = pnFound if pnFound
+        pnFound    = matchPersonName wordsChain, personsDict
+        lastPname  = pnFound if pnFound
         unless pnFound             # match not found
           if lastPname
             pnWord =
               type       : "pron/PN"
-              obj        : personsDict[lastPname] #wordsChain[0..-1]
-              src        : "<#{lastPname}>"
-              infinitive : lastPname.replace("-", " ").replace /\s+/, " "
+              obj        : personsDict[lastPname]
+              src        : wordsChain[..-2].join " "
+              propername : yes
+              infinitive : "<#{lastPname}>"
+
             extractedWords.push pnWord
-            out.push "#{lastPname} [#{pnWord.type}]"
 
           iw = inclines.classifyWord(word)
           extractedWords.push iw
-          out.push "#{word} [#{iw.type}]"
+
           wordsChain = []
           lastPname = null
-        else
-          console.log "mpn: #{word}"
       else
         if lastPname
           pnWord =
             type       : "pron/PN"
             obj        : personsDict[lastPname] #wordsChain[0..-1]
-            src        : "<#{lastPname}>"
-            infinitive : lastPname.replace("-", " ").replace /\s+/, " "
-
-
+            src        : wordsChain[..-2].join " "
+            propername : yes
+            infinitive : "<#{lastPname}>" #lastPname.replace("-", " ").replace /\s+/, " "
           extractedWords.push pnWord
-          out.push "#{word} [#{pnWord.type}]"
 
-        else
-          out.push word
         wordsChain = []
         lastPname = null
 
-    out.push "\n------------------------------------------------------------\n"
-    for pat in extractPatterns extractedWords
-      out.push '"' + pat.join(" ") + '"'
-    out.join " "
+    result =
+      quotes         : qq
+      extractedWords : extractPatterns extractedWords
+      ew             : extractedWords.map (z) -> z.infinitive
 
 
   ###
@@ -319,7 +314,7 @@ else
 
     for s,i in result.misc.sentences
       pps = parseSentence s, properNames
-      console.log "pps [ #{i} ] = #{pps}"
+      console.log "pps [ #{i} ] = #{JSON.stringify pps}"
       [index, posIndex, posWords, negIndex, negWords] = evaluateSentenceNeutrality s, result
       emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
       overallIndex += index
@@ -347,4 +342,4 @@ else
       absIndex     : absIndex
 #      properNames  : properNames
 
-)(exports, inclines)
+)(exports, inclines, quotes)

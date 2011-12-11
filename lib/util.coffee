@@ -10,7 +10,7 @@ else
     exports = module.exports
 
 ((exports) ->
-  exports.version   = "0.3.45"
+  exports.version   = "0.3.116"
 
   ###
   Capitalize word.

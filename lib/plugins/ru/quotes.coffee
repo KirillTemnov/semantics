@@ -18,6 +18,26 @@ else
 ((exports, util) ->
 
   ###
+  Get quotes from text.
+
+  @param {String} text Source text
+  @return {Array} result Array of quoted strings, may be empty.
+  ###
+  exports.getQuotes = getQuotes = (text) ->
+    # quoted text
+    ruQuotesRe     = /(\"\s{0,}[-а-яё\d]+(\s[-а-яё\d]+){0,}\s{0,}\")|(\'\s{0,}[-а-яё\d]+(\s[-а-яё\d]+){0,}\s{0,}\')|(«\s{0,}[-а-яё\d]+(\s[-а-яё\d]+){0,}\s{0,}»)|(„\s{0,}[-а-яё\d]+(\s[-а-яё\d]+){0,}\s{0,}\“)/ig
+    enQuotesRe     = /(\"\s{0,}[-a-z\d]+(\s[-a-z\d]+){0,}\s{0,}\")|(\'\s{0,}[-a-z\d]+(\s[-a-z\d]+){0,}\s{0,}\')/ig
+    quotedRe       = /(\"[^\"]+\")|(\'[^\']+\')|(«[^»]+»)|(„[^“]“)/mig
+
+    ruMatchQuotes  = util.unique text.match(ruQuotesRe) || []
+    enMatchQuotes  = util.unique text.match(enQuotesRe) || []
+
+    quotes         = []
+    for q in util.unique text.match(quotedRe) || []
+      quotes.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
+    quotes
+
+  ###
   Extract quotes and quoted text from source text.
 
   @param {String} text Source text
@@ -25,18 +45,6 @@ else
                  quotes     : Array of quotes in text
   ###
   exports.preFilter = (text, result) ->
-    # quoted text
-    ruQuotesRe = /(\"[-а-яё\d]+(\s[-а-яё\d]+){0,}\")|(\'[-а-яё\d]+(\s[-а-яё\d]+){0,}\')|(«[-а-яё\d]+(\s[-а-яё\d]+){0,}»)|(„[-а-яё\d]+(\s[-а-яё\d]+){0,}\“)/ig
-    enQuotesRe = /(\"[-a-z\d]+(\s[-a-z\d]+){0,}\")|(\'[-a-z\d]+(\s[-a-z\d]+){0,}\')/ig
-    quotedRe = /(\"[^\"]+\")|(\'[^\']+\')|(«[^»]+»)|(„[^“]“)/mig
-
-    ruMatchQuotes = util.unique text.match(ruQuotesRe) || []
-    enMatchQuotes = util.unique text.match(enQuotesRe) || []
-
-    quotes = []
-    for q in util.unique text.match(quotedRe) || []
-      quotes.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
-
-    result.quotes = quotes
+    result.quotes   = getQuotes text
 
 )(exports, util)

@@ -52,7 +52,7 @@
         }, false);
 
       fanalysis.addEventListener("click", function () {
-          result = lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings])
+          result = lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings])
           out = [ "Всего слов: \t\t" + result.counters.words_total,
                   "Стоп слов: \t\t" + result.counters.stop_words_total,
                   "Предложений: \t\t" + result.misc.sentences.length,
@@ -107,7 +107,7 @@
 
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings]));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.quotes, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings]));
         }, false);
 
     </script>

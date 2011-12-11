@@ -14,6 +14,21 @@ else
 ((exports, util) ->
 
   ###
+  Normalize text: insert space after and before each of punctiuation signs,
+  remove double spaces, add dot at end of text, if omited.
+
+  @param {String} text Source text
+  @return {String} result Normalized text
+  ###
+  exports.normalizeText = normalizeText = (text) ->
+    punctuationRe = /(https?\:\/\/.*[\s$])|(\.\s)|(,\s)|(\s\:)|(:\s)|(\s\/)|(\/\s)|(\s\\)(\\\s)|\?|!|\+|\'|\"|«|»|\*|\(|\)|\[|\]|\&|\№|“|”|\—/g
+
+    tempTxt = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
+    unless /[\?\!\.]\s{0,}$/.test tempTxt
+      tempTxt += " . "
+    tempTxt
+
+  ###
   Extract digits, emoticons and split text into sentences.
 
   @param {String} text Source text
@@ -57,11 +72,7 @@ else
 
 
     # split text on sentences
-    punctuationRe = /(https?\:\/\/.*[\s$])|(\.\s)|(,\s)|(\s\:)|(:\s)|(\s\/)|(\/\s)|(\s\\)(\\\s)|\?|!|\+|\'|\"|«|»|\*|\(|\)|\[|\]|\&|\№|“|”|\—/g
-
-    tempTxt = text.replace(punctuationRe, " $& ").replace /\s+/g, " "
-    unless /[\?\!\.]\s{0,}$/.test tempTxt
-      tempTxt += " . "
+    tempTxt = normalizeText text
 
     # replace " . " -> " .. ",   " ! " -> " !! "  and " ? " -> " ?? "
     # then split by ".", "?" or "!", so the end sign of sentence stay inside it.

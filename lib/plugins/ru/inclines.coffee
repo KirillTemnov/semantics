@@ -1164,15 +1164,16 @@ else
     wrd            = word.toLowerCase()
 
     signs =
-      "."  : "dot"
-      "-"  : "dash"
-      ":"  : "colon"
-      ","  : "comma"
-      "!"  : "explam"
-      "?"  : "quest"
-      "\"" : "quote"
-      "\'" : "quote"
-      "...": "three dots"
+      "."    : "dot"
+      "-"    : "dash"
+      ":"    : "colon"
+      ","    : "comma"
+      "!"    : "explam"
+      "?"    : "quest"
+      "\""   : "quote"
+      "\'"   : "quote"
+      "\"\"" : "dblquote"
+      "..."  : "three dots"
 
 
     r =

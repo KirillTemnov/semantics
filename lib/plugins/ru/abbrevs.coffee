@@ -32,7 +32,7 @@ else
                  ru.abbrevs  : Dict of russian/english abbrev words and count of occurrences
   ###
   exports.preFilter = (text, result) ->
-    result.ru   ||={}
+    result.ru       ||={}
     result.ru.abbrevs = util.arrayToDict extractAbbr text
 
 )(exports, util)
