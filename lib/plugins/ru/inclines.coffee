@@ -122,15 +122,15 @@ else
                       incObj.possible_cases : valid case names for this name
   ###
   exports.inclineFemaleName = inclineFemaleName = (name, nominativeOnly=no) ->
-    nl = name.toLowerCase()
-    nominativeRe = /[адежзийклмнорстуьэя]$/g
-    canInclineRe = /[жшщцчаяь]$/g
-    genitiveRe = /[иы]$/g
-    dativeRe = /[еи]$/g
-    accusativeRe = /[жшщцчьую]$/g
-    instrumentalRe = /((ой)|(ей)|(еи)|(ью))$/g
-    prepositionalRe = /[еи]$/g
-    result = r = null
+    nl               = name.toLowerCase()
+    nominativeRe     = /[адежзийклмнорстуьэя]$/g
+    canInclineRe     = /[жшщцчаяь]$/g
+    genitiveRe       = /[иы]$/g
+    dativeRe         = /[еи]$/g
+    accusativeRe     = /[жшщцчьую]$/g
+    instrumentalRe   = /((ой)|(ей)|(еи)|(ью))$/g
+    prepositionalRe  = /[еи]$/g
+    result           = r = null
     if nominativeRe.test(nl) && ref.ruFemaleNamesDict[nl]
       if canInclineRe.test nl
         name_cases = doInclineFemaleName name
@@ -195,17 +195,17 @@ else
     name = "Лев" if name is "Льв"
     name = "Павел" if name is "Павл"
 
-    nl = name.toLowerCase()
-    nominativeRe = /([вгдзклмнпрстфхжшцьй]|(ба)|(ва)|(да)|(за)|(ла)|(ма)|(на)|(па)|(ра)|(са)|(та)|(фа)|(га)|(ка)|(ха)|(жа)|(ша)|(ща)|(ца)|(ча)|(я)|(ло)|(ко))$/g
-    canInclineRe = /([бвгдзклмнпрстфхжшцьая]|(ия)|(ья)|(ея)|(ий)|(ей))$/g
-    genitiveRe = /[аяыи]$/g
-    dativeRe = /(([еую])|(ии))$/g
-    accusativeRe = /[аяую]$/g
-    instrumentalRe = /((ом)|(ем)|(ой)|(ей)|(ёй))$/g
-    prepositionalRe = /((е)|(ии))$/g
-  #  vowels = "аеиоуэюя"
-    name2 = name[..-2]
-    result = r = null
+    nl               = name.toLowerCase()
+    nominativeRe     = /([вгдзклмнпрстфхжшцьй]|(ба)|(ва)|(да)|(за)|(ла)|(ма)|(на)|(па)|(ра)|(са)|(та)|(фа)|(га)|(ка)|(ха)|(жа)|(ша)|(ща)|(ца)|(ча)|(я)|(ло)|(ко))$/g
+    canInclineRe     = /([бвгдзклмнпрстфхжшцьая]|(ия)|(ья)|(ея)|(ий)|(ей))$/g
+    genitiveRe       = /[аяыи]$/g
+    dativeRe         = /(([еую])|(ии))$/g
+    accusativeRe     = /[аяую]$/g
+    instrumentalRe   = /((ом)|(ем)|(ой)|(ей)|(ёй))$/g
+    prepositionalRe  = /((е)|(ии))$/g
+  #  vowels          = "аеиоуэюя"
+    name2            = name[..-2]
+    result           = r = null
     if nominativeRe.test(nl) && ref.ruMaleNamesDict[nl]
       if canInclineRe.test nl
         name_cases = doInclineMaleName name
@@ -636,7 +636,7 @@ else
   @return {Array} rNouns Words, which may be a nouns
   ###
   exports.filterNounsArray = filterNounsArray = (nouns) ->
-    noun for noun in nouns when noun.length >= 2 and noun[-2..] in ["аб", "ав", "аг", "ад", "аж", "аз", "ай", "ак", "ал", "ам", "ан", "ап", "ар", "ас", "ат", "ау", "аф", "ах", "ац", "ач", "аш", "ащ", "ба", "бе", "би", "бл", "бо", "бр", "бу", "бы", "ва", "ве", "ви", "во", "вр", "ву", "вш", "вы", "вя", "га", "го", "да", "де", "др", "ду", "ди", "ды", "еб", "ев", "ег", "ед", "еж", "ез", "ей", "ек", "ел", "ем", "ен", "ер", "ес", "ет", "еф", "ех", "ец", "еч", "ещ", "ея", "жа", "за", "зе", "зи", "зл", "зм", "зу", "зы", "зя", "иа", "иб", "ив", "иг", "ид", "ие", "иж", "из", "ии", "ий", "ик", "ил", "им", "ин", "ио", "ип", "ир", "ис", "ит", "иф", "их", "иц", "ич", "иш", "ищ", "ию", "ия", "ка", "ке", "ки", "ко", "кс", "кт", "ку", "кэ", "кё", "ла", "лб", "лг", "лд", "ле", "лз", "ли", "лк", "лм", "лн", "ло", "лп", "лт", "лу", "лы", "ля", "лё", "ль", "ма", "мб", "ме", "мж", "ми", "мн", "мо", "мп", "мс", "мт", "му", "мф", "мы", "мэ", "мя", "на", "нг", "нд", "ни", "нк", "но", "нс", "нт", "нч", "нш", "ню", "нь", "ня", "об", "ов", "ог", "од", "ож", "оз", "ои", "ой", "ок", "ол", "ом", "он", "оп", "ор", "ос", "от", "ох", "оц", "оч", "оэ", "ою", "оя", "па", "пе", "пи", "по", "пу", "пы", "пэ", "ра", "рг", "ре", "ри", "рн", "рп", "рс", "рт", "ру", "рф", "рч", "рщ", "ры", "рю", "ря", "са", "се", "си", "ск", "сл", "см", "со", "сп", "ст", "су", "сы", "сю", "ся", "та", "тв", "те", "ти", "тл", "тм", "то", "тр", "тс", "ту", "тц", "тч", "ты", "тэ", "тю", "тя", "тё", "уа", "уб", "уг", "уд", "уж", "уз", "уй", "ук", "ул", "ум", "ун", "уп", "ур", "ус", "ут", "ух", "уч", "уш", "уя", "фт", "ха", "хв", "ца", "це", "цк", "цо", "цу", "цы", "ча", "чв", "че", "чи", "чо", "чу", "ша", "ши", "ща", "ще", "щи", "щу", "ыб", "ыв", "ыд", "ыж", "ык", "ыл", "ым", "ын", "ыр", "ыс", "ыт", "ыч", "ыш", "ыщ", "ье", "ьи", "ью", "ья", "ьё", "юв", "юг", "юд", "юз", "юй", "юк", "юм", "юн", "юп", "юр", "юс", "ют", "юф", "юх", "юц", "юч", "юш", "ющ", "яб", "яг", "яд", "яж", "яз", "як", "ял", "ям", "ян", "яп", "яр", "яс", "ят", "ях", "яч", "яш", "ящ", "яя", "ёб", "ём", "ёс", "ён"]
+    noun for noun in nouns when noun.length >= 2 and noun[-2..] in ["аб", "ав", "аг", "ад", "аж", "аз", "ай", "ак", "ал", "ам", "ан", "ап", "ар", "ас", "ат", "ау", "аф", "ах", "ац", "ач", "аш", "ащ", "ба", "бе", "би", "бл", "бо", "бр", "бу", "бы", "ва", "ве", "ви", "во", "вр", "ву", "вш", "вы", "вя", "га", "го", "да", "де", "др", "ду", "ди", "ды", "еб", "ев", "ег", "ед", "еж", "ез", "ей", "ек", "ел", "ем", "ём", "ен", "ер", "ес", "ет", "еф", "ех", "ец", "еч", "ещ", "ея", "жа", "за", "зе", "зи", "зл", "зм", "зу", "зы", "зя", "иа", "иб", "ив", "иг", "ид", "ие", "иж", "из", "ии", "ий", "ик", "ил", "им", "ин", "ио", "ип", "ир", "ис", "ит", "иф", "их", "иц", "ич", "иш", "ищ", "ию", "ия", "ка", "ке", "ки", "ко", "кс", "кт", "ку", "кэ", "кё", "ла", "лб", "лг", "лд", "ле", "лз", "ли", "лк", "лм", "лн", "ло", "лп", "лт", "лу", "лы", "ля", "лё", "ль", "ма", "мб", "ме", "мж", "ми", "мн", "мо", "мп", "мс", "мт", "му", "мф", "мы", "мэ", "мя", "на", "нг", "нд", "ни", "нк", "но", "нс", "нт", "нч", "нш", "ню", "нь", "ня", "об", "ов", "ог", "од", "ож", "оз", "ои", "ой", "ок", "ол", "ом", "он", "оп", "ор", "ос", "от", "ох", "оц", "оч", "оэ", "ою", "оя", "па", "пе", "пи", "по", "пу", "пы", "пэ", "ра", "рг", "ре", "ри", "рн", "рп", "рс", "рт", "ру", "рф", "рч", "рщ", "ры", "рю", "ря", "са", "се", "си", "ск", "сл", "см", "со", "сп", "ст", "су", "сы", "сю", "ся", "та", "тв", "те", "ти", "тл", "тм", "то", "тр", "тс", "ту", "тц", "тч", "ты", "тэ", "тю", "тя", "тё", "уа", "уб", "уг", "уд", "уж", "уз", "уй", "ук", "ул", "ум", "ун", "уп", "ур", "ус", "ут", "ух", "уч", "уш", "уя", "фт", "ха", "хв", "ца", "це", "цк", "цо", "цу", "цы", "ча", "чв", "че", "чи", "чо", "чу", "ша", "ши", "ща", "ще", "щи", "щу", "ыб", "ыв", "ыд", "ыж", "ык", "ыл", "ым", "ын", "ыр", "ыс", "ыт", "ыч", "ыш", "ыщ", "ье", "ьи", "ью", "ья", "ьё", "юв", "юг", "юд", "юз", "юй", "юк", "юм", "юн", "юп", "юр", "юс", "ют", "юф", "юх", "юц", "юч", "юш", "ющ", "яб", "яг", "яд", "яж", "яз", "як", "ял", "ям", "ян", "яп", "яр", "яс", "ят", "ях", "яч", "яш", "ящ", "яя", "ёб", "ём", "ёс", "ён"]
 
   ###
   Incline noun in nominative  and return `InclinedNoun` instance.
@@ -749,7 +749,7 @@ else
   @return {nounObj} nObj Noun object
                 nObj.found                      : true if noun found
                 nObj.infinitive                 : array of infinitive forms of noun
-                nObj.pluralInfinitive           : array of infinitive forms of noun in plural
+                nObj.plural_infinitive           : array of infinitive forms of noun in plural
                 nObj.personal_cases             : array of case names for noin in personal
                 nObj.plural_cases               : array of case names for noin in personal
                 nObj.suffix                     : array of suffixes (may be part of word root!)
@@ -908,7 +908,7 @@ else
       pluralInfinitive = filterNounsArray pluralInfinitives
       found            : infinitive.length + pluralInfinitives.length > 0
       infinitive       : infinitive
-      pluralInfinitive : pluralInfinitive
+      plural_infinitive : pluralInfinitive
       personal_cases   : personal_cases
       plural_cases     : plural_cases
       suffix           : suffixes
@@ -1174,6 +1174,7 @@ else
       "\'"   : "quote"
       "\"\"" : "dblquote"
       "..."  : "three dots"
+      "…"   : "three dots"
 
 
     r =
@@ -1186,6 +1187,10 @@ else
       r.type              = signs[wrd]
       r.obj               = signs[wrd]
       r.sign              = yes
+
+    else if /^\@[a-z_]+$/i.test wrd
+      r.type              = "pron/PN"
+      r.obj               = wrd
 
     else if wrd in adverbs
       r.type              = "adv"
@@ -1233,9 +1238,13 @@ else
             r.infinitive  = if noun.infinitive.length > 0
                   noun.infinitive[0]
                 else
-                  noun.pluralInfinitive[0]
+                  noun.plural_infinitive[0]
     if (wrd in stopWordsList) or (r.infinitive in stopWordsList)
       r.stopWord = yes
+
+    rinf = if "string" is typeof r.infinitive then [r.infinitive] else r.infinitive || []
+    rinfp = if "string" is typeof r.plural_infinitive then [r.plural_infinitive] else r.plural_infinitive || []
+    r.all_forms = util.unique util.merge rinf, rinfp
     r
 
 )(exports, util, ref, words)

@@ -10,7 +10,7 @@ else
     exports = module.exports
 
 ((exports) ->
-  exports.version   = "0.3.116"
+  exports.version   = "0.3.119"
 
   ###
   Capitalize word.
@@ -89,6 +89,22 @@ else
     l1.map (x) -> l.push x
     l2.map (x) -> l.push x
     unique l
+
+
+  ###
+  Merge 2 dicts: key from first dict replaced by key from second dict (if keys match)
+
+  @param {Object} d1 First dict
+  @param {Object} d2 Second dict
+  @return {Object} d Resulting object
+  ###
+  exports.mergeDicts = (d1, d2) -> # todo create multidicts version
+    d = {}
+    for k,v of d1
+      d[k] = v
+    for k,v of d2
+      d[k] = v
+    d
 
   ###
   Get first intersection of two arrays.

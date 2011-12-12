@@ -1002,6 +1002,8 @@ else
       patterns = [
         "pron.adj.noun"            # местоим прил сущ
         "pron.verb.noun"           # местоим глаг сущ
+        "pron.prep.noun"           # местоим предлог сущ
+        "noun.pron.prep.noun"      # сущ местоим предлог сущ
         "pron.verb.prep.noun"      # местоим глаг предлог сущ
         "pron.adj.prep.noun"       # местоим прилаг предлог сущ
         "pron.noun"                # местоим сущ
@@ -1017,10 +1019,10 @@ else
 #        "pron.verb.pron.prep.noun"
 #        "pron.verb.pron.prep.noun"
       ]
-    patterns = patterns.sort (a,b) -> b.length - a.length
-    words = words[0..-1]
-    arrayOfPhrases = []
-    maxIndex = words.length
+    patterns        = patterns.sort (a,b) -> b.length - a.length
+    words           = words[0..-1]
+    arrayOfPhrases  = []
+    maxIndex        = words.length
     while words.length > 0
       shift = 1
       for pat in patterns
@@ -1082,7 +1084,7 @@ else
     wordsChain      = []
 
     for word in sentence.split " "
-      if /^[-!,?\"\'\.а-яё]+$/i.test word
+      if /^([-!,?\"\'\.а-яё]+)|(\@[a-z_]+)$/i.test word
         wordsChain.push word       # remove this chain at all?
         pnFound    = matchPersonName wordsChain, personsDict
         lastPname  = pnFound if pnFound
