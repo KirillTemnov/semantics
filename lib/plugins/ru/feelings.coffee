@@ -8,12 +8,14 @@ if "undefined" is typeof global
     exports                              = window.lastName.plugins.ru.feelings
     inclines                             = window.lastName.plugins.ru.inclines
     quotes                               = window.lastName.plugins.ru.quotes
+    util                                 = window.lastName.util
 else
     exports                              = module.exports
     inclines                             = require "./inclines"
     quotes                               = require "./quotes"
+    util                                 = require "../../util"
 
-((exports, inclines, quotes) ->
+((exports, inclines, quotes, util) ->
 
   negativeWords =
     "агрессивный"        : 3,
@@ -729,12 +731,14 @@ else
     "дрючить"            : 2,
     "ебанат"             : 2,
     "ебанат"             : 2,
+    "ебаный"             : 2,
+    "ебанный"            : 2,
     "ебать"              : 2,
     "ебать-колотить"     : 1.5,
     "ебать-копать"       : 1.5,
     "ебаться"            : 2,
     "еблан"              : 1.5,
-    "ебливый"            : 1.5,
+    "ебливый"            : 2,
     "ебло"               : 1.5,
     "ебля"               : 2,
     "ебстись"            : 2,
@@ -906,10 +910,10 @@ else
   Evalute neutrality score for sentence.
 
   ###
-  exports.evaluateSentenceNeutrality = evaluateSentenceNeutrality = (sentence, resultObject) ->
+  exports.evaluateSentenceNeutrality = evaluateSentenceNeutrality = (sentenceWords, goodWordsDict, badWordsDict) ->
     # check out proper names!
 
-    evalScore = (sentenceWords, phrasesReList, wordsIncline, verbs, adjectives, negate) ->
+    evalScore = (sentenceWords, wordsDict, negate) ->
       cur_index  = 0
       index      = 0
       words      = []
@@ -923,54 +927,43 @@ else
           curWords = []
           cur_index = 0
 
-
-      for nr in phrasesReList
-        m = sentence.match nr[0]
-        if m
-          m.map (wordsSequence) -> words.push wordsSequence
-          index += negate nr[1] * m.length
-
+      found = yes
       for wrd in sentenceWords
-        if wrd in ".,-—!?()[]"
-          cur_index = negate cur_index
-          resetCurIndex()
-          continue
+        if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "prep", "union", "part", "pron", "adv", "noun"]
+          unless found
+            cur_index = negate cur_index
+            resetCurIndex()
 
-        ind = wordsIncline[wrd.toLowerCase()]
-        if ind
-          curWords.push wrd
-          cur_index = cur_index * ind || ind
-        else
-          adjArray = inclines.getInitialFormOfAdjective wrd
-          unless adjArray
-            # check for verbs
-            verb = inclines.getVerbInfinitive wrd
-            vIndex = verbs[verb]
-            if vIndex
-              curWords.push wrd
-              cur_index = cur_index * vIndex || vIndex
-            else
-              cur_index = negate cur_index
-              resetCurIndex()
-          else
-            for adj in adjArray
-              adjIndex = adjectives[adj]
-              if adjIndex
-                curWords.push wrd
-                cur_index = cur_index * adjIndex || adjIndex
-                break
+          found = no
+          for word_form in wrd.all_forms
+            value =  wordsDict[word_form]
+            if value
+              curWords.push wrd.src
+              cur_index = cur_index * value|| value
+              found = yes
+              break
+          unless found
+            # if not found, we suspect that this word is union, part or preposition
+            found =  wrd.type in ["prep", "union", "part"]
+
       cur_index = negate cur_index unless cur_index is 0
       resetCurIndex()
       [index, words]
 
+
+    wordsTotal = 0
+    sentenceWords.map (wrd) ->
+      if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun"]
+        wordsTotal++
+
     # evaluate negative score
-    sentenceWords = sentence.split /\s/
-    [negIndex, negWords] = evalScore(sentenceWords, getNegativePhrasesRe(), negativeWordsIncline, negativeVerbs, negativeAdjectives, (x) -> -Math.abs x)
+    [negIndex, negWords] = evalScore(sentenceWords, badWordsDict, (x) -> -Math.abs x)
 
     # evaluate positive score
-    [posIndex, posWords] = evalScore(sentenceWords, getPositivePhrasesRe(), positiveWordsIncline, positiveVerbs, positiveAdjectives, (x) -> x)
+    [posIndex, posWords] = evalScore(sentenceWords, goodWordsDict, (x) -> x)
 
-    [posIndex + negIndex, posIndex, posWords, negIndex, negWords]
+
+    [posIndex + negIndex, posIndex, posWords, negIndex, negWords, wordsTotal]
 
   ###
   Detect emotional tone by score value.
@@ -997,8 +990,6 @@ else
       "a small negative"
     else
       "neutral"
-
-
 
   ###
   Extract pattern words from array of word sentence.
@@ -1143,36 +1134,46 @@ else
     emoIndex      = []
     overallIndex  = 0
     absIndex      = 0
+    collocations  = []
     properNames   = if result.ru?.persons? then result.ru.persons else {}
 
+    posDict       = positiveWords
+    negWords      = util.mergeDicts negativeWords, fuckWords
+
+    totalWords = 0
     for s,i in result.misc.sentences
       pps = parseSentence s, properNames
-      console.log "pps [ #{i} ] = #{JSON.stringify pps}"
-      # [index, posIndex, posWords, negIndex, negWords] = evaluateSentenceNeutrality s, result
-      # emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
-      # overallIndex += index
-      # absIndex     += posIndex - negIndex
 
-    unless result.counters.words_total
+#      console.log "pps [ #{i} ] = #{JSON.stringify pps}"
+      [index, posIndex, posWords, negIndex, negWords, wt] = evaluateSentenceNeutrality pps.sentenceWords, posDict, negWords
+
+      # push collocations
+      if pps.collocation
+        for col in pps.collocation
+          collocations.push col
+
+      totalWords += wt
+      emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
+      overallIndex += index
+      absIndex     += posIndex - negIndex
+
+    unless totalWords
       emoScore = 0
     else
-      # exclude all neutral words that can detect: stop words, proper names
-      excludeWc = result.counters.stop_words_total
-      for k, p of properNames
-        p.src.map (refName) -> excludeWc += refName.split(" ").length
+      # multiply on 3 because each word measures in 1, 3 scale
+      # todo make adaptive calculations of max value, based on passed dicts
+      emoScore = overallIndex / (3 * totalWords) #excludeWc
 
-      if result.ru?.abbrevs?
-        for a, count of result.ru.abbrevs
-          excludeWc += count
-
-      emoScore = overallIndex / excludeWc
+    # todo merge collocations
 
     result.feelings =
-      emoIndex     : emoIndex
-      overallIndex : overallIndex
-      emoScore     : emoScore
-      emoTone      : getEmotionalToneByScore emoScore
-      absIndex     : absIndex
+      emoIndex      : emoIndex
+      overallIndex  : overallIndex
+      emoScore      : emoScore
+      emoTone       : getEmotionalToneByScore emoScore
+      absIndex      : absIndex
+      wordsAnalysed : totalWords
+      collocations  : collocations
 #      properNames  : properNames
 
-)(exports, inclines, quotes)
+)(exports, inclines, quotes, util)
