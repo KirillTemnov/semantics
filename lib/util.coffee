@@ -78,32 +78,53 @@ else
 
 
   ###
-  Merge two arrays.
+  Merge several arrays. Accept any quantity of arrays as params.
 
-  @param {Array} arr1 First array
-  @param {Array} arr2 Seconds array
   @return {Array} arr Array contain unique values from arr1 and arr2
   ###
-  exports.merge = merge = (l1, l2) ->
+  exports.merge = merge = (args...) ->
     l = []
-    l1.map (x) -> l.push x
-    l2.map (x) -> l.push x
-    unique l
+    for arg in args || []
+      arg.map (x) ->  l.push x
+    l
 
 
   ###
-  Merge 2 dicts: key from first dict replaced by key from second dict (if keys match)
+  Merge several dicts: key from first dict replaced by key from second dict (if keys match)
 
-  @param {Object} d1 First dict
-  @param {Object} d2 Second dict
   @return {Object} d Resulting object
   ###
-  exports.mergeDicts = (d1, d2) -> # todo create multidicts version
+  exports.mergeDicts = (args...) ->
     d = {}
-    for k,v of d1
-      d[k] = v
-    for k,v of d2
-      d[k] = v
+    for dx in args || []
+      for k,v of dx
+        d[k] = v
+    d
+
+  ###
+  Translate text to dict. Each key-value pair must be on new line.
+
+  @example
+  text = "foo\t123\nbar\t456"
+  textToDict(text) # -> {"foo": "123", "bar": "456"}
+
+  @param {String} text Text with keys and values
+  @param {Object} opts Options for translation
+                  opts.splitChar    : char or regexp for split key and value, :default /\s+/
+                  opts.convertValue : Function for convert values, :default parseFloat
+  ###
+  exports.textToDict = (text, opts={}) ->
+    splitChar = opts.splitChar || /\s+/
+    convertValue = opts.convertValue || parseFloat
+    d = {}
+    for line in (text.split("\n").filter (x) -> !!x)
+      splitedLine = line.trim().split splitChar
+      if splitedLine.length > 1
+        key = splitedLine[0].trim()
+        val = splitedLine[1..].join " "
+        value = convertValue val
+        val = if !!value then value else val
+        d[key] = val
     d
 
   ###
