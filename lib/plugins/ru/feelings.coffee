@@ -929,6 +929,12 @@ else
 
       found = yes
       for wrd in sentenceWords
+        if (not xpeHb) and wordsDict instanceof Array
+          console.log "XPEHb : #{JSON.stringify wrd}"
+          xpeHb = yes
+        z++
+
+#        console.log "wrd = #{JSON.stringify wrd} [found = #{JSON.stringify found}]"
         if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "prep", "union", "part", "pron", "adv", "noun"]
           unless found
             cur_index = negate cur_index
@@ -938,8 +944,9 @@ else
           for word_form in wrd.all_forms
             value =  wordsDict[word_form]
             if value
+              console.log "found value: #{word_form} #{value}"
               curWords.push wrd.src
-              cur_index = cur_index * value|| value
+              cur_index = cur_index * value || value
               found = yes
               break
           unless found
@@ -952,15 +959,16 @@ else
 
 
     wordsTotal = 0
+    z = 0
     sentenceWords.map (wrd) ->
       if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun"]
         wordsTotal++
 
     # evaluate negative score
-    [negIndex, negWords] = evalScore(sentenceWords, badWordsDict, (x) -> -Math.abs x)
+    [negIndex, negWords] = evalScore(sentenceWords, util.mergeDicts(badWordsDict), (x) -> -Math.abs x)
 
     # evaluate positive score
-    [posIndex, posWords] = evalScore(sentenceWords, goodWordsDict, (x) -> x)
+    [posIndex, posWords] = evalScore(sentenceWords, util.mergeDicts(goodWordsDict), (x) -> x)
 
 
     [posIndex + negIndex, posIndex, posWords, negIndex, negWords, wordsTotal]
@@ -1130,8 +1138,15 @@ else
   @param {String} text Source text ( not used)
   @param {Object} result Resulting object, that contain `feelings`
                          field after applying this filter.
+  @param {Object} opts Options, :default {}
+                 opts.replaceGoodWords : Replace good words with new dict, :default false
+                 opts.goodWords        : Dict with good words (as keys) and its strength
+                                          (as value), default {}
+                 opts.replaceBadWords  : Replace bad words with new dict, :default false
+                 opts.badWords         : Dict with bad words (as keys) and its strength
+                                          (as value), default {}
   ###
-  exports.postFilter = (text, result) ->
+  exports.postFilter = (text, result, opts) ->
     # todo add persons as acting objects
     emoIndex      = []
     overallIndex  = 0
@@ -1139,15 +1154,27 @@ else
     collocations  = []
     properNames   = if result.ru?.persons? then result.ru.persons else {}
 
-    posDict       = positiveWords
-    negWords      = util.mergeDicts negativeWords, fuckWords
+
+    if opts.replaceGoodWords
+      posWords   = opts.goodWords || {}
+    else
+      posWords   = util.mergeDicts positiveWords, opts.goodWords || {}
+
+    if opts.replaceBadWords
+      negWords  = opts.badWords
+    else
+      negWords  = util.mergeDicts negativeWords, fuckWords, opts.badWords || {}
+
+
+    # console.log "poswords: \n #{JSON.stringify posWords}"
+    # console.log "\nnegwords: \n #{JSON.stringify negWords}"
 
     totalWords = 0
     for s,i in result.misc.sentences
       pps = parseSentence s, properNames
 
 #      console.log "pps [ #{i} ] = #{JSON.stringify pps}"
-      [index, posIndex, posWords, negIndex, negWords, wt] = evaluateSentenceNeutrality pps.sentenceWords, posDict, negWords
+      [index, posIndex, posWords, negIndex, negWords, wt] = evaluateSentenceNeutrality pps.sentenceWords, posWords, negWords
 
       # push collocations
       if pps.collocation
