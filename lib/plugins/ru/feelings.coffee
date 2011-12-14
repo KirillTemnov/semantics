@@ -929,12 +929,6 @@ else
 
       found = yes
       for wrd in sentenceWords
-        if (not xpeHb) and wordsDict instanceof Array
-          console.log "XPEHb : #{JSON.stringify wrd}"
-          xpeHb = yes
-        z++
-
-#        console.log "wrd = #{JSON.stringify wrd} [found = #{JSON.stringify found}]"
         if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "prep", "union", "part", "pron", "adv", "noun"]
           unless found
             cur_index = negate cur_index
@@ -944,7 +938,6 @@ else
           for word_form in wrd.all_forms
             value =  wordsDict[word_form]
             if value
-              console.log "found value: #{word_form} #{value}"
               curWords.push wrd.src
               cur_index = cur_index * value || value
               found = yes
@@ -959,7 +952,6 @@ else
 
 
     wordsTotal = 0
-    z = 0
     sentenceWords.map (wrd) ->
       if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun"]
         wordsTotal++
@@ -1022,10 +1014,6 @@ else
         "adj.adj.adj.noun"         # 3 прил. cущ
         "adj.adj.noun"             # 2 прил. cущ
         "adj.noun"                 # 1 прил. cущ
-# pron.verb.adj.
-#        "verb.noun"
-#        "pron.verb.pron.prep.noun"
-#        "pron.verb.pron.prep.noun"
       ]
     patterns        = patterns.sort (a,b) -> b.length - a.length
     words           = words[0..-1]
