@@ -953,14 +953,14 @@ else
 
     wordsTotal = 0
     sentenceWords.map (wrd) ->
-      if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun"]
+      if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun"] # todo add more here
         wordsTotal++
 
     # evaluate negative score
-    [negIndex, negWords] = evalScore(sentenceWords, util.mergeDicts(badWordsDict), (x) -> -Math.abs x)
+    [negIndex, negWords] = evalScore(sentenceWords, util.mergeDicts(badWordsDict, {}), (x) -> -Math.abs x)
 
     # evaluate positive score
-    [posIndex, posWords] = evalScore(sentenceWords, util.mergeDicts(goodWordsDict), (x) -> x)
+    [posIndex, posWords] = evalScore(sentenceWords, util.mergeDicts(goodWordsDict, {}), (x) -> x)
 
 
     [posIndex + negIndex, posIndex, posWords, negIndex, negWords, wordsTotal]
@@ -1043,7 +1043,6 @@ else
       while shift > 0
         words.shift()
         shift -= 1
-
 
     arrayOfPhrases              # todo replace array of phrases by array of word objects
 
@@ -1154,14 +1153,10 @@ else
       negWords  = util.mergeDicts negativeWords, fuckWords, opts.badWords || {}
 
 
-    # console.log "poswords: \n #{JSON.stringify posWords}"
-    # console.log "\nnegwords: \n #{JSON.stringify negWords}"
-
     totalWords = 0
     for s,i in result.misc.sentences
       pps = parseSentence s, properNames
 
-#      console.log "pps [ #{i} ] = #{JSON.stringify pps}"
       [index, posIndex, posWords, negIndex, negWords, wt] = evaluateSentenceNeutrality pps.sentenceWords, posWords, negWords
 
       # push collocations
@@ -1171,15 +1166,22 @@ else
 
       totalWords += wt
       emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
+      deltaIndex = posIndex + negIndex
+      if deltaIndex >=1
+        deltaIndex = 1
+      else if deltaIndex <= -1
+        deltaIndex = -1
+
       overallIndex += index
-      absIndex     += posIndex - negIndex
+      absIndex     += deltaIndex
 
     unless totalWords
       emoScore = 0
     else
       # multiply on 3 because each word measures in 1, 3 scale
       # todo make adaptive calculations of max value, based on passed dicts
-      emoScore = overallIndex / (3 * totalWords) #excludeWc
+      emoScore = absIndex / result.misc.sentences.length
+#      emoScore = overallIndex / (3 * totalWords) #excludeWc
 
     # todo merge collocations
 

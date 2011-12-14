@@ -4,7 +4,7 @@
     <script type="text/javascript" src="lastname.js"></script>
     <style type="text/css">
       #out-text, #in-text {
-        width: 800px;
+        width: 750px;
         height: 350px;
         font-family: Monaco, terminal, Courier New;
       }
@@ -13,11 +13,35 @@
         height: 150px;
       }
 
+      #stop-words {
+        width: 300px;
+        height: 130px;
+        font-family: Monaco, terminal, Courier New;
+      }
+
+      #good-words, #bad-words {
+        width: 200px;
+        height: 300px;
+        font-family: Monaco, terminal, Courier New;
+      }
+
+      div.inline {
+        display: inline-block;
+        text-align: center;
+        vertical-align: top;
+        width: 600px;
+      }
+
     </style>
   </head>
 <body>
   <textarea id="in-text">
   </textarea>
+  <div class="inline">
+  <span>Стоп-слова. Оставьте пустыми чтобы использовать стандартные стоп-слова.</span>
+  <textarea id="stop-words">
+  </textarea>
+  </div>
   <br/>
   <br/>
   <button id="analysis">анализ</button>
@@ -31,6 +55,12 @@
   <br/>
   <textarea id="out-text">
   </textarea>
+  <div class="inline">
+    <span>Хорошие (слева) и плохие (справа) слова. Оставьте пустыми чтобы использовать стандартные словари. </span>
+    <br /> 
+    <textarea id="good-words"></textarea>
+    <textarea id="bad-words"></textarea>
+  </div>
 
     <script type="text/javascript">
       var fanalysis       = document.getElementById("analysis"),
@@ -52,7 +82,7 @@
         }, false);
 
       fanalysis.addEventListener("click", function () {
-          result = lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings]);
+          var result = lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings], getOpts()),
           out = [ "Всего слов: \t\t" + result.counters.words_total,
                   "Стоп слов: \t\t" + result.counters.stop_words_total,
                   "Предложений: \t\t" + result.misc.sentences.length,
@@ -108,8 +138,38 @@
 
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.quotes, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings]));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.quotes, lastName.plugins.ru.propernames, lastName.plugins.ru.feelings], getOpts()));
         }, false);
+
+      function getOpts() {
+
+
+
+          var stopWordsInp  = document.getElementById("stop-words"),
+              stopWords     = stopWordsInp.value.replace(/\s+/ig, " ").toLowerCase().split().filter(function(x) {return !!x}),
+              goodWordsInp  = document.getElementById("good-words"),
+              badWordsInp  = document.getElementById("bad-words"),
+              goodWords = lastName.util.textToDict(goodWordsInp.value),
+              badWords = lastName.util.textToDict(badWordsInp.value),
+              opts          = {};
+          if (goodWordsInp.value.length > 0) {
+             opts.replaceGoodWords = true;
+             opts.goodWords = goodWords;
+          }
+          if (badWordsInp.value.length > 0) {
+             opts.replaceBadWords = true;
+             opts.badWords = badWords;
+          }
+      
+//          console.log("gv = " + JSON.stringify(goodWords) + "\nbw = " + JSON.stringify(badWords));
+          
+
+          if (stopWords.length > 0) {
+            opts.replaceStopWords  = true;
+            opts.stopWords         = stopWords;
+          }
+         return opts;
+      }
 
     </script>
   

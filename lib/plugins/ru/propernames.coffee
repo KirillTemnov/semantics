@@ -36,9 +36,9 @@ else
     for pn in text.match(properNamesRe) || []
       curProperName = pn.replace(/\s+/g, " ").split " "
       if curProperName
-        pn = inclines.findProperName curProperName
-        if pn && pn.found
-          properNames.push pn
+        pni = inclines.findProperName curProperName
+        if pni && pni.found
+          properNames.push pni
 
     pnDict = {}
     # map
