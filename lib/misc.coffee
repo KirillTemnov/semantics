@@ -36,6 +36,7 @@ else
       misc.digits    : Dictionary of numbers and count of occurrences for each of them
       misc.emoticons : Dictionary of emoticons and count of occurrences for each of them
       misc.romans    : Dictionary of roman digits and count of occurrences for each of them
+      misc.urls      : Dictionary of urls and count of occurrences for each url
       misc.sentences : Array of text sentences
 
 
@@ -91,6 +92,9 @@ else
       digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
       emoticons : util.arrayToDict findEmo
       romans    : util.arrayToDict romans
+      urls      : util.arrayToDict text.match(/(https?\:\/\/[^\s$]+)/g) || []
+      hashtags  : util.arrayToDict text.match(/\#[-a-zёа-я_\d]+/gi) || []
+      mentions  : util.arrayToDict text.match(/\@[_a-z\d]+/gi) || []
       sentences : sentences
 
 
