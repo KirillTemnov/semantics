@@ -4,10 +4,12 @@ client:
 	coffee -b -c lib/plugins/ru
 	coffee -b -c lib/client.coffee 
 	coffee -b -c lib/util.coffee 
+	coffee -b -c lib/mimimi.coffee 
 	coffee -b -c lib/misc.coffee
 	coffee -b -c lib/analysis.coffee
 	cat lib/client.js > out.js
 	cat lib/util.js >> out.js
+	cat lib/mimimi.js >> out.js
 	cat lib/misc.js >> out.js
 	cat lib/analysis.js >> out.js
 

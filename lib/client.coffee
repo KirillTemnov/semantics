@@ -1,8 +1,6 @@
 
 
 ((lastname) ->
-  lastname.version = "0.3.5"
-
 #  lastname.inclineWords ...
 
   lastname.findProperName = (lang, args...) ->

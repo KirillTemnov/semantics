@@ -91,6 +91,22 @@ else
 
     delete pnDict[rmId] for rmId in namesForRemove
 
+    twitterNamesRe = /(^|\s)\@[a-z_\d]+/ig
+    for pn in text.match(twitterNamesRe) || []
+      twName = pn.trim()
+      unless pnDict[twName]
+        pnDict[twName] =
+          src         : [twName]
+          first_name  : twName
+          middle_name : twName
+          surname     : twName
+          gender      : "unknown"
+          found       : yes
+          case        : "nominative"
+          count       : 1
+      else
+        pnDict[twName].count += 1
+
     pnDict
 
   ###
