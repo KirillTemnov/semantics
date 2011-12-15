@@ -17,7 +17,7 @@ else
 
 ((exports, inclines, quotes, util) ->
 
-  negativeWords =
+  exports.negativeWords = negativeWords =
     "агрессивный"        : 3,
     "атакованный"        : 2,
     "бедный"             : 2,
@@ -366,7 +366,7 @@ else
     "ужас"               : 3
 
 
-  positiveWords =
+  exports.positiveWords = positiveWords =
     "авантюрный"         : 2,
     "аккуратный"         : 2,
     "активный"           : 2,
@@ -681,8 +681,7 @@ else
     "восторг"            : 3,
     "добро"              : 2
 
-
-  fuckWords =
+  exports.fuckWords = fuckWords =
     "3.14здец"           : 2,
     "анус"               : 2,
     "ахуеть"             : 2,
@@ -910,10 +909,10 @@ else
   Evalute neutrality score for sentence.
 
   ###
-  exports.evaluateSentenceNeutrality = evaluateSentenceNeutrality = (sentenceWords, goodWordsDict, badWordsDict) ->
+  exports.evaluateSentenceScore = evaluateSentenceScore = (sentenceWords, scoreDict) ->
     # check out proper names!
 
-    evalScore = (sentenceWords, wordsDict, negate) ->
+    evalScore = (sentenceWords, wordsDict) ->
       cur_index  = 0
       index      = 0
       words      = []
@@ -931,7 +930,6 @@ else
       for wrd in sentenceWords
         if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "prep", "union", "part", "pron", "adv", "noun"]
           unless found
-            cur_index = negate cur_index
             resetCurIndex()
 
           found = no
@@ -946,50 +944,19 @@ else
             # if not found, we suspect that this word is union, part or preposition
             found =  wrd.type in ["prep", "union", "part"]
 
-      cur_index = negate cur_index unless cur_index is 0
       resetCurIndex()
       [index, words]
 
 
     wordsTotal = 0
     sentenceWords.map (wrd) ->
-      if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun"] # todo add more here
+      if wrd.type in ["verb", "verb/noun", "adj", "adj/noun", "adv", "noun", "unknown"] # todo add more here
         wordsTotal++
 
     # evaluate negative score
-    [negIndex, negWords] = evalScore(sentenceWords, util.mergeDicts(badWordsDict, {}), (x) -> -Math.abs x)
+    [index, scoreWords] = evalScore sentenceWords, scoreDict
 
-    # evaluate positive score
-    [posIndex, posWords] = evalScore(sentenceWords, util.mergeDicts(goodWordsDict, {}), (x) -> x)
-
-
-    [posIndex + negIndex, posIndex, posWords, negIndex, negWords, wordsTotal]
-
-  ###
-  Detect emotional tone by score value.
-
-  @param {Number} score Emotional score value
-  @return {String} tone Emotional tone description
-  ###
-  exports.getEmotionalToneByScore = getEmotionalToneByScore = (score) ->
-    if score > 0.3
-      "very strong positive"
-    else if score > 0.2
-      "strong positive"
-    else if score > 0.08
-      "moderate positive"
-    else if score > 0.02
-      "a small positive"
-    else if score < -0.3
-      "very strong negative"
-    else if score < -0.2
-      "strong negative"
-    else if score < -0.08
-      "moderate negative"
-    else if score < -0.02
-      "a small negative"
-    else
-      "neutral"
+    [index, scoreWords, wordsTotal]
 
   ###
   Extract pattern words from array of word sentence.
@@ -1071,7 +1038,7 @@ else
 
   @param {String} sentence Normalized sentence.
   ###
-  exports.parseSentence = parseSentence = (sentence, personsDict={}) ->
+  exports.parseSentence = parseSentence = (sentence, personsDict={}, patterns=null) ->
     sentenceWords   = []
     lastPname       = null
     openQuote       = no
@@ -1079,8 +1046,12 @@ else
     wordsChain      = []
 
     for word in sentence.split " "
-      if /^([-!,?\"\'\.а-яё]+)|(\@[a-z_]+)$/i.test word
-        wordsChain.push word       # remove this chain at all?
+      if /^([-!,?\"\'\.а-яё]+)|(\@[a-z_\d]+)|(\#[-a-zёа-я_\d]+)$/i.test word
+        if word[0] is "#"
+          wrd = word[1..]
+        else
+          wrd = word
+        wordsChain.push wrd
         pnFound    = matchPersonName wordsChain, personsDict
         lastPname  = pnFound if pnFound
         unless pnFound             # match not found
@@ -1094,7 +1065,7 @@ else
 
             sentenceWords.push pnWord
 
-          iw = inclines.classifyWord(word)
+          iw = inclines.classifyWord(wrd)
           sentenceWords.push iw
 
           wordsChain = []
@@ -1103,7 +1074,7 @@ else
         if lastPname
           pnWord =
             type       : "pron/PN"
-            obj        : personsDict[lastPname] #wordsChain[0..-1]
+            obj        : personsDict[lastPname]
             src        : wordsChain[..-2].join " "
             propername : yes
             infinitive : "<#{lastPname}>" #lastPname.replace("-", " ").replace /\s+/, " "
@@ -1115,7 +1086,7 @@ else
     result =
       quotes         : qq
       sentenceWords  : sentenceWords
-      collocation    : extractPatterns sentenceWords
+      collocation    : extractPatterns sentenceWords, patterns
       ew             : sentenceWords.map (z) -> z.infinitive
 
 
@@ -1126,71 +1097,58 @@ else
   @param {Object} result Resulting object, that contain `feelings`
                          field after applying this filter.
   @param {Object} opts Options, :default {}
-                 opts.replaceGoodWords : Replace good words with new dict, :default false
-                 opts.goodWords        : Dict with good words (as keys) and its strength
-                                          (as value), default {}
-                 opts.replaceBadWords  : Replace bad words with new dict, :default false
-                 opts.badWords         : Dict with bad words (as keys) and its strength
-                                          (as value), default {}
+                 opts.dictOfWords      : Dict, that contain key as metric name and dict of
+                                         words (with strength from 1 to bigger num) as value
+                 opts.collocationRules : Overrided rules for collocations - array of strings,
+                                         consisting from keywords separated with dots, e.g.
+                                         "prep.adj.noun"
+                                         @see `plugins.ru.inclines.classifyWord` for keywords
   ###
-  exports.postFilter = (text, result, opts) ->
+  exports.postFilter = (text, result, opts={}) ->
     # todo add persons as acting objects
-    emoIndex      = []
-    overallIndex  = 0
-    absIndex      = 0
-    collocations  = []
-    properNames   = if result.ru?.persons? then result.ru.persons else {}
-
-
-    if opts.replaceGoodWords
-      posWords   = opts.goodWords || {}
-    else
-      posWords   = util.mergeDicts positiveWords, opts.goodWords || {}
-
-    if opts.replaceBadWords
-      negWords  = opts.badWords
-    else
-      negWords  = util.mergeDicts negativeWords, fuckWords, opts.badWords || {}
+    emoIndex        = []
+    overallIndex    = 0
+    absIndex        = 0
+    collocations    = []
+    properNames     = if result.ru?.persons? then result.ru.persons else {}
+    dictsOfMetrics  = opts.dictOfWords || {}
+    metrics         = {}
 
 
     totalWords = 0
     for s,i in result.misc.sentences
-      pps = parseSentence s, properNames
+      pps = parseSentence s, properNames, opts.collocationRules || null
 
-      [index, posIndex, posWords, negIndex, negWords, wt] = evaluateSentenceNeutrality pps.sentenceWords, posWords, negWords
+      for k, metricsDict of dictsOfMetrics
+        metrics[k] ||= {}
+        [index, scoreWords, totalWords] = evaluateSentenceScore pps.sentenceWords, metricsDict
+        metrics[k].index      ||= []
+        metrics[k].indexTotal ||= 0
+        metrics[k].indexTotal  += index
+        metrics[k].normIndex  ||= 0 # normalized index, 1 if any word from dict found, else 0
+        metrics[k].normIndex   += 1 if index > 0
+        metrics[k].index.push value:index, words:scoreWords
+
 
       # push collocations
       if pps.collocation
         for col in pps.collocation
           collocations.push col
 
-      totalWords += wt
-      emoIndex.push [index, {pi: posIndex, pw: posWords, ni: negIndex, nw: negWords}]
-      deltaIndex = posIndex + negIndex
-      if deltaIndex >=1
-        deltaIndex = 1
-      else if deltaIndex <= -1
-        deltaIndex = -1
-
-      overallIndex += index
-      absIndex     += deltaIndex
-
-    unless totalWords
-      emoScore = 0
-    else
-      # multiply on 3 because each word measures in 1, 3 scale
-      # todo make adaptive calculations of max value, based on passed dicts
-      emoScore = absIndex / result.misc.sentences.length
-#      emoScore = overallIndex / (3 * totalWords) #excludeWc
 
     # todo merge collocations
 
+    for k, metricsDict of dictsOfMetrics
+      if metrics[k].index
+        # get maximum score
+        dVal = util.dictValues metricsDict
+        metrics[k].maxScale = Math.max.apply @, if dVal.length > 0 then dVal else [1]
+        metrics[k].scoreTotal = metrics[k].normIndex / result.misc.sentences.length
+        metrics[k].scoreTotalPersent = 100 * metrics[k].scoreTotal
+
+
+    result.metrics  = metrics
     result.feelings =
-      emoIndex      : emoIndex
-      overallIndex  : overallIndex
-      emoScore      : emoScore
-      emoTone       : getEmotionalToneByScore emoScore
-      absIndex      : absIndex
       wordsAnalysed : totalWords
       collocations  : collocations
 #      properNames  : properNames

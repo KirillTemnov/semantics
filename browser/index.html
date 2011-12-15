@@ -151,15 +151,16 @@
               badWordsInp  = document.getElementById("bad-words"),
               goodWords = lastName.util.textToDict(goodWordsInp.value),
               badWords = lastName.util.textToDict(badWordsInp.value),
-              opts          = {};
+              opts          = {dictOfWords: {}};
           if (goodWordsInp.value.length > 0) {
-             opts.replaceGoodWords = true;
-             opts.goodWords = goodWords;
+             opts.dictOfWords["good"] = goodWords;
           }
           if (badWordsInp.value.length > 0) {
-             opts.replaceBadWords = true;
-             opts.badWords = badWords;
+             opts.dictOfWords["bad"]  = badWords;
           }
+      
+
+//          opts.collocationRules = ["prep.noun"];
       
 //          console.log("gv = " + JSON.stringify(goodWords) + "\nbw = " + JSON.stringify(badWords));
           

@@ -35,6 +35,17 @@ else
 
 
   ###
+  Get array of values from dictionary.
+
+  @param {Object} dict Dictionary object
+  @param {Array} result Array of values
+  ###
+  exports.dictValues = (dict) ->
+    values = []
+    values.push v for k,v of dict
+    values
+
+  ###
   Check if word capitalized. Word can contain several words, like "Петров-Водкин"
 
   @param {String} s Source word
