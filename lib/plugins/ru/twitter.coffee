@@ -21,7 +21,7 @@ else
   @param {String} text Sentence text
   @return {Array} result Sentence splitted by words
   ###
-  splitHard = (text, nosplit=[]) ->
+  splitHard = (text, nosplit=[]) -> # todo add expand options
     words = []
     for w in text.split /\s/
       if w in nosplit
@@ -31,9 +31,16 @@ else
       else
         words.push w
 
-    # todo merge smiles
-    words
+    finalWords = []
+    words.map (w) ->
+      if w
+        sresult = mimimi.search w
+        if sresult.mixed_words.length > 1 and /^[а-яёa-z]+$/i.test w
+          sresult.mixed_words.map (mw) -> finalWords.push mw
+        else                      # todo check for single signs
+          finalWords.push w
 
+    finalWords
 
   ###
   Apply twitter filter to result.
