@@ -26,6 +26,15 @@ else
                                         `mixed_words` avaluates in any case.
   ###
   exports.search = search = (word) ->
+    result =
+      total       : 0
+      found       : no
+      reason      : []
+      src         : word
+      mixed_words : []
+    if /^https?\:\/\/.+$/.test word
+      return result
+
     syllables  = []
     syllable   = ""
     for c in word.toLowerCase()
@@ -42,7 +51,7 @@ else
 
     syllables.reverse()
     mimi = util.arrayToDict syllables
-    result =  total: 0, found: no, reason: [], src: word
+
     for k,v of mimi
       if v >= 3
         result.total += v
@@ -63,7 +72,9 @@ else
     duplicates   = 0
     dup          = 0
     for c in word.toLowerCase()
-      if c isnt prevC
+      if c in "()" # smiles
+        trimmedWord += c
+      else if c isnt prevC
         trimmedWord += prevC
         duplicates  += dup if dup > 2
         dup          = 1
@@ -107,8 +118,9 @@ else
       result.reason.push "mixed caps"
 
     # frequent analysis, example ахааха
-    lettersTotal = util.dictKeys(util.arrayToDict word.toLowerCase()).length
-    lettersMid = word.length / lettersTotal
+    wrd = word.replace /[\(\)]/g, ""
+    lettersTotal = util.dictKeys(util.arrayToDict wrd.toLowerCase()).length
+    lettersMid = wrd.length / lettersTotal
     if lettersMid >= 2.5
       result.found = yes
       result.reason.push "frequent letters"
