@@ -34,7 +34,7 @@ else
 
     quotes         = []
     for q in util.unique text.match(quotedRe) || []
-      quotes.push q unless (q in ruMatchQuotes or q in enMatchQuotes)
+      quotes.push q if (q in ruMatchQuotes or q in enMatchQuotes)
     quotes
 
   ###
