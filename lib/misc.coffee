@@ -85,8 +85,12 @@ else
 
     # romans regex from http://stackoverflow.com/questions/2577734/single-regex-for-filtering-roman-numerals-from-the-text-files
     # some good ideas in http://bililite.com/blog/2009/03/09/roman-numerals-in-javascript/
-    romans = text.match /([X]{0,3}I[VX])|(M*(D?C{0,3}|C[DM])(L?X{0,3}|X[LC])(V?I{0,3}|I[VX]))/g
-    romans = unless romans then [] else romans.filter (s) -> not /^\s{0,}$/.test s
+    romansReGlobal  = /(^|\s|[-,\.!?:;\'\"])(([X]{0,3}I[VX])|(M*(D?C{0,3}|C[DM])(L?X{0,3}|X[LC])(V?I{0,3}|I[VX])))($|\s|[-,\.!?:;\'\"])/g
+    romansRe        = /([X]{0,3}I[VX])|(M*(D?C{0,3}|C[DM])(L?X{0,3}|X[LC])(V?I{0,3}|I[VX]))/gm
+    rom             = text.match(romansReGlobal) || []
+    romans          = (rom.join(" ").match(romansRe) || []).filter (s) -> not /^\s{0,}$/.test s
+
+    result.version  = util.version
 
     result.misc =
       digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
