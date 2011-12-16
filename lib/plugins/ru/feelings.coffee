@@ -1114,7 +1114,6 @@ else
     dictsOfMetrics  = opts.dictOfWords || {}
     metrics         = {}
 
-
     totalWords = 0
     for s,i in result.misc.sentences
       pps = parseSentence s, properNames, opts.collocationRules || null
@@ -1139,7 +1138,7 @@ else
     # todo merge collocations
 
     for k, metricsDict of dictsOfMetrics
-      if metrics[k].index
+      if metrics[k] and metrics[k].index
         # get maximum score
         dVal = util.dictValues metricsDict
         metrics[k].maxScale = Math.max.apply @, if dVal.length > 0 then dVal else [1]

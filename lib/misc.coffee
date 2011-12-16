@@ -97,7 +97,7 @@ else
       emoticons : util.arrayToDict findEmo
       romans    : util.arrayToDict romans
       urls      : util.arrayToDict text.match(/(https?\:\/\/[^\s$]+)/g) || []
-      hashtags  : util.arrayToDict text.match(/\#[-a-zёа-я_\d]+/gi) || []
+      hashtags  : util.arrayToDict text.match(/\#[a-zёа-я_\d]+/gi) || []
       mentions  : util.arrayToDict text.match(/\@[_a-z\d]+/gi) || []
       sentences : sentences
 
