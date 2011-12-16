@@ -12,7 +12,7 @@ else
     lastName               = {}
 
 ((exports, lastName) ->
-  lastName.version   = "0.5.4"
+  lastName.version   = "0.5.5"
 
   ###
   Capitalize word.

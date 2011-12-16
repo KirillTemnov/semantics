@@ -1,6 +1,6 @@
 {
   "name": "lastname",
-  "version": "0.5.1",
+  "version": "0.5.5",
   "description": "Package for search proper names in text. Can be used for incline some proper names.",
   "engines": {
    "node": ">= 0.4.0 < 0.7.0"

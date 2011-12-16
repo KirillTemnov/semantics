@@ -32,7 +32,7 @@ else
   Extract digits, emoticons and split text into sentences.
 
   @param {String} text Source text
-  @param {Object} result Resulting object, that contain fields:
+  @param {Object} result Resulting object, that will contain fields:
       misc.digits    : Dictionary of numbers and count of occurrences for each of them
       misc.emoticons : Dictionary of emoticons and count of occurrences for each of them
       misc.romans    : Dictionary of roman digits and count of occurrences for each of them
