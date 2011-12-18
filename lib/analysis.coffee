@@ -3,11 +3,12 @@ Analysis module.
 ###
 
 if "undefined" is typeof global
-    window.lastName ||= {}
+    window.lastName          ||= {}
     window.lastName.analysis ||= {}
-    exports = window.lastName.analysis
+    exports                    = window.lastName.analysis
 else
-    exports = module.exports
+    exports                    = module.exports
+
 
 ((exports) ->
   ###
@@ -41,4 +42,63 @@ else
     result.version = util.version
     result
 
+
+
+
+  ###
+  Analyse tweet and execute scores:
+
+  ###
+  exports.twitterScores = (text, plugins, options) ->
+    if "undefined" is typeof global
+      twitter  = window.lastName.plugins.ru.twitter
+      util     = window.lastName.util
+    else
+      twitter  = require "./plugins/ru/twitter"
+      util     = require "./util"
+
+
+    r = exports.analyse(text, plugins, options)
+
+    cc    : r.counters.chars_total
+    wc    : r.counters.words_total
+    sc    : r.misc.sentences.length
+    wmid  : r.counters.word_length_mid.toFixed 3
+    smid  : r.counters.words_in_sentence_mid.toFixed 3
+    rwc   : util.sumValues r.ru.reg_words
+    swc   : r.counters.stop_words_total
+    swp   : r.counters.stop_words_persent.toFixed 3
+    refc  : util.dictKeys(r.twitter.pos.urls).length
+    ref0p : util.dictMinValue r.twitter.pos.urls, 0
+    ref$p : util.dictMaxValue r.twitter.pos.urls, 0
+    mimic : util.dictKeys(r.mimimi).length
+    emoc  : util.sumValues r.misc.emoticons
+    qc    : r.quotes.length
+    q2wc  : (r.feelings.collocations.filter (z) -> z.length is 2).length
+    q3wc  : (r.feelings.collocations.filter (z) -> z.length is 3).length
+    q4wc  : (r.feelings.collocations.filter (z) -> z.length is 4).length
+    q5wc  : (r.feelings.collocations.filter (z) -> z.length is 5).length
+    qdc   : util.sumValues r.misc.digits
+    hc    : util.sumValues r.misc.hashtags
+    h0p   : util.dictMinValue r.twitter.pos.hash_tags
+    h$p   : util.dictMaxValue r.twitter.pos.hash_tags
+    mc    : util.sumValues r.misc.mentions
+    m0p   : util.dictMinValue r.twitter.pos.mentions
+    m$p   : util.dictMaxValue r.twitter.pos.mentions
+    kwc   : util.sumValues r.twitter.key_words
+    kw0p  : util.dictMinValue r.twitter.pos.kw
+    kw$p  : util.dictMaxValue r.twitter.pos.kw
+    udwc  : util.sumValues r.twitter.pos.user_defined_words
+    udw0p : util.dictMinValue r.twitter.pos.user_defined_words
+    udw$p : util.dictMaxValue r.twitter.pos.user_defined_words
+    qm    : 0
+    em    : 0
+    geox  : 0
+    geoy  : 0
+    favc  : 0
+    rtc   : 0
+
+
 )(exports)
+
+
