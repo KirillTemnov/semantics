@@ -25,8 +25,8 @@ switch word
     console.log help
   when "-v", "--version"
     console.log "lastname #{lastname.version}"
-  when "-i"
-    console.log  lastname.inclineWords process.argv[3..]
+  # when "-i"
+  #   console.log  lastname.inclineWords process.argv[3..]
   when "-a"
     console.log sys.inspect lastname.analyseFile(process.argv[3], all: yes), yes, null
   else
