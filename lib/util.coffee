@@ -5,14 +5,12 @@ Module with common functions.
 if "undefined" is typeof global
     window.lastName      ||= {}
     window.lastName.util ||= {}
-    lastName               = window.lastName
     exports                = window.lastName.util
 else
     exports                = module.exports
-    lastName               = {}
 
-((exports, lastName) ->
-  lastName.version   = "0.5.13"
+((exports) ->
+  exports.version   = "0.5.14"
 
   ###
   Capitalize word.
@@ -250,4 +248,4 @@ else
       result[elem[1]] = elem[0]
     result
 
-)(exports, lastName)
+)(exports)
