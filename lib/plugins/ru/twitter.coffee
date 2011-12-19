@@ -68,7 +68,7 @@ else
                          field after applying this filter.
                   result.twitter.key_words  : Dict of key words
   @param {Object} opts Options, :default {}
-                  opts.custom_words : array of custom words, :optional []
+                  opts.user_defined_words : array of predefined words, :optional []
 
   ###
   exports.preFilter = (text, result, opts={}) ->
@@ -91,44 +91,44 @@ else
     result.twitter            = {}
     result.twitter.key_words  = util.arrayToDict keyWords
 
-    positions = urls: {}, hash_tags: {}, mentions: {}, kw: {}, custom_words: {}
+    positions = urls: {}, hash_tags: {}, mentions: {}, kw: {}, user_defined_words: {}
     urls         = util.dictKeys result.misc.urls
     hashTags     = util.dictKeys result.misc.hashtags
     mentions     = util.dictKeys result.misc.mentions
     kw           = util.unique keyWords
-    customWords  = util.unique opts.custom_words || []
+    customWords  = util.unique opts.user_defined_words || []
 
     # calculate positions
     for w, i in allWords
       # in urls
       if w in urls
         unless positions.urls[w]
-          positions.urls[w]       = []
+          positions.urls[w]                = []
         positions.urls[w].push i
 
       # in hashtags
       if w in hashTags
         unless positions.hash_tags[w]
-          positions.hash_tags[w]  = []
+          positions.hash_tags[w]           = []
         positions.hash_tags[w].push i
 
       # in mentions
       if w in mentions
         unless positions.mentions[w]
-          positions.mentions[w]   = []
+          positions.mentions[w]            = []
         positions.mentions[w].push i
 
       # in keywords
       if w in kw
         unless positions.kw[w]
-          positions.kw[w]         = []
+          positions.kw[w]                  = []
         positions.kw[w].push i
 
       # custom words
       if w in customWords
-        unless positions.custom_words[w]
-          positions.custom_words[w] = []
-        positions.custom_words[w].push i
+        unless positions.user_defined_words[w]
+          positions.user_defined_words[w]  = []
+        positions.user_defined_words[w].push i
 
     result.twitter.pos = positions
 

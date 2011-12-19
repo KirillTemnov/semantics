@@ -43,6 +43,29 @@ else
     result
 
 
+  exports.applyFormula = (formulaTxt, scores) ->
+    signsRe     = /[-\+=\/\*]/g
+    formulaTxt  = formulaTxt.replace(signsRe, " $& ").replace(/[\(\)]/g, " $& ").replace(/\s+/, " ")
+    errors      = no
+    vars        = []
+    for wrd in (formulaTxt.split(" ").filter (w) -> !!w)
+      if (wrd in "()-+/*") or (/^\d+(\.\d+){0,}$/g.test wrd) # operator or number
+        continue
+      else if "undefined" isnt typeof scores[wrd]
+        vars.push wrd
+        continue
+      else
+        errors = yes
+        console.log "error on '#{wrd}'"
+    unless errors
+      for wrd in vars
+        formulaTxt = formulaTxt.replace(wrd, scores[wrd])
+      result = eval formulaTxt
+    else
+      result = "Error"
+
+    result
+
 
 
   ###
@@ -97,7 +120,6 @@ else
     geoy  : 0
     favc  : 0
     rtc   : 0
-
 
 )(exports)
 

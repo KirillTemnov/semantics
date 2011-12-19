@@ -12,7 +12,7 @@ else
     lastName               = {}
 
 ((exports, lastName) ->
-  lastName.version   = "0.5.10"
+  lastName.version   = "0.5.13"
 
   ###
   Capitalize word.
@@ -172,6 +172,65 @@ else
       else
         d[i]++
     d
+
+  ###
+  Evaluate sum of all dictionary values (must be numbers).
+  Values can be a numbers or an array with numbers.
+
+  @param {Object} obj Source dict
+  @return {Number} sum
+  ###
+  exports.sumValues = (obj) ->
+    s = 0
+    for k, v of obj
+      if v instanceof Array
+        for vv in v
+          s += vv
+      else
+        s += v
+    s
+
+  ###
+  Find minimum value in dictionary
+  Values can be a numbers or an array with numbers.
+
+  @param {Object} obj Source object
+  @param {Number} def Default value, if nothing found, :optional 0
+  @param {Number} val Minimum value
+  ###
+  exports.dictMinValue = (obj, def=0) ->
+    min = Infinity
+    for k,v of obj
+      if v instanceof Array
+        for vv in v
+          min = vv if min > vv
+      else
+        min = v if min > v
+    if min is Infinity
+      min = def
+    min
+
+  ###
+  Find maximum value in dictionary.
+  Values can be a numbers or an array with numbers.
+
+  @param {Object} obj Source object
+  @param {Number} def Default value, if nothing found, :optional 0
+  @param {Number} val Maximum value
+  ###
+  exports.dictMaxValue = (obj, def=0) ->
+    max = -Infinity
+    for k,v of obj
+      if v instanceof Array
+        for vv in v
+          max = vv if max < vv
+      else
+        max = v if max < v
+    if max is -Infinity
+      max = def
+    max
+
+
 
   ###
   Get top of dictionary by analyse elements count (@see arrayToDict)
