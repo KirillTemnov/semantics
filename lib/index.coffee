@@ -88,25 +88,6 @@ inclineAdjective = (srcWord, adj) ->
   notFound
 
 ###
-Incline bounded words.
-
-We dont know gender and incline of words, plural is not known also.
-@param {Array} wordsList Array of words
-@param {String} lang Language, depends on plugins language :default "ru",
-###
-exports.inclineWords = (wordsList, lang="ru") ->
-  morpho = require "./plugins/#{lang}/morpho"
-
-  result = {}
-  if morpho.getWordRe().test wordsList.join "" # russian
-    result = []
-    wordsList.map (w) ->
-      result.push inclineAdjective w, morpho.getAdjectiveEnds()
-  else
-    result = error: "can't incline words."
-  result
-
-###
 Analyse text and return result as json object.
 
 @param {String} test Source text

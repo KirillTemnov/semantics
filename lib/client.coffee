@@ -1,7 +1,6 @@
 
 
 ((lastname) ->
-#  lastname.inclineWords ...
 
   lastname.findProperName = (lang, args...) ->
     inclines = lastname["plugins"]["#{lang}"]["inclines"]

@@ -7,12 +7,12 @@ if "undefined" is typeof global
     window.lastName.plugins.ru.feelings  = {}
     exports                              = window.lastName.plugins.ru.feelings
     inclines                             = window.lastName.plugins.ru.inclines
-    quotes                               = window.lastName.plugins.ru.quotes
+    quotes                               = window.lastName.quotes
     util                                 = window.lastName.util
 else
     exports                              = module.exports
     inclines                             = require "./inclines"
-    quotes                               = require "./quotes"
+    quotes                               = require "../../quotes"
     util                                 = require "../../util"
 
 ((exports, inclines, quotes, util) ->

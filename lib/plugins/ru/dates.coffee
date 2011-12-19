@@ -27,23 +27,21 @@ dd.mm.??[yyyy[, yyyy...]]-dd.mm.??[yyyy[, yyyy...]]
 
 
 if "undefined" is typeof global
-    window.lastName ||= {}
-    window.lastName.plugins ||= {}
-    window.lastName.plugins.ru || = {}
-    window.lastName.plugins.ru.dates = {}
-    exports = window.lastName.plugins.ru.dates
-    ref = window.lastName.plugins.ru.ref
-    util = window.lastName.util
+    window.lastName.plugins         ||= {}
+    window.lastName.plugins.ru      ||= {}
+    window.lastName.plugins.ru.dates  = {}
+    exports                           = window.lastName.plugins.ru.dates
+    ref                               = window.lastName.plugins.ru.ref
+    util                              = window.lastName.util
 else
-    exports = module.exports
-    ref = require "./ref"
-    util = require "../../util"
+    exports                           = module.exports
+    ref                               = require "./ref"
+    util                              = require "../../util"
 
 
 ((exports, util, ref) ->
 
   ruMonthInDates = ["января", "февраля", "марта", "аперля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
-
 
 
   ###
@@ -113,10 +111,10 @@ else
                                and valid dates.
   ###
   exports.extractDates = extractDates = (strArr) ->
-    dates = {}
-    sources = []
-    intervals = {}
-    strArr = [strArr] unless strArr instanceof Array
+    dates      = {}
+    sources    = []
+    intervals  = {}
+    strArr     = [strArr] unless strArr instanceof Array
     strArr.map (str) ->
       # lookup date interval first
       verboseMatch = str.match /\s+\d{1,2}\s+((января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+|)(\d{2,4}(\s+года|)\s+|)по\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(\s+\d{2,4}|)(\s+|$)/mig
