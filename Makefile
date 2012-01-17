@@ -1,4 +1,6 @@
-.PHONY: client server
+.PHONY: all client server clean
+
+all: client server
 
 client:
 	coffee -b -c lib/plugins/ru
@@ -27,10 +29,14 @@ client:
 
 	rm -f lib/plugins/ru/*.js
 	rm -f lib/*.js
-	uglifyjs -nm -b -i 2 out.js > browser/lastname.js
-	mv out.js browser/not-uglifyed.js
-
+	mkdir -p release
+	uglifyjs -nm -b -i 2 out.js > release/lastname.min.js
+	mv out.js release/lastname.js
 
 server:
 	coffee -b -c lib/*.coffee
 	coffee -b -c lib/plugins/ru/*.coffee
+
+clean: 
+	rm lib/plugins/ru/*.js
+	rm lib/*.js

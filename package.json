@@ -1,6 +1,6 @@
 {
   "name": "lastname",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "description": "Package for search proper names in text. Can be used for incline some proper names.",
   "engines": {
    "node": ">= 0.4.0 < 0.7.0"
@@ -9,5 +9,5 @@
   "main": "./lib/index",
   "bin": { "lastname": "./bin/lastname.coffee"},
   "keywords": ["morphology", "analysis"],
-  "author": "Temnov Kirill <allselead@gmail.com>"
+  "author": "Temnov Kirill @selead"
 }

@@ -25,7 +25,7 @@ else
 
     picUrls = ["flickr.com", "twitpic.com", "instagr.am", "media.photobucket.com"]
     videoUrls.map (u) -> if 0 is urlFromDomain.indexOf u then return "video"
-    picUrls.map (u) -> if 0 if urlFromDomain.indexOf u then "picture"
+    picUrls.map (u) -> if 0 is urlFromDomain.indexOf u then "picture"
     return "unknown"
 
 )(exports)
