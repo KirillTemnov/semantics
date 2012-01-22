@@ -12,10 +12,11 @@ if "undefined" is typeof global
     window.lastName.plugins.ru.propernames  = {}
     exports                                 = window.lastName.plugins.ru.propernames
     inclines                                = window.lastName.plugins.ru.inclines
+    util                                    = window.lastName.util
 else
     exports                                 = module.exports
     inclines                                = require "./inclines"
-
+    util                                    = require "../../util"
 
 ((exports, inclines) ->
 
@@ -136,6 +137,16 @@ else
     # todo incline addresses
 
   ###
+  Get names
+
+  ###
+  exports.getNames = getNames = (text) ->
+    ofNameRe = /(\s[А-Я]\.(\s{0,}[А-Я]\.){0,1}\s{0,1}[А-Я][А-Яа-я\-]+)|([А-Я][А-Яа-я\-]+\s[А-Я]\.\s{0,}([А-Я](\s|\.)){0,1})/gm
+    util.arrayToDict (x.trim() for x in text.match(ofNameRe) || [])
+
+
+
+  ###
   Search proper names in text.
 
   @param {String} text Source text
@@ -144,7 +155,9 @@ else
   ###
   exports.postFilter = (text, result) ->
     result.ru           ||={}
-    result.ru.persons = getProperNames text
-    result.ru.addresses = getAddresses text
+    result.ru.persons     = getProperNames text
+    result.ru.addresses   = getAddresses text
+    result.ru.names       = getNames text
+
 
 )(exports, inclines)

@@ -117,7 +117,9 @@ else
     strArr     = [strArr] unless strArr instanceof Array
     strArr.map (str) ->
       # lookup date interval first
+      # verboseMatch = str.match /\s+\d{1,2}\s+((января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+|)(\d{2,4}(\s+(года|г\.|г|))\s+|)(|по\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(\s+\d{2,4}|)(\s+|$))/mig
       verboseMatch = str.match /\s+\d{1,2}\s+((января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+|)(\d{2,4}(\s+года|)\s+|)по\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(\s+\d{2,4}|)(\s+|$)/mig
+      singleDate = str.match /\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{2,4}[\s\.,!\?]/mig
       if verboseMatch
         [from, to] = verboseMatch[0].toLowerCase().split "по"
         toYear = to.replace(/\d{1,2}/, "").match(/\d+/g)
@@ -159,45 +161,30 @@ else
             intervals[id].count++
 
           sources.push verboseMatch[0]
-      else
-        wordsArr = str.split " "
-        found = no
-        while wordsArr.length > 2 and not found
-          if /^\d[\d]$/.test wordsArr[0]
-            mIndex = ruMonthInDates.indexOf wordsArr[1].toLowerCase()
-            if mIndex >= 0
-              date =
-                d: parseInt wordsArr[0], 10
-                m: mIndex
-              # check year
-              if /^\d{2,4}$/.test wordsArr[2]
-                date.y     = parseInt wordsArr[2], 10
-                sourceStr  = wordsArr[0..2].join " "
-              else
-                sourceStr =  wordsArr[0..1].join " "
-            else if /^\d\d\.\d\d.\d{2,4}$/.test wordsArr[0] or  /^\d\d\.\d\d$/.test wordsArr[0]
-              date =
-                d: parseInt wordsArr[0][0..2], 10
-                m: parseInt wordsArr[0][3..5], 10
-                y: parseInt(wordsArr[0][6..], 10) or undefined
 
-              sourceStr = wordsArr[0]
+      if singleDate
+        for sd in singleDate
+          sd = sd.replace(/\s+/g, " ").trim()
+          splittedDate = sd.split " "
+          mIndex = ruMonthInDates.indexOf splittedDate[1].toLowerCase()
+          continue if -1 is mIndex
+          date =
+            d: parseInt splittedDate[0]
+            m: mIndex
+            y: parseInt splittedDate[2]
+          # check year
+          date = getValidDate date
+          if date
+            found = yes
+            sources.push sd
+            dStr = dateObjectToString date
+            unless dates[dStr]
+              dates[dStr] =
+                count: 1
+                value: date
             else
-              date = {}
+              dates[dStr].count++
 
-            date = getValidDate date
-            if date
-              found = yes
-              sources.push sourceStr
-              dStr = dateObjectToString date
-              unless dates[dStr]
-                dates[dStr] =
-                  count: 1
-                  value: date
-              else
-                dates[dStr].count++
-
-          wordsArr.shift()
 
     dates: dates, sources: sources, intervals: intervals
 

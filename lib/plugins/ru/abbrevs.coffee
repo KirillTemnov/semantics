@@ -21,11 +21,10 @@ else
   @return {Array} result Array of abbrevs
   ###
   exports.extract = extractAbbr = (text) ->
-    abbrevsReGlobal = /(^|\s|[-,\.!?:;\'\"])(([А-Я][А-Я\d]+(\s+[А-Я\d]{2,}){0,5})|([A-Z][A-Z\d\-]+(\s+[A-Z\d\-]+){0,5}))($|\s|[-,\.!?:;\'\"])/gm
-    abbrevsRe = /(([А-Я][А-Я\d]+(\s+[А-Я\d]{2,}){0,5})|([A-Z][A-Z\d\-]+(\s+[A-Z\d\-]+){0,5}))/gm
+    abbrevsReGlobal = /(^|\s|[-,\.!\?:;\'\"])(([А-Я][А-Я\d]+(\s+[А-Я\d]{2,}){0,5})|([A-Z][A-Z\d\-]+(\s+[A-Z\d\-]+){0,5}))($|\s|[-,\.!\?:;\'\"])/gm
     abbr = text.match(abbrevsReGlobal) || []
-    x.trim() for x in abbr
-#    abbr.join(" ").match(abbrevsRe) || []
+    x.trim().replace(/^[-,\.!\?:;\'\"]/g, "").replace(/[-,\.!\?:;\'\"]$/g, "") for x in abbr
+
 
   ###
   Extract abbrevs words.

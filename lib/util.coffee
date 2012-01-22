@@ -13,7 +13,7 @@ else
     ln                     = exports
 
 ((exports, ln) ->
-  ln.version  = "0.5.15"
+  ln.version  = "0.5.20"
 
   ###
   Capitalize word.
