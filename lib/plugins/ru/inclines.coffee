@@ -1,17 +1,14 @@
 if "undefined" is typeof global
-    window.lastName ||= {}
-    window.lastName.plugins ||= {}
-    window.lastName.plugins.ru || = {}
-    window.lastName.plugins.ru.inclines = {}
-    exports = window.lastName.plugins.ru.inclines
-    util = window.lastName.util
-    ref = window.lastName.plugins.ru.ref
-    words = window.lastName.plugins.ru.words
+    window.lastName.plugins.ru.inclines  = {}
+    exports                              = window.lastName.plugins.ru.inclines
+    util                                 = window.lastName.util
+    ref                                  = window.lastName.plugins.ru.ref
+    words                                = window.lastName.plugins.ru.words
 else
-    exports = module.exports
-    util = require "../../util"
-    ref = require "./ref"
-    words = require "./words"
+    exports                              = module.exports
+    util                                 = require "../../util"
+    ref                                  = require "./ref"
+    words                                = require "./words"
 
 ((exports, util, ref, words) ->
 
@@ -1234,6 +1231,60 @@ else
     rinfp = if "string" is typeof r.plural_infinitive then [r.plural_infinitive] else r.plural_infinitive || []
     r.all_forms = util.unique util.merge rinf, rinfp
     r
+
+
+  ###
+  Proceed russian word, if they present in `result.ru.words` and `opts.mergeWords`
+
+  @param {String} text Source text
+  @param {Object} result Resulting object, that contain fields:
+                 ru.merged_words  : Dict of russian words merged from ru.words
+  @param {Object} opts Options, :default {}
+                 opts.mergeWords : Merge words, default: false
+  ###
+  exports.preFilter = (text, result, opts={}) ->
+    if result.ru?.words? and opts.mergeWords
+      result.ru.merged_words = mergeWords result.ru.words
+
+  ###
+  Merge different forms of words (in other inclines)
+
+  @param {Array|Object} words Array of words or words dictionary (quantity as value)
+  @return {Object} words Array of converted words:
+      key - word shortest form
+      value -
+        count: total words
+        forms:
+          form1: count1
+          form2: count2
+          ...
+  ###
+  exports.mergeWords = mergeWords = (words) ->
+    if words instanceof Array
+      words = util.arrayToDict words
+    wordsDict = {}
+    for w, i of words
+      classifiedWord = inclines.classifyWord w
+      unless "unknown" is classifyWord.type
+        unless wordsDict[classifiedWord.all_forms[0]]
+           wordsDict[classifiedWord.all_forms[0]] = count: 0, words: [src:classifiedWord.src, c: i]
+        else
+           wordsDict[classifiedWord.all_forms[0]].words.push src: classifiedWord.src, c: i
+
+    resultingDict = {}          # clean words, if needed
+    for initForm, wd of wordsDict
+      forms = []
+      count = 0
+      for wInfo in wd.words
+        forms.push wInfo.src
+        count += wInfo.c
+      unless initForm in forms
+        initForm = forms[0]
+      resultingDict[initForm] =
+        count: count
+        words: wd.words
+
+    resultingDict
 
 )(exports, util, ref, words)
 
