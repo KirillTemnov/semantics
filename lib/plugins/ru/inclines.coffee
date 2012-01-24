@@ -1269,7 +1269,11 @@ else
   exports.preFilter = (text, result, opts={}) ->
     if result.ru?.words? and opts.mergeWords
       opts.useFilter = yes if "undefined" is typeof useFilter
-      result.ru.merged_words = mergeWords result.ru.words, opts.useFilter
+
+      r                             = mergeWords result.ru.words, opts.useFilter
+      result.ru.merged_words        = r.merged_words
+      result.ru.merged_words_total  = r.length
+
 
   ###
   Default filter for words, include most used words.
@@ -1321,43 +1325,60 @@ else
     else
       filter   = no
 
-    for w, i of words
+    for w, _i of words
       clWord = classifyWord w
       unless "unknown" is clWord.type
         # search in all dictionary and found words in all_forms
-        foundWord = no
-        for k,v of wordsDict
-          if util.intersection v.all_forms, clWord.all_forms # we found a word!
-            wordsDict[k].words.push src: clWord.src, c: i
-            wordsDict[k].all_forms = util.merge  v.all_forms, clWord.all_forms
-            wordsDict[k].count++
-            foundWord = yes
-            break
-        unless foundWord
-          wordsDict[clWord.all_forms[0]] = count: 0, words: [src:clWord.src, c: i], all_forms: clWord.all_forms
+        unless wordsDict[clWord.all_forms[0]]
+          wordsDict[clWord.all_forms[0]] =
+            words     : [clWord.src]
+            all_forms : clWord.all_forms
+            count     : 1
+        else
+          wordsDict[clWord.all_forms[0]].words.push clWord.src
+          wordsDict[clWord.all_forms[0]].all_forms = util.merge clWord.all_forms, wordsDict[clWord.all_forms[0]].all_forms
+          wordsDict[clWord.all_forms[0]].count++
+
+    wordsNodup = {}
+    for k, v of wordsDict
+      foundWord = no
+      for kNoDup, vNoDup of wordsNodup
+        if util.intersection v.all_forms, vNoDup.all_forms
+          wordsNodup[kNoDup].words      = util.merge vNoDup.words, v.words
+          wordsNodup[kNoDup].all_forms  = util.merge vNoDup.all_forms, v.all_forms
+          wordsNodup[kNoDup].count      = wordsNodup[kNoDup].words.length
+          foundWord                     = yes
+          break
+
+      unless foundWord
+        wordsNodup[v.all_forms[0]] =
+          count     : v.words.length
+          words     : v.words
+          all_forms : v.all_forms
 
 
-    resultingDict = {}          # clean words, if needed
-    for initForm, wd of wordsDict
-      forms    = []
-      count    = 0
-      for wInfo in wd.words
-        forms.push wInfo.src
-        count += wInfo.c
-        unless initForm in forms  # get first added form
-          # todo (for best practice use most frequent!)
-          initForm = forms[0]
-      resultingDict[initForm] =
-        count: count
-        words: wd.words
-        all_forms: forms
+    resultingDict  = {}          # clean words, if needed
+    total          = 0
+    for initForm, wd of wordsNodup # todo set count!
+      unless initForm in wd.words  # get first added form
+        # todo (for best practice use most frequent!)
+        infinitive = wd.words[0]
+      else
+        infinitive = initForm
+      resultingDict[infinitive] =
+        count     : wd.words.length
+        words     : util.arrayToDict wd.words
+        all_forms : wd.all_forms
+      total += wd.words.length
       if filter
         for f in filter
-          if (f in wd.all_forms) or (f in forms)
-            resultingDict[initForm].filter = yes
+          if (f in wd.all_forms) or (f in wd.words)
+            resultingDict[infinitive].filter = yes
             break
 
-    resultingDict
+
+    merged_words: resultingDict
+    total: total
 
 )(exports, util, ref, words)
 
