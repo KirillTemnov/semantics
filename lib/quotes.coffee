@@ -31,6 +31,6 @@ else
                  quotes     : Array of quotes in text
   ###
   exports.preFilter = (text, result) ->
-    result.quotes   = getQuotes text
+    result.quotes   = util.arrayToDict getQuotes text
 
 )(exports, util)

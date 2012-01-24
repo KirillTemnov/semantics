@@ -772,9 +772,9 @@ else
     # ам, ям, ыми, ими, ов, ев, ей, ами, ями, ах, ях
     #
     nn       = noun.toLowerCase()
-    wordEndRe  = /(енств|ность|овств|еньк|еств|есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ей|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
+    wordEndRe  = /(енств|ность|овств|еньк|еств|есть|оньк|ость|енк|ечк|изн|инк|ичк|ишк|овн|отн|ств|ушк|чик|щик|ышк|юшк|ек|ец|ик|ин|иц|ищ|от|л|)(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ей|ов|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
     if wordEndRe.test nn
-      endRe          = /(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ей|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
+      endRe          = /(ами|ями|ам|ям|ях|ах|ей|ем|ём|ею|ей|ов|ой|ом|ою|а|ы|е|и|о|у|ю|я|)$/g
       end            = nn.match(endRe)[0]
       suffixes       = []
       rest           = if end.length > 0 then nn[...-(end.length)] else nn
@@ -812,7 +812,7 @@ else
           personal_cases       = ["genitive"]
           plural_cases         = ["nominative", "accusative"]
         when "и"
-          infinitive           = ["#{rest}я", "#{rest}о", "#{rest}е", rest, nn]
+          infinitive           = ["#{rest}я", "#{rest}ь", "#{rest}о", "#{rest}е", rest, nn]
           personal_cases       = ["genitive", "dative", "prepositional"]
           plural_cases         = ["nominative", "accusative", "instrumental"]
         when "о"
@@ -829,6 +829,11 @@ else
         when "ю"
           infinitive           = ["#{rest}я", "#{rest}е", "#{rest}ь"]
           personal_cases       = ["dative", "accusative"]
+        when "ов"               # this may be a part of word root
+          personalInfinitives  = ["#{nn}а", "#{rest}"]
+          pluralInfinitives    = ["#{nn}ы", "#{rest}ы"]
+          personal_cases       = []
+          plural_cases         = ["genetive"]
         when "ой", "ою"
           infinitive           = ["#{rest}а"]
           personal_cases       = ["instrumental"]
@@ -847,6 +852,9 @@ else
           plural_cases         = ["dative"]
         when "ами"
           infinitive           = ["#{rest}а", "#{rest}ы"]
+          # personalInfinitives  = [nn]
+          # pluralInfinitives    = ["#{rest}а", "#{rest}ы"]
+          # personal_cases       = []
           plural_cases         = ["instrumental"]
         when "ями"
           infinitive           = ["#{rest}я", "#{rest}и"]
@@ -984,7 +992,8 @@ else
       base = adj[..-4]
     else
       base = adj[..-3]
-    value.infinitive = ["#{base}ый", "#{base}ий", "#{base}ой"]
+    value.found       = yes
+    value.infinitive  = ["#{base}ый", "#{base}ий", "#{base}ой"]
     value
 
   ###
@@ -1227,9 +1236,23 @@ else
     if (wrd in stopWordsList) or (r.infinitive in stopWordsList)
       r.stopWord = yes
 
+    if r.noun
+      rn = r.noun
+      rninf = if "string" is typeof rn.infinitive then [rn.infinitive] else rn.infinitive || []
+      rninfp = if "string" is typeof rn.plural_infinitive then [rn.plural_infinitive] else rn.plural_infinitive || []
+    else
+      rninf = rninfp = []
+    if r.obj
+      rn = r.obj
+      roinf = if "string" is typeof rn.infinitive then [rn.infinitive] else rn.infinitive || []
+      roinfp = if "string" is typeof rn.plural_infinitive then [rn.plural_infinitive] else rn.plural_infinitive || []
+    else
+      roinf = roinfp = []
+
     rinf = if "string" is typeof r.infinitive then [r.infinitive] else r.infinitive || []
     rinfp = if "string" is typeof r.plural_infinitive then [r.plural_infinitive] else r.plural_infinitive || []
-    r.all_forms = util.unique util.merge rinf, rinfp
+
+    r.all_forms = util.unique util.merge rinf, rinfp, rninf, rninfp, roinf, roinfp
     r
 
 
@@ -1241,48 +1264,98 @@ else
                  ru.merged_words  : Dict of russian words merged from ru.words
   @param {Object} opts Options, :default {}
                  opts.mergeWords : Merge words, default: false
+                 opts.useFilter  : Use filter when mergings words, default: yes
   ###
   exports.preFilter = (text, result, opts={}) ->
     if result.ru?.words? and opts.mergeWords
-      result.ru.merged_words = mergeWords result.ru.words
+      opts.useFilter = yes if "undefined" is typeof useFilter
+      result.ru.merged_words = mergeWords result.ru.words, opts.useFilter
+
+  ###
+  Default filter for words, include most used words.
+  ###
+  exports.defaultFilter = defaultFilter = [
+    "января"
+    "февраля"
+    "марта"
+    "апреля"
+    "мая"
+    "июня"
+    "июля"
+    "августа"
+    "сентября"
+    "октября"
+    "ноября"
+    "декабря"
+    "числе"
+    "год"
+    ]
 
   ###
   Merge different forms of words (in other inclines)
 
   @param {Array|Object} words Array of words or words dictionary (quantity as value)
+  @param {Boolean|Array} wordsFilter Use filter for words, if `wordsFilter` is true,
+         use default lib filter, if wordsFilter is Array - use words in array in words
+         as filter, by default filtering not performed.
+
   @return {Object} words Array of converted words:
       key - word shortest form
       value -
         count: total words
-        forms:
-          form1: count1
-          form2: count2
+        filter: true     # this field is set only for filtered words if filtering enabled
+        words:
+          c: 1
+          src: source-word
           ...
   ###
-  exports.mergeWords = mergeWords = (words) ->
+  exports.mergeWords = mergeWords = (words, wordsFilter=no) ->
     if words instanceof Array
       words = util.arrayToDict words
-    wordsDict = {}
+    wordsDict  = {}
+
+    if wordsFilter instanceof Array
+      filter   =  wordsFilter
+    else if yes is wordsFilter
+      filter   = defaultFilter
+    else
+      filter   = no
+
     for w, i of words
-      classifiedWord = inclines.classifyWord w
-      unless "unknown" is classifyWord.type
-        unless wordsDict[classifiedWord.all_forms[0]]
-           wordsDict[classifiedWord.all_forms[0]] = count: 0, words: [src:classifiedWord.src, c: i]
-        else
-           wordsDict[classifiedWord.all_forms[0]].words.push src: classifiedWord.src, c: i
+      clWord = inclines.classifyWord w
+      unless "unknown" is clWord.type
+        # search in all dictionary and found words in all_forms
+        foundWord = no
+        for k,v of wordsDict
+          if util.intersection v.all_forms, clWord.all_forms # we found a word!
+            wordsDict[k].words.push src: clWord.src, c: i
+            wordsDict[k].all_forms = util.merge  v.all_forms, clWord.all_forms
+            wordsDict[k].count++
+            foundWord = yes
+            break
+        unless foundWord
+          wordsDict[clWord.all_forms[0]] = count: 0, words: [src:clWord.src, c: i], all_forms: clWord.all_forms
+
 
     resultingDict = {}          # clean words, if needed
     for initForm, wd of wordsDict
-      forms = []
-      count = 0
+      forms    = []
+      count    = 0
       for wInfo in wd.words
         forms.push wInfo.src
         count += wInfo.c
-      unless initForm in forms
-        initForm = forms[0]
+        unless initForm in forms  # get first added form
+          # todo (for best practice use most frequent!)
+          initForm = forms[0]
       resultingDict[initForm] =
         count: count
         words: wd.words
+        all_forms: forms
+      if filter
+        for f in filter
+          if (f in wd.all_forms) or (f in forms)
+            resultingDict[initForm].filter = yes
+            break
 
     resultingDict
 

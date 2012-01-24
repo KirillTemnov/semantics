@@ -125,7 +125,7 @@
 
 
       fsentence.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.plugins.ru.feelings.parseSentence(input.value.trim()));
+          output.value = JSON.stringify(lastName.plugins.ru.feelings.parseSentence(input.value.trim()), null, 2);
         }, false);
 
       fanalysis.addEventListener("click", function () {
@@ -181,17 +181,17 @@
         }, false);
 
       fnoon.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.plugins.ru.inclines.analyseNoun(input.value.trim()));
+          output.value = JSON.stringify(lastName.plugins.ru.inclines.analyseNoun(input.value.trim()), null, 2);
         }, false);
 
 
       fverbinf.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()));
+          output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()), null, 2);
         }, false);
 
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings], getOpts()));
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings], getOpts()),null, 2);
         }, false);
 
       function getOpts() {
