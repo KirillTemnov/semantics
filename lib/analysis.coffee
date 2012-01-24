@@ -29,6 +29,8 @@ else
       misc = require "./misc"
       util = require "./util"
 
+    time = Date.now()
+
     if options.mergeHyphens
       noHypens = []
       words =  text.replace(/\s+/g, " ").split " "
@@ -57,6 +59,7 @@ else
       f.postFilter text, result, options
 
     result.version = util.version
+    result.time    = Date.now() - time
     result
 
 

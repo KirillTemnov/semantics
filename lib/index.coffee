@@ -3,6 +3,8 @@ Module provide api for library
 ###
 
 util              = require "./util"
+misc              = require "./misc"
+quotes            = require "./quotes"
 exports.version   = util.version
 analysis          = require "./analysis"
 fs                = require "fs"
@@ -139,5 +141,9 @@ for lang in fs.readdirSync pluginsPrefix
       plugins[lang][p] = require "#{pluginsPrefix}#{lang}/#{p}"
 
 exports.analysis = analyse : analysis.analyse
+
+exports.misc     = misc
+
+exports.quotes   = quotes
 
 exports.plugins = plugins

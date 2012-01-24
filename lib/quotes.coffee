@@ -9,7 +9,7 @@ if "undefined" is typeof global
     util                               = window.lastName.util
 else
     exports                            = module.exports
-    util                               = require "../../util"
+    util                               = require "./util"
 
 ((exports, util) ->
 

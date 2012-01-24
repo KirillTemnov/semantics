@@ -1322,7 +1322,7 @@ else
       filter   = no
 
     for w, i of words
-      clWord = inclines.classifyWord w
+      clWord = classifyWord w
       unless "unknown" is clWord.type
         # search in all dictionary and found words in all_forms
         foundWord = no
