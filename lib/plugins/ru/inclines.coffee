@@ -939,8 +939,10 @@ else
       cases      : []
 
     adj = adj.toLowerCase()
-    match = adj.match /^[а-яё]{2,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/
+    match = adj.match /^[\-а-яё]{2,}(ая|ее|ие|ий|им|ими|их|ого|его|ое|ой|ом|ому|ою|ую|ые|ый|ым|ыми|ых|юю|яя)$/
     unless match
+      return value
+    if (adj.match(/\-/g) || []).length > 1 # only one dash in word allowed
       return value
     adjNoEnd = adj[...-(match[0].length)]
 
@@ -1303,14 +1305,19 @@ else
          use default lib filter, if wordsFilter is Array - use words in array in words
          as filter, by default filtering not performed.
 
-  @return {Object} words Array of converted words:
-      key - word shortest form
-      value -
-        count: total words
-        filter: true     # this field is set only for filtered words if filtering enabled
-        words:
-          c: 1
-          src: source-word
+  @return {Object} words Object contain `merged_words` and `merged_words_total` fields
+      `merged_words`:
+        key - word shortest form
+        value -
+          count: total words
+          filter: true     # this field is set only for filtered words if filtering enabled
+          words:
+            word: count
+            word2: count2
+      #------------------------------
+      `merged_words_total` - counter for total proceeded words
+
+ source-word
           ...
   ###
   exports.mergeWords = mergeWords = (words, wordsFilter=no) ->
@@ -1377,8 +1384,8 @@ else
             break
 
 
-    merged_words: resultingDict
-    total: total
+    merged_words : resultingDict
+    total        : words.length
 
 )(exports, util, ref, words)
 
