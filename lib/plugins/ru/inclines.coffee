@@ -1271,10 +1271,7 @@ else
   exports.preFilter = (text, result, opts={}) ->
     if result.ru?.words? and opts.mergeWords
       opts.useFilter = yes if "undefined" is typeof useFilter
-
-      r                             = mergeWords result.ru.words, opts.useFilter
-      result.ru.merged_words        = r.merged_words
-      result.ru.merged_words_total  = r.length
+      result.ru.merged_words =  mergeWords result.ru.words, opts.useFilter
 
 
   ###
@@ -1305,7 +1302,7 @@ else
          use default lib filter, if wordsFilter is Array - use words in array in words
          as filter, by default filtering not performed.
 
-  @return {Object} words Object contain `merged_words` and `merged_words_total` fields
+  @return {Object} words Object contain `merged_words`
       `merged_words`:
         key - word shortest form
         value -
@@ -1314,11 +1311,9 @@ else
           words:
             word: count
             word2: count2
-      #------------------------------
-      `merged_words_total` - counter for total proceeded words
+                ...
 
- source-word
-          ...
+
   ###
   exports.mergeWords = mergeWords = (words, wordsFilter=no) ->
     if words instanceof Array
@@ -1330,62 +1325,62 @@ else
     else if yes is wordsFilter
       filter   = defaultFilter
     else
-      filter   = no
+      filter   = no             # TODO add UNIQUE to all_forms
 
-    for w, _i of words
+    for w, i of words
       clWord = classifyWord w
       unless "unknown" is clWord.type
         # search in all dictionary and found words in all_forms
         unless wordsDict[clWord.all_forms[0]]
           wordsDict[clWord.all_forms[0]] =
-            words     : [clWord.src]
-            all_forms : clWord.all_forms
-            count     : 1
+            words      : {}
+            all_forms  : clWord.all_forms
+
+          wordsDict[clWord.all_forms[0]].words[clWord.src] =  i
         else
-          wordsDict[clWord.all_forms[0]].words.push clWord.src
-          wordsDict[clWord.all_forms[0]].all_forms = util.merge clWord.all_forms, wordsDict[clWord.all_forms[0]].all_forms
-          wordsDict[clWord.all_forms[0]].count++
+          wordsDict[clWord.all_forms[0]].words[clWord.src] = i
+          wordsDict[clWord.all_forms[0]].all_forms = util.unique util.merge clWord.all_forms, wordsDict[clWord.all_forms[0]].all_forms
 
     wordsNodup = {}
     for k, v of wordsDict
       foundWord = no
       for kNoDup, vNoDup of wordsNodup
         if util.intersection v.all_forms, vNoDup.all_forms
-          wordsNodup[kNoDup].words      = util.merge vNoDup.words, v.words
-          wordsNodup[kNoDup].all_forms  = util.merge vNoDup.all_forms, v.all_forms
-          wordsNodup[kNoDup].count      = wordsNodup[kNoDup].words.length
+          wordsNodup[kNoDup].words      = util.mergeDicts vNoDup.words, v.words
+          wordsNodup[kNoDup].all_forms  = util.unique util.merge vNoDup.all_forms, v.all_forms
           foundWord                     = yes
           break
 
       unless foundWord
         wordsNodup[v.all_forms[0]] =
-          count     : v.words.length
-          words     : v.words
-          all_forms : v.all_forms
+          words      : v.words
+          all_forms  : v.all_forms
 
 
     resultingDict  = {}          # clean words, if needed
-    total          = 0
     for initForm, wd of wordsNodup # todo set count!
       unless initForm in wd.words  # get first added form
         # todo (for best practice use most frequent!)
-        infinitive = wd.words[0]
+        for k,v of wd.words
+          infinitive = k
+          break
       else
         infinitive = initForm
+      c = 0
+      c += v for k,v of wd.words
       resultingDict[infinitive] =
-        count     : wd.words.length
-        words     : util.arrayToDict wd.words
-        all_forms : wd.all_forms
-      total += wd.words.length
+        count      : c
+        all_forms  : wd.all_forms
+        words      : wd.words
+
+
       if filter
         for f in filter
           if (f in wd.all_forms) or (f in wd.words)
             resultingDict[infinitive].filter = yes
             break
 
-
-    merged_words : resultingDict
-    total        : words.length
+    resultingDict
 
 )(exports, util, ref, words)
 
