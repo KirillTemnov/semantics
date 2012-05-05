@@ -4,6 +4,7 @@ all: client server
 
 client:
 	coffee -b -c lib/plugins/ru
+	coffee -b -c lib/plugins/en
 	coffee -b -c lib/client.coffee 
 	coffee -b -c lib/util.coffee 
 	coffee -b -c lib/mimimi.coffee 
@@ -26,6 +27,8 @@ client:
 	cat lib/plugins/ru/twitter.js  >> out.js
 	cat lib/plugins/ru/propernames.js  >> out.js
 	cat lib/plugins/ru/feelings.js  >> out.js
+
+	cat lib/plugins/en/words.js  >> out.js
 
 	rm -f lib/plugins/ru/*.js
 	rm -f lib/*.js

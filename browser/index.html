@@ -191,7 +191,7 @@
 
 
       ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings], getOpts()),null, 2);
+          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings, lastName.plugins.en.words], getOpts()),null, 2);
         }, false);
 
       function getOpts() {
