@@ -46,8 +46,10 @@ else
       counters.spaces_total          : total space chars (' ', '\t', '\n', '\r') in text
       counters.word_length_mid       : middle length of word in text (measured in chars)
       counters.words_in_sentence_mid : middle length of sentences, measured in words
+  @param {Object} opts Options
+                  opts.wordsToLower  : translate all words to lower case, :default false
   ###
-  exports.preFilter = (text, result) ->
+  exports.preFilter = (text, result, opts) ->
     signs            = text.match /[-\+=\/\.,\!\?\@\#\$\%\^\&\*\(\)\[\]\{\}\<\>\`\~\"\':;\|\\_]{1}/g
     signs_total      = signs and signs.length or 0
     spaces_total     = if /\s/.test text then text.match(/\s/g).length else 0
@@ -96,12 +98,17 @@ else
 
     result.version  = util.version
 
+    if opts.wordsToLower
+      wordsProceed = util.removeDuplcates
+    else
+      wordsProceed = (x) -> x
+
     result.misc =
       digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
       emoticons : util.arrayToDict findEmo
       romans    : util.arrayToDict romans
       urls      : util.arrayToDict text.match(/(https?\:\/\/[^\s$]+)/g) || []
-      hashtags  : util.arrayToDict text.match(/\#[a-zёа-я_\d]+/gi) || []
+      hashtags  : wordsProceed util.arrayToDict text.match(/\#[a-zёа-я_\d]+/gi) || []
       mentions  : util.arrayToDict text.match(/\@[_a-z\d]+/gi) || []
       sentences : sentences
 

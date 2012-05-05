@@ -4,6 +4,7 @@ Module provide api for library
 
 util              = require "./util"
 misc              = require "./misc"
+mimimi            = require "./mimimi"
 quotes            = require "./quotes"
 exports.version   = util.version
 analysis          = require "./analysis"
@@ -143,6 +144,8 @@ for lang in fs.readdirSync pluginsPrefix
 exports.analysis = analyse : analysis.analyse
 
 exports.misc     = misc
+
+exports.mimimi   = mimimi
 
 exports.quotes   = quotes
 

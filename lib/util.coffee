@@ -13,7 +13,27 @@ else
     ln                     = exports
 
 ((exports, ln) ->
-  ln.version  = "0.5.50"
+  ln.version  = "0.5.6"
+
+  ###
+  Remove case duplicates from text, e.g. make all lower case and merge words.
+
+  @example
+    x = util.removeDuplcates {foo:1, bAr: 2, BAR:3, baR:1, a:7, Foo:3}
+    # x == {a:7,  bar:6, foo: 4}
+
+  @param {Object} obj Source object with numbers as values
+  @param {Object} obj New object with merged words
+  ###
+  exports.removeDuplcates = (obj) ->
+    result = {}
+    for k,v of obj
+      key = k.toLowerCase()
+      unless "number" is typeof result[key]
+        result[key] = 0
+      result[key] += v
+    result
+
 
   ###
   Capitalize word.
@@ -246,8 +266,7 @@ else
       arr.push [v, k]
     arr.sort (a, b) -> b[0] - a[0]
     result = {}
-    for elem, i in arr
-      break if i >= maxNum
+    for elem, i in arr[0...maxNum]
       result[elem[1]] = elem[0]
     result
 

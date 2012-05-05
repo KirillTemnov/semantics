@@ -19,6 +19,7 @@ else
   @param {Object} result Resulting object
   @param {Object} opts Options for plugins
           `opts.mergeHyphens`  - merge hypen words, default: false
+          `opts.wordsToLower`  - all words to lower case, default: false
   @return {Object} result Result, depends on plugins set
   ###
   exports.analyse = (text, plugins=[], options={}) ->
@@ -48,7 +49,7 @@ else
       text = noHypens.join " "
 
     result = {}
-    misc.preFilter text, result
+    misc.preFilter text, result, options
     preFilters = plugins.filter (plugin) -> "function" is typeof plugin.preFilter
     postFilter = plugins.filter (plugin) -> "function" is typeof plugin.postFilter
 
