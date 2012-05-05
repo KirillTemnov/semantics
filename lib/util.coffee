@@ -13,7 +13,7 @@ else
     ln                     = exports
 
 ((exports, ln) ->
-  ln.version  = "0.5.6"
+  ln.version  = "0.5.7"
 
   ###
   Remove case duplicates from text, e.g. make all lower case and merge words.

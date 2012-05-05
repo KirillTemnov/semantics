@@ -43,7 +43,7 @@ else
     else
       swArray  = util.merge stopWords, opts.stopWords || []
     for s in result.misc.sentences || []
-      reduce   = s.toLowerCase().split(" ").filter( (wrd) ->  /^[-a-z]+$/ig.test(wrd) and not /^\-+$/.test wrd)
+      reduce   = s.toLowerCase().split(" ").filter (wrd) ->  /^[-\.\d]{0,}[a-z]+[\-\.\da-z]{0,}$/ig.test(wrd)
       for w in reduce
         if w in swArray
           stop_words.push w
