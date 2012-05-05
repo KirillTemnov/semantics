@@ -13,7 +13,7 @@ else
     ln                     = exports
 
 ((exports, ln) ->
-  ln.version  = "0.5.7"
+  ln.version  = "0.5.9"
 
   ###
   Remove case duplicates from text, e.g. make all lower case and merge words.
@@ -269,5 +269,30 @@ else
     for elem, i in arr[0...maxNum]
       result[elem[1]] = elem[0]
     result
+
+
+  ###
+  Substract keys of one dict from anoter
+
+  @example
+    x = util.subDicts {a:5, b:1, c:4}, {a:2, c:2}
+    # x == {a:3, b:1, c: 2}
+
+  @param {Object} d1 Source dict
+  @param {Object} d2 Dest dict
+  ###
+  exports.subDicts = (d1, d2) ->
+    # ignore case
+    mapD1 = {}
+    copyD1 = {}
+    for k, _v of d1
+      mapD1[k.toLowerCase()] = k
+      copyD1[k] = _v
+
+    for k,v of d2
+      if mapD1[k.toLowerCase()]
+        srcKey = mapD1[k.toLowerCase()]
+        copyD1[srcKey] -= v
+    copyD1
 
 )(exports, ln)
