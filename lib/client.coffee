@@ -1,9 +1,9 @@
 
 
-((lastname) ->
+((semantics) ->
 
-  lastname.findProperName = (lang, args...) ->
-    inclines = lastname["plugins"]["#{lang}"]["inclines"]
+  semantics.findProperName = (lang, args...) ->
+    inclines = semantics["plugins"]["#{lang}"]["inclines"]
     inclines.findProperName.apply @, args
 
 )(window.lastName ||= {})

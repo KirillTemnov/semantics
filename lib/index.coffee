@@ -149,4 +149,6 @@ exports.mimimi   = mimimi
 
 exports.quotes   = quotes
 
-exports.plugins = plugins
+exports.plugins  = plugins
+
+exports.util     = util

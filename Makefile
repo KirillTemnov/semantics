@@ -33,8 +33,8 @@ client:
 	rm -f lib/plugins/ru/*.js
 	rm -f lib/*.js
 	mkdir -p release
-	uglifyjs -nm -b -i 2 out.js > release/lastname.min.js
-	mv out.js release/lastname.js
+	uglifyjs -nm -b -i 2 out.js > release/semantics.min.js
+	mv out.js release/semantics.js
 
 server:
 	coffee -b -c lib/*.coffee

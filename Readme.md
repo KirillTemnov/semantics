@@ -1,12 +1,12 @@
 
-# lastname
+# semantics
 
   Статистический анализ текста. Склонение русских имен, фамилий и отчеств.
  
 ## Установка
 
 ```bash
-   npm install lastname
+   npm install semantics
 ```
 
   Вместе с библиотекой будет установлен coffee-script.
@@ -22,36 +22,36 @@
    Для методов `doInclineFemaleName`, `doInclineMaleName` склоняемые слова должны быть в именительном падеже.
 
 ```coffee-script
-   ln = require "lastname"
-   console.log ln.plugins.ru.inclines.doInclineFemaleName "Василиса"
-   console.log ln.plugins.ru.inclines.doInclineMaleName "Василий"
+   sem = require "semantics"
+   console.log sem.plugins.ru.inclines.doInclineFemaleName "Василиса"
+   console.log sem.plugins.ru.inclines.doInclineMaleName "Василий"
 
-   console.log ln.plugins.ru.inclines.inclineName "Александром"
-   console.log ln.plugins.ru.inclines.inclineName "Александрой"
+   console.log sem.plugins.ru.inclines.inclineName "Александром"
+   console.log sem.plugins.ru.inclines.inclineName "Александрой"
 ```
 
 ### Склонение отчеств
 
 ```coffee-script
-   ln = require "lastname"
-   console.log ln.plugins.ru.inclines.inclineMaleMiddleName "Григорьевича"
-   console.log ln.plugins.ru.inclines.inclineFemMiddleName "Арнольдовне"
+   sem = require "semantics"
+   console.log sem.plugins.ru.inclines.inclineMaleMiddleName "Григорьевича"
+   console.log sem.plugins.ru.inclines.inclineFemMiddleName "Арнольдовне"
 
-   console.log ln.plugins.ru.inclines.inclineMiddleName "Вячеславовича"
-   console.log ln.plugins.ru.inclines.inclineMiddleName "Андреевной"
+   console.log sem.plugins.ru.inclines.inclineMiddleName "Вячеславовича"
+   console.log sem.plugins.ru.inclines.inclineMiddleName "Андреевной"
 ```
 
 ### Склонение фамилий
 
 ```coffee-script
-   ln = require "lastname"
-   console.log ln.plugins.ru.inclines.inclineFemaleSurname "Летящая"
-   console.log ln.plugins.ru.inclines.inclineFemaleSurname "Пробкиной"
-   console.log ln.plugins.ru.inclines.inclineMaleSurname "Грибков"
-   console.log ln.plugins.ru.inclines.inclineMaleSurname "Ильин"
+   sem = require "semantics"
+   console.log sem.plugins.ru.inclines.inclineFemaleSurname "Летящая"
+   console.log sem.plugins.ru.inclines.inclineFemaleSurname "Пробкиной"
+   console.log sem.plugins.ru.inclines.inclineMaleSurname "Грибков"
+   console.log sem.plugins.ru.inclines.inclineMaleSurname "Ильин"
 
-   console.log ln.plugins.ru.inclines.inclineSurname "Чичикова"
-   console.log ln.plugins.ru.inclines.inclineSurname "Кротких"
+   console.log sem.plugins.ru.inclines.inclineSurname "Чичикова"
+   console.log sem.plugins.ru.inclines.inclineSurname "Кротких"
 ```
 
 ### Подбор фамилий, имен и отчеств людей
@@ -64,11 +64,11 @@
     Падеж передаваемых слов должен быть согласован.
 
 ```coffee-script
-   ln = require "lastname"
-   console.log ln.plugins.ru.inclines.findProperName ["Алина", "Жилина"]
-   console.log ln.plugins.ru.inclines.findProperName ["Сольвьёв", "Василий"]
+   sem = require "semantics"
+   console.log sem.plugins.ru.inclines.findProperName ["Алина", "Жилина"]
+   console.log sem.plugins.ru.inclines.findProperName ["Сольвьёв", "Василий"]
 
-   console.log ln.plugins.ru.inclines.findProperName ["Петром", "Васильевичем", "Старостиным"]
+   console.log sem.plugins.ru.inclines.findProperName ["Петром", "Васильевичем", "Старостиным"]
 ```
 
 * Все имена и фамилии в примерах являются плодами моей фантазии, любые совпадения случайны.
@@ -77,7 +77,7 @@
 
 ### Анализ текста
 
-   Для анализа текста используется вызов функции `lastname.analysis.analyse` и передача ей   
+   Для анализа текста используется вызов функции `semantics.analysis.analyse` и передача ей   
    в качестве аргумента текста и списка плагинов для анализа текста. Если список плагинов пуст,
    используются анализаторы по умолчанию. В результате анализа возвращается объект, содержащий
    параметры текста. Набор параметров зависит от плагинов, подробности в описаниях.
@@ -85,9 +85,9 @@
 
 ```coffee-script
    sys = require "util"
-   lastname = require "lastname"
+   semantics = require "semantics"
    text = """Любой текст для анализа, английский тоже подойдет"""
-   console.log "#{sys.inspect lastname.analysis.analyse text}"
+   console.log "#{sys.inspect semantics.analysis.analyse text}"
    # результат:
     { misc: 
        { digits: {},
@@ -108,8 +108,8 @@
 
 ```coffee-script
    sys = require "util"
-   lastname = require "lastname"
-   console.log lastname.analyseFile "/tmp/sample.txt"
+   semantics = require "semantics"
+   console.log semantics.analyseFile "/tmp/sample.txt"
 ```
 
 * Поиск в файле и по тексту возвращает пустой словарь `{}` если не было найдено ни одного совпадения.
@@ -117,31 +117,31 @@
 
 ## Командная строка
   
-  Для добавление команды lastname необходимо установить пакет глобально:
+  Для добавление команды semantics необходимо установить пакет глобально:
 
 ```bash
-        npm install lastname -g
+        npm install semantics -g
 ```
 
-  lastname может анализировать файлы 
+  semantics может анализировать файлы 
 
 ```bash
-        lastname -a file.txt
+        semantics -a file.txt
 ```
 
   Склонять прилагательные
 
 ```bash
-        lastname -i Стильные
+        semantics -i Стильные
 ```
 
   осуществлять поиск имен, фамилий и отчеств
 
 ```bash
-        lastname Василий
-        lastname Василий Тёркин
-        lastname Василия Тёркина
-        lastname Василии Петровиче Тёркине
+        semantics Василий
+        semantics Василий Тёркин
+        semantics Василия Тёркина
+        semantics Василии Петровиче Тёркине
 ```
 
 ## Плагины
@@ -161,7 +161,7 @@
 
 В процессе анализа текста вначале вызываются все функции `preFilter`, затем `postFilter`.
 
-Плагины могут быть использованы самостоятельно либо собраны в цепочку, см. модуль `lastname.analysis`.
+Плагины могут быть использованы самостоятельно либо собраны в цепочку, см. модуль `semantics.analysis`.
 
 ### Встроенные плагины
 
@@ -174,8 +174,8 @@ a) `preFilter` - Извлекает аббревиатуры из текста �
 b) `extract` Принимает текст в качестве параметра, возвращает список аббревиатур (с дубликатами).
 
 ```coffee-script
-    ln = require "lastname"
-    ln.plugins.ru.abbrevs.extract "текст с НЕКОЙ аббревиатурой" #  [ 'НЕКОЙ' ]
+    sem = require "semantics"
+    sem.plugins.ru.abbrevs.extract "текст с НЕКОЙ аббревиатурой" #  [ 'НЕКОЙ' ]
 ```
 
 #### `plugins.ru.feelings` Эмоциональная окраска, модуль надо переименовать.
@@ -191,8 +191,8 @@ b) `extract` Принимает текст в качестве параметр�
 `getQuotes` - Принимает текст в качестве параметра, возвращает список цитат (с дубликатами). 
 
 ```coffee-script
-    > ln  = require "lastname"
-    > ln.plugins.ru.quotes.getQuotes ' "Ты всегда можешь найти утешение в примитиве." Поль Гоген'
+    > sem  = require "semantics"
+    > sem.plugins.ru.quotes.getQuotes ' "Ты всегда можешь найти утешение в примитиве." Поль Гоген'
     [ '"Ты всегда можешь найти утешение в примитиве."' ]
 ```
 
@@ -207,13 +207,13 @@ b) `extract` Принимает текст в качестве параметр�
 `extractDates` - Принимает строку или список строк как параметр, возвращает объект с атрибутами `dates`, `sources`, `intervals`. Пример:
 
 ```coffee-script
-    > ln  = require "lastname"
-    > z1  = ln.plugins.ru.dates.extractDates "Сегодня, 12 сентября 2015 года, я из лесу вышел."
+    > sem  = require "semantics"
+    > z1  = sem.plugins.ru.dates.extractDates "Сегодня, 12 сентября 2015 года, я из лесу вышел."
     { intervals: {},
       dates: { '12.09.2015': { count: 1, value: { y: 2015, d: 12, m: 8 } } },
       sources: [ '12 сентября 2015', [length]: 1 ] }
 
-    > z2  = ln.plugins.ru.dates.extractDates "Сегодня, 12 сентября 2015 года, я из лесу вышел. Был в походе с 1 сентября по 12 сентября 2015 года."
+    > z2  = sem.plugins.ru.dates.extractDates "Сегодня, 12 сентября 2015 года, я из лесу вышел. Был в походе с 1 сентября по 12 сентября 2015 года."
     { intervals: 
        { '01.09.2015-12.09.2015': 
           { to_value: { y: 2015, d: 12, m: 8 },
@@ -228,14 +228,14 @@ b) `extract` Принимает текст в качестве параметр�
 `packDates` - "Упаковать" даты. Формирует компактное представление из дат, полученных с помощью `extractDates`.
 
 ```coffee-script
-    > ln.plugins.ru.dates.packDates z1.dates 
+    > sem.plugins.ru.dates.packDates z1.dates 
     { '12.09.2015': 1 }
 ```
 
 `packIntervals` - "Упаковать" интервалы дат. Формирует компактное представление из интервалов дат, полученных с помощью `extractDates`.
 
 ```coffee-script
-    > ln.plugins.ru.dates.packDates z2.intervals
+    > sem.plugins.ru.dates.packDates z2.intervals
     { '01.09.2015-12.09.2015': 1 }
 ```
 
@@ -256,7 +256,7 @@ b) `extract` Принимает текст в качестве параметр�
    Модуль опирается на словарь мужских и женских полных имен и правила склонения русского языка.
    В данный момент в словарь насчитывает 2346 мужских и 507 женских имен.
 
-   lastname не обрабатывает двойные (Алим-Паша, Ахмед-оглы и т.п.) и уменьшительные имена (Юра, Вася, Петя, Лиза).
+   semantics не обрабатывает двойные (Алим-Паша, Ахмед-оглы и т.п.) и уменьшительные имена (Юра, Вася, Петя, Лиза).
    Если полное имя отсутствует в модуле, напишите в issues.
    
    В некоторых случаях может быть неверно определено окончание, если трактовка склонения зависит только от ударения в слове.

@@ -1,13 +1,13 @@
 {
-  "name": "lastname",
-  "version": "0.5.9",
-  "description": "Package for search proper names in text. Can be used for incline some proper names.",
+  "name": "semantics",
+  "version": "0.7.0",
+  "description": "Automatical text analysis. Text metrics. Search proper names and expressions. Mostly in russian.",
   "engines": {
-   "node": ">= 0.4"
+   "node": ">= 0.8.x"
   },
-  "dependencies": {"coffee-script": ">= 1.0.1"},
+  "dependencies": {"coffee-script": ">= 1.4.x"},
   "main": "./lib/index",
-  "bin": { "lastname": "./bin/lastname.coffee"},
+  "bin": { "semantics": "./bin/semantics.coffee"},
   "keywords": ["morphology", "analysis"],
-  "author": "Temnov Kirill @selead"
+  "author": "Temnov Kirill"
 }

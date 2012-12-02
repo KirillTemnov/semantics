@@ -1,6 +1,18 @@
 Changelog
 =========
 
+## v 0.6.0
+
+  English words
+  
+  Fix bugs with console plugins and abbrevs
+  
+  Fix dates searching algorithm
+
+  Add emotions for russian
+  
+  Minor splitting and calculations changes
+
 ## v 0.3.30
 
   Browser support

@@ -7,13 +7,13 @@ if "undefined" is typeof global
     window.lastName      ||= {}
     window.lastName.util ||= {}
     exports                = window.lastName.util
-    ln                     = window.lastName
+    sem                     = window.lastName
 else
     exports                = module.exports
-    ln                     = exports
+    sem                     = exports
 
-((exports, ln) ->
-  ln.version  = "0.5.9"
+((exports, sem) ->
+  sem.version  = "0.7.0"
 
   ###
   Remove case duplicates from text, e.g. make all lower case and merge words.
@@ -295,4 +295,4 @@ else
         copyD1[srcKey] -= v
     copyD1
 
-)(exports, ln)
+)(exports, sem)
