@@ -3,10 +3,10 @@ Extract quoted content.
 ###
 
 if "undefined" is typeof global
-    window.lastName                  ||= {}
-    window.lastName.quotes           ||= {}
-    exports                            = window.lastName.quotes
-    util                               = window.lastName.util
+    window.semantics                  ||= {}
+    window.semantics.quotes           ||= {}
+    exports                            = window.semantics.quotes
+    util                               = window.semantics.util
 else
     exports                            = module.exports
     util                               = require "./util"

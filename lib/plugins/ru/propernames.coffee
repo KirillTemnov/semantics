@@ -6,13 +6,13 @@ Find proper names, depends on misc plugin.
 ###
 
 if "undefined" is typeof global
-    window.lastName                       ||= {}
-    window.lastName.plugins               ||= {}
-    window.lastName.plugins.ru            ||= {}
-    window.lastName.plugins.ru.propernames  = {}
-    exports                                 = window.lastName.plugins.ru.propernames
-    inclines                                = window.lastName.plugins.ru.inclines
-    util                                    = window.lastName.util
+    window.semantics                       ||= {}
+    window.semantics.plugins               ||= {}
+    window.semantics.plugins.ru            ||= {}
+    window.semantics.plugins.ru.propernames  = {}
+    exports                                 = window.semantics.plugins.ru.propernames
+    inclines                                = window.semantics.plugins.ru.inclines
+    util                                    = window.semantics.util
 else
     exports                                 = module.exports
     inclines                                = require "./inclines"

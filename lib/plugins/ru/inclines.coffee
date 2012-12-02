@@ -1,9 +1,9 @@
 if "undefined" is typeof global
-    window.lastName.plugins.ru.inclines  = {}
-    exports                              = window.lastName.plugins.ru.inclines
-    util                                 = window.lastName.util
-    ref                                  = window.lastName.plugins.ru.ref
-    words                                = window.lastName.plugins.ru.words
+    window.semantics.plugins.ru.inclines  = {}
+    exports                              = window.semantics.plugins.ru.inclines
+    util                                 = window.semantics.util
+    ref                                  = window.semantics.plugins.ru.ref
+    words                                = window.semantics.plugins.ru.words
 else
     exports                              = module.exports
     util                                 = require "../../util"

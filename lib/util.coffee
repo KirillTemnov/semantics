@@ -4,10 +4,10 @@ Module with common functions.
 
 
 if "undefined" is typeof global
-    window.lastName      ||= {}
-    window.lastName.util ||= {}
-    exports                = window.lastName.util
-    sem                     = window.lastName
+    window.semantics      ||= {}
+    window.semantics.util ||= {}
+    exports                = window.semantics.util
+    sem                     = window.semantics
 else
     exports                = module.exports
     sem                     = exports

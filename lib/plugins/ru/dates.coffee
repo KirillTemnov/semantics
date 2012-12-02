@@ -27,12 +27,12 @@ dd.mm.??[yyyy[, yyyy...]]-dd.mm.??[yyyy[, yyyy...]]
 
 
 if "undefined" is typeof global
-    window.lastName.plugins         ||= {}
-    window.lastName.plugins.ru      ||= {}
-    window.lastName.plugins.ru.dates  = {}
-    exports                           = window.lastName.plugins.ru.dates
-    ref                               = window.lastName.plugins.ru.ref
-    util                              = window.lastName.util
+    window.semantics.plugins         ||= {}
+    window.semantics.plugins.ru      ||= {}
+    window.semantics.plugins.ru.dates  = {}
+    exports                           = window.semantics.plugins.ru.dates
+    ref                               = window.semantics.plugins.ru.ref
+    util                              = window.semantics.util
 else
     exports                           = module.exports
     ref                               = require "./ref"

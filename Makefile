@@ -1,8 +1,13 @@
-.PHONY: all client server clean
+.PHONY: all client server browser clean
 
-all: client server
+all: server client browser
+
+browser:
+	coffee -b -c browser/index.coffee
+
 
 client:
+
 	coffee -b -c lib/plugins/ru
 	coffee -b -c lib/plugins/en
 	coffee -b -c lib/client.coffee 

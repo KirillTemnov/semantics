@@ -48,7 +48,7 @@
   <button id="feelings">все данные</button>
   <button id="verb-infinitive"> инфинитив глагола</button>
   <button id="analyse-noon"> существительное</button>
-  <button id="guess-initial-form"> исходное слово </button>
+  <button id="guess-initial-form"> исходные слова </button>
   <button id="sentence">предложение</button>
   <button id="scores">коэффициенты</button>
   <button id="clear">очистить</button>
@@ -63,169 +63,44 @@
     <textarea id="bad-words"></textarea>
   </div>
   <hr />
-  <h3>Формула</h3>
-  I = <input id="formula" type="text" value="(cc + wc)/2" />
-  <h3>легенда</h3>
-  <pre>
-    cc    :  Количество символов
-    wc    :  Количество слов
-    sc    :  Количество предложений
-    wmid  :  Средняя длина слова (символов)
-    smid  :  Средняя длина предложения (слов)
-    rwc   :  Количество союзов, предлогов, междометий ...
-    swc   :  Количество стоп-слов
-    swp   :  Процент стоп-слов в тексте
-    refc  :  Количество ссылок
-    ref0p :  Позиция первой ссылки (начинается с нуля)
-    ref$p :  Позиция последней ссылки (начинается с нуля)
-    mimic :  Количество слов "мимими"
-    emoc  :  Количество смайлов
-    qc    :  Количество цитат
-    q2wc  :  Количество словосочетаний из двух слов
-    q3wc  :  Количество словосочетаний из трех слов
-    q4wc  :  Количество словосочетаний из четырех слов
-    q5wc  :  Количество словосочетаний из пяти слов
-    qdc   :  Количество чисел
-    hc    :  Количество хеш-тегов
-    h0p   :  Позиция первого хеш-тега (начиная с нуля)
-    h$p   :  Позиция последнего хеш-тега (начиная с нуля)
-    mc    :  Количество упоминаний других людей
-    m0p   :  Позиция первого упоминания (начиная с нуля)
-    m$p   :  Позиция последнего упоминания (начиная с нуля)
-    kwc   :  Количество ключевых слов
-    kw0p  :  Позиция первого ключевого слова (начиная с нуля)
-    kw$p  :  Позиция последнего ключевого слова (начиная с нуля)
-    udwc  :  Количество слов из пользовательского словаря
-    udw0p :  Позиция первого слова из пользовательского словаря (начиная с нуля)
-    udw$p :  Позиция последнего слова из пользовательского словаря (начиная с нуля)
-  </pre>
-    <script type="text/javascript">
-      var fanalysis       = document.getElementById("analysis"),
-          clear           = document.getElementById("clear"),
-          ffeelings       = document.getElementById("feelings"),
-          fverbinf        = document.getElementById("verb-infinitive"),
-          fnoon           = document.getElementById("analyse-noon"),
-          fsentence       = document.getElementById("sentence"),
-          fscores         = document.getElementById("scores"),
-          fguessInitForm  = document.getElementById("guess-initial-form"),
-          formulaInp      = document.getElementById("formula"),
-          input           = document.getElementById("in-text"),
-          output          = document.getElementById("out-text");
-
-      clear.addEventListener("click", function() {
-          output.value  = "";
-        }, false);
-
-      fscores.addEventListener("click", function() {
-          var formula = formulaInp.value,
-              scores = lastName.analysis.twitterScores (input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings], getOpts());
-          output.value  = JSON.stringify(scores) + 
-                      "\n\n" + lastName.analysis.applyFormula(formula, scores);
-        }, false);
-
-
-      fsentence.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.plugins.ru.feelings.parseSentence(input.value.trim()), null, 2);
-        }, false);
-
-      fanalysis.addEventListener("click", function () {
-          var result = lastName.analysis.analyse(input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings], getOpts()),
-          out = [ "Всего слов: \t\t" + result.counters.words_total,
-                  "Стоп слов: \t\t" + result.counters.stop_words_total,
-                  "Предложений: \t\t" + result.misc.sentences.length,
-                  "Длина слова: \t\t" + result.counters.word_length_mid.toFixed(2) + " букв",
-                  "Длина предложения:\t" + result.counters.words_in_sentence_mid.toFixed(2)+ " слов",
-                  "Вода:\t\t\t" + (100 * result.counters.stop_words_persent).toFixed(2) +  " %",
-                  "twitter:\n",
-                  "Ссылки:\t " + JSON.stringify(result.twitter.pos.urls),
-                  "Хеш-теги:\t " + JSON.stringify(result.twitter.pos.hash_tags),
-                  "Упоминания:\t " + JSON.stringify(result.twitter.pos.mentions),
-                  "Ключевые слова:\t " + JSON.stringify(result.twitter.pos.kw),
-                  "Свои слова:\t " + JSON.stringify(result.twitter.pos.user_defined_words),
-                   "\n----------------------------------------\n",
-                  (lastName.util.dictKeys(result.ru.abbrevs).length > 0 ? "Аббревиатуры:\t\t" + lastName.util.dictKeys(result.ru.abbrevs).join(", ") : ""),
-                  (lastName.util.dictKeys(result.ru.persons).length > 0 ? "Люди:\t\t\t" + lastName.util.dictKeys(result.ru.persons).map(function (x) {
-      return x.replace(/-/g, " ").trim();}).join(", ") : ""),
-                  (result.ru.addresses.length > 0 ? "Адреса:\n\t\t\t\t" + result.ru.addresses.join("\n\t\t\t\t") : ""),
-                  "Фразы:\t" + result.feelings.collocations.join("\n")
-      ].filter(function(x) { return !!x;});
-          output.value = out.join("\n");
-        }, false);
-
-      fguessInitForm.addEventListener("click", function () {
-          var word = input.value.trim(),
-              sw = lastName.plugins.ru.words.stopWords,
-              wrd = lastName.plugins.ru.inclines.classifyWord(word);
-          if (wrd.type === "verb") {
-             output.value = "глагол: " + wrd.infinitive;
-          } else if (wrd.type === "adv") {
-             output.value = "наречие: " + wrd.infinitive;
-          } else if (wrd.type === "pronouns") {
-             output.value = "местоимение: " + wrd.infinitive;
-          } else if (wrd.type === "union") {
-             output.value = "союз: " + wrd.infinitive;
-          } else if (wrd.type === "part") {
-             output.value = "частица: " + wrd.infinitive;
-          } else if (wrd.type === "prep") {
-             output.value = "предлог: " + wrd.infinitive;
-          } else if (wrd.type === "adj") {
-             output.value = "прилагательное: " + wrd.infinitive;
-          } else if (wrd.type === "noun") {
-             output.value = "существительное: " +  wrd.infinitive;
-          } else {
-             output.value = "хм... похоже ничего не найдено"
-          }
-          if (wrd.stopWord) {
-             output.value += " [стоп-слово] ";
-          }
-        }, false);
-
-      fnoon.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.plugins.ru.inclines.analyseNoun(input.value.trim()), null, 2);
-        }, false);
-
-
-      fverbinf.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.plugins.ru.inclines.getVerbInfinitive(input.value.trim()), null, 2);
-        }, false);
-
-
-      ffeelings.addEventListener("click", function () {
-          output.value = JSON.stringify(lastName.analysis.analyse(input.value, [lastName.misc, lastName.mimimi, lastName.quotes, lastName.plugins.ru.words, lastName.plugins.ru.abbrevs, lastName.plugins.ru.dates, lastName.plugins.ru.propernames, lastName.plugins.ru.twitter, lastName.plugins.ru.feelings, lastName.plugins.en.words], getOpts()),null, 2);
-        }, false);
-
-      function getOpts() {
-
-
-
-          var stopWordsInp  = document.getElementById("stop-words"),
-              stopWords     = stopWordsInp.value.replace(/\s+/ig, " ").toLowerCase().split().filter(function(x) {return !!x}),
-              goodWordsInp  = document.getElementById("good-words"),
-              badWordsInp  = document.getElementById("bad-words"),
-              goodWords = lastName.util.textToDict(goodWordsInp.value),
-              badWords = lastName.util.textToDict(badWordsInp.value),
-              opts          = {dictOfWords: {}};
-          if (goodWordsInp.value.length > 0) {
-             opts.dictOfWords["good"] = goodWords;
-          }
-          if (badWordsInp.value.length > 0) {
-             opts.dictOfWords["bad"]  = badWords;
-          }
-      
-
-//          opts.collocationRules = ["prep.noun"];
-      
-//          console.log("gv = " + JSON.stringify(goodWords) + "\nbw = " + JSON.stringify(badWords));
-          
-
-          if (stopWords.length > 0) {
-            opts.replaceStopWords  = true;
-            opts.stopWords         = stopWords;
-          }
-         return opts;
-      }
-
-    </script>
+  <!-- <h3>Формула</h3> -->
+  <!-- I = <input id="formula" type="text" value="(cc + wc)/2" /> -->
+  <!-- <h3>легенда</h3> -->
+  <!-- <pre> -->
+  <!--   cc    :  Количество символов -->
+  <!--   wc    :  Количество слов -->
+  <!--   sc    :  Количество предложений -->
+  <!--   wmid  :  Средняя длина слова (символов) -->
+  <!--   smid  :  Средняя длина предложения (слов) -->
+  <!--   rwc   :  Количество союзов, предлогов, междометий ... -->
+  <!--   swc   :  Количество стоп-слов -->
+  <!--   swp   :  Процент стоп-слов в тексте -->
+  <!--   refc  :  Количество ссылок -->
+  <!--   ref0p :  Позиция первой ссылки (начинается с нуля) -->
+  <!--   ref$p :  Позиция последней ссылки (начинается с нуля) -->
+  <!--   mimic :  Количество слов "мимими" -->
+  <!--   emoc  :  Количество смайлов -->
+  <!--   qc    :  Количество цитат -->
+  <!--   q2wc  :  Количество словосочетаний из двух слов -->
+  <!--   q3wc  :  Количество словосочетаний из трех слов -->
+  <!--   q4wc  :  Количество словосочетаний из четырех слов -->
+  <!--   q5wc  :  Количество словосочетаний из пяти слов -->
+  <!--   qdc   :  Количество чисел -->
+  <!--   hc    :  Количество хеш-тегов -->
+  <!--   h0p   :  Позиция первого хеш-тега (начиная с нуля) -->
+  <!--   h$p   :  Позиция последнего хеш-тега (начиная с нуля) -->
+  <!--   mc    :  Количество упоминаний других людей -->
+  <!--   m0p   :  Позиция первого упоминания (начиная с нуля) -->
+  <!--   m$p   :  Позиция последнего упоминания (начиная с нуля) -->
+  <!--   kwc   :  Количество ключевых слов -->
+  <!--   kw0p  :  Позиция первого ключевого слова (начиная с нуля) -->
+  <!--   kw$p  :  Позиция последнего ключевого слова (начиная с нуля) -->
+  <!--   udwc  :  Количество слов из пользовательского словаря -->
+  <!--   udw0p :  Позиция первого слова из пользовательского словаря (начиная с нуля) -->
+  <!--   udw$p :  Позиция последнего слова из пользовательского словаря (начиная с нуля) -->
+  <!-- </pre> -->
   
+    <script type="text/javascript" src="./index.js"></script>
+
 </body>
 </html>

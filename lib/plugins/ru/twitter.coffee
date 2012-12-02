@@ -5,10 +5,10 @@ depends on misc
 ###
 
 if "undefined" is typeof global
-    window.lastName.plugins.ru.twitter   = {}
-    exports                              = window.lastName.plugins.ru.twitter
-    util                                 = window.lastName.util
-    mimimi                               = window.lastName.mimimi
+    window.semantics.plugins.ru.twitter   = {}
+    exports                              = window.semantics.plugins.ru.twitter
+    util                                 = window.semantics.util
+    mimimi                               = window.semantics.mimimi
 else
     exports                              = module.exports
     util                                 = require "../../util"

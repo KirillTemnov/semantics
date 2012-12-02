@@ -4,11 +4,11 @@ Feeling words
 ###
 # depends on inclines and counters
 if "undefined" is typeof global
-    window.lastName.plugins.ru.feelings  = {}
-    exports                              = window.lastName.plugins.ru.feelings
-    inclines                             = window.lastName.plugins.ru.inclines
-    quotes                               = window.lastName.quotes
-    util                                 = window.lastName.util
+    window.semantics.plugins.ru.feelings  = {}
+    exports                              = window.semantics.plugins.ru.feelings
+    inclines                             = window.semantics.plugins.ru.inclines
+    quotes                               = window.semantics.quotes
+    util                                 = window.semantics.util
 else
     exports                              = module.exports
     inclines                             = require "./inclines"
@@ -702,6 +702,7 @@ else
     "вафел"              : 1.5,
     "вафлить"            : 1.5,
     "влагалище"          : 1.5,
+    "война"              : 1.5
     "вошь"               : 1.1,
     "впиздячить"         : 2,
     "вхуярить"           : 2,
@@ -973,6 +974,8 @@ else
         "noun.pron.prep.noun"      # сущ местоим предлог сущ
         "pron.verb.prep.noun"      # местоим глаг предлог сущ
         "pron.adj.prep.noun"       # местоим прилаг предлог сущ
+        "adj.union.adj.noun"       # прил. союз прил. сущ
+        "noun.union.noun"       # сущ союз сущ
         "pron.noun"                # местоим сущ
         "prep.noun"                # предлог сущ
         "prep.adj.noun"            # предлог прил сущ
@@ -1001,17 +1004,42 @@ else
             break
 
         if found
-          phrase = []
+          phrase = {src:[], inf: []}
           for j in [0...i]
-            phrase.push words[j].src#infinitive
+            phrase.src.push words[j].src
+            phrase.inf.push words[j].infinitive
+            phrase.pat = pat
+          phrase.inf = phrase.inf.join " "
           arrayOfPhrases.push phrase
-          shift = phrase.length
+          # apply same phraze but shorter!
+#          shift = 1
+          shift = phrase.src.length
           break
       while shift > 0
         words.shift()
         shift -= 1
 
     arrayOfPhrases              # todo replace array of phrases by array of word objects
+    # proceed array of phrases
+    dictPhrases = {}
+
+    for phrase in arrayOfPhrases
+      key = phrase.inf
+      if dictPhrases[key]?
+        dictPhrases[key].total++
+        dictPhrases[key].forms.push phrase
+      else
+        dictPhrases[key] =
+          total           : 1
+          forms           : [phrase]
+          inf             : key
+          words_in_phrase : phrase.src.length
+    result = []
+    for k,v of dictPhrases
+      result.push v
+    result
+
+
 
   ###
   Check if word match any component of name in personsDict (first name, middle name, surname).
@@ -1132,7 +1160,14 @@ else
       # push collocations
       if pps.collocation
         for col in pps.collocation
-          collocations.push col
+          found_colo = no
+          for c in collocations
+            if c.inf is col.inf
+              found_colo = yes
+              c.total += col.total
+              for frm in col.forms
+                c.forms.push frm
+          collocations.push col unless found_colo
 
 
     # todo merge collocations

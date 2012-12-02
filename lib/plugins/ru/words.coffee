@@ -17,12 +17,12 @@ prepositional:   предложный
 ###
 
 if "undefined" is typeof global
-    window.lastName                 ||= {}
-    window.lastName.plugins         ||= {}
-    window.lastName.plugins.ru      ||= {}
-    window.lastName.plugins.ru.words  = {}
-    exports                           = window.lastName.plugins.ru.words
-    util                              = window.lastName.util
+    window.semantics                 ||= {}
+    window.semantics.plugins         ||= {}
+    window.semantics.plugins.ru      ||= {}
+    window.semantics.plugins.ru.words  = {}
+    exports                           = window.semantics.plugins.ru.words
+    util                              = window.semantics.util
 else
     exports                           = module.exports
     util                              = require "../../util"

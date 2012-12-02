@@ -4,9 +4,9 @@ Depends on misc.
 ###
 
 if "undefined" is typeof global
-    window.lastName.mimimi ||= {}
-    exports                  = window.lastName.mimimi
-    util                     = window.lastName.util
+    window.semantics.mimimi ||= {}
+    exports                  = window.semantics.mimimi
+    util                     = window.semantics.util
 else
     exports                  = module.exports
     util                     = require "./util"

@@ -4,8 +4,8 @@ Module for defining media type by url.
 ###
 
 if "undefined" is typeof global
-    window.lastName.urls  = {}
-    exports               = window.lastName.urls
+    window.semantics.urls  = {}
+    exports               = window.semantics.urls
 else
     exports               = module.exports
 

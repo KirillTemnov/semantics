@@ -3,9 +3,9 @@ Analysis module.
 ###
 
 if "undefined" is typeof global
-    window.lastName          ||= {}
-    window.lastName.analysis ||= {}
-    exports                    = window.lastName.analysis
+    window.semantics          ||= {}
+    window.semantics.analysis ||= {}
+    exports                    = window.semantics.analysis
 else
     exports                    = module.exports
 
@@ -24,8 +24,8 @@ else
   ###
   exports.analyse = (text, plugins=[], options={}) ->
     if "undefined" is typeof global
-      misc = window.lastName.misc
-      util = window.lastName.util
+      misc = window.semantics.misc
+      util = window.semantics.util
     else
       misc = require "./misc"
       util = require "./util"
@@ -95,8 +95,8 @@ else
   ###
   exports.twitterScores = (text, plugins, options) ->
     if "undefined" is typeof global
-      twitter  = window.lastName.plugins.ru.twitter
-      util     = window.lastName.util
+      twitter  = window.semantics.plugins.ru.twitter
+      util     = window.semantics.util
     else
       twitter  = require "./plugins/ru/twitter"
       util     = require "./util"

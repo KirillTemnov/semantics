@@ -3,10 +3,10 @@ Misc params, like digits, emoticons and maybe others.
 ###
 
 if "undefined" is typeof global
-    window.lastName      ||= {}
-    window.lastName.misc ||= {}
-    exports                = window.lastName.misc
-    util                   = window.lastName.util
+    window.semantics      ||= {}
+    window.semantics.misc ||= {}
+    exports                = window.semantics.misc
+    util                   = window.semantics.util
 else
     exports                = module.exports
     util                   = require "./util"

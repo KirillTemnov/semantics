@@ -4,9 +4,9 @@ Module for extracting russian (and english) abbrevs.
 ###
 
 if "undefined" is typeof global
-    window.lastName.plugins.ru.abbrevs  = {}
-    exports                           = window.lastName.plugins.ru.abbrevs
-    util                              = window.lastName.util
+    window.semantics.plugins.ru.abbrevs  = {}
+    exports                           = window.semantics.plugins.ru.abbrevs
+    util                              = window.semantics.util
 else
     exports                           = module.exports
     util                              = require "../../util"

@@ -3,12 +3,12 @@ English language words
 ###
 
 if "undefined" is typeof global
-  window.lastName                  ||= {}
-  window.lastName.plugins          ||= {}
-  window.lastName.plugins.en       ||= {}
-  window.lastName.plugins.en.words   = {}
-  exports                            = window.lastName.plugins.en.words
-  util                               = window.lastName.util
+  window.semantics                  ||= {}
+  window.semantics.plugins          ||= {}
+  window.semantics.plugins.en       ||= {}
+  window.semantics.plugins.en.words   = {}
+  exports                            = window.semantics.plugins.en.words
+  util                               = window.semantics.util
 else
   exports                            = module.exports
   util                               = require "../../util"

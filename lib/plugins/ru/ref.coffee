@@ -4,11 +4,11 @@ This module contain words and names for analysis
 ###
 
 if "undefined" is typeof global
-    window.lastName ||= {}
-    window.lastName.plugins ||= {}
-    window.lastName.plugins.ru || = {}
-    window.lastName.plugins.ru.ref = {}
-    exports = window.lastName.plugins.ru.ref
+    window.semantics ||= {}
+    window.semantics.plugins ||= {}
+    window.semantics.plugins.ru || = {}
+    window.semantics.plugins.ru.ref = {}
+    exports = window.semantics.plugins.ru.ref
 else
     exports = module.exports
 
