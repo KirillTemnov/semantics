@@ -9,11 +9,13 @@ if "undefined" is typeof global
     inclines                             = window.semantics.plugins.ru.inclines
     quotes                               = window.semantics.quotes
     util                                 = window.semantics.util
+    misc                                 = window.semantics.misc
 else
     exports                              = module.exports
     inclines                             = require "./inclines"
     quotes                               = require "../../quotes"
     util                                 = require "../../util"
+    misc                                 = require "../../misc"
 
 ((exports, inclines, quotes, util) ->
 
@@ -1118,6 +1120,27 @@ else
       collocation    : extractPatterns sentenceWords, patterns
       ew             : sentenceWords.map (z) -> z.infinitive
 
+  #
+  # Public: Make text shorten by extracting most meaningful sentences
+  #
+  # result - processed text, must contain
+  #          `result.feelings.collocations`, `result.feelings.proper_names`
+  #
+  exports.shortenText = shortenText = (result) ->
+    cols = []
+    short_sent = []
+
+    for col in result.feelings.collocations
+      if col.total > 1
+        cols.push col.forms[0].src.join " "
+        for sent_ind in col.sentences
+          short_sent.push sent_ind unless sent_ind in short_sent
+    the_sents = []
+    for s,i in result.misc.sentences
+      if i in short_sent
+        the_sents.push misc.denormalizeText s
+    the_sents
+
 
   ###
   Extract feelengs from text. This filter use results of misc `filter`.
@@ -1188,7 +1211,7 @@ else
       wordsAnalysed : totalWords
       collocations  : collocations
 
-    # merge result.ru.cap_words and result.feelings.colocations -> find proper names
+    # merge result.ru.cap_words and result.feelings.collocations -> find proper names
     realPn = {}
     for wrd, i of result.ru.cap_words
       for col in collocations
@@ -1219,5 +1242,8 @@ else
                 
 
     result.feelings.proper_names = realPn
+    result.feelings.shorten_text = shortenText result
+
+
 
 )(exports, inclines, quotes, util)

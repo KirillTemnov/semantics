@@ -7,9 +7,10 @@ getOpts = ->
   badWordsInp = document.getElementById("bad-words")
   goodWords = semantics.util.textToDict(goodWordsInp.value)
   badWords = semantics.util.textToDict(badWordsInp.value)
-  opts = dictOfWords: {}
-  opts.dictOfWords["good"] = goodWords  if goodWordsInp.value.length > 0
-  opts.dictOfWords["bad"] = badWords  if badWordsInp.value.length > 0
+  opts = {}
+  # opts = dictOfWords: {}
+  # opts.dictOfWords["good"] = goodWords  if goodWordsInp.value.length > 0
+  # opts.dictOfWords["bad"] = badWords  if badWordsInp.value.length > 0
   if stopWords.length > 0
     opts.replaceStopWords = yes
     opts.stopWords = stopWords
@@ -42,14 +43,41 @@ fsentence.addEventListener "click", (->
 ), no
 
 fanalysis.addEventListener "click", (->
-  result = semantics.analysis.analyse(input.value, [semantics.misc, semantics.mimimi, semantics.quotes, semantics.plugins.ru.words, semantics.plugins.ru.abbrevs, semantics.plugins.ru.propernames, semantics.plugins.ru.twitter, semantics.plugins.ru.feelings], getOpts())
+  val = input.value
+  val = val.replace /\n/g, "\n. "
+  result = semantics.analysis.analyse(val, [semantics.misc, semantics.mimimi, semantics.quotes, semantics.plugins.ru.words, semantics.plugins.ru.abbrevs, semantics.plugins.ru.propernames, semantics.plugins.ru.twitter, semantics.plugins.ru.feelings], getOpts())
 
-  out = ["Всего слов: \t\t" + result.counters.words_total, "Стоп слов: \t\t" + result.counters.stop_words_total, "Предложений: \t\t" + result.misc.sentences.length, "Длина слова: \t\t" + result.counters.word_length_mid.toFixed(2) + " букв", "Длина предложения:\t" + result.counters.words_in_sentence_mid.toFixed(2) + " слов", "Вода:\t\t\t" + (100 * result.counters.stop_words_persent).toFixed(2) + " %", "twitter:\n", "Ссылки:\t " + JSON.stringify(result.twitter.pos.urls), "Хеш-теги:\t " + JSON.stringify(result.twitter.pos.hash_tags), "Упоминания:\t " + JSON.stringify(result.twitter.pos.mentions), "Ключевые слова:\t " + JSON.stringify(result.twitter.pos.kw), "Свои слова:\t " + JSON.stringify(result.twitter.pos.user_defined_words), "\n----------------------------------------\n", ((if semantics.util.dictKeys(result.ru.abbrevs).length > 0 then "Аббревиатуры:\t\t" + semantics.util.dictKeys(result.ru.abbrevs).join(", ") else "")), ((if semantics.util.dictKeys(result.ru.persons).length > 0 then "Люди:\t\t\t" + semantics.util.dictKeys(result.ru.persons).map((x) ->
-    x.replace(/-/g, " ").trim()
-  ).join(", ") else "")), ((if result.ru.addresses.length > 0 then "Адреса:\n\t\t\t\t" + result.ru.addresses.join("\n\t\t\t\t") else "")), "Фразы:\t" + result.feelings.collocations.join("\n")].filter((x) ->
-    !!x
-  )
-  output.value = out.join("\n")
+  # out = ["Всего слов: \t\t" + result.counters.words_total, "Стоп слов: \t\t" + result.counters.stop_words_total, "Предложений: \t\t" + result.misc.sentences.length, "Длина слова: \t\t" + result.counters.word_length_mid.toFixed(2) + " букв", "Длина предложения:\t" + result.counters.words_in_sentence_mid.toFixed(2) + " слов", "Вода:\t\t\t" + (100 * result.counters.stop_words_persent).toFixed(2) + " %", "twitter:\n", "Ссылки:\t " + JSON.stringify(result.twitter.pos.urls), "Хеш-теги:\t " + JSON.stringify(result.twitter.pos.hash_tags), "Упоминания:\t " + JSON.stringify(result.twitter.pos.mentions), "Ключевые слова:\t " + JSON.stringify(result.twitter.pos.kw), "Свои слова:\t " + JSON.stringify(result.twitter.pos.user_defined_words), "\n----------------------------------------\n", ((if semantics.util.dictKeys(result.ru.abbrevs).length > 0 then "Аббревиатуры:\t\t" + semantics.util.dictKeys(result.ru.abbrevs).join(", ") else "")), ((if semantics.util.dictKeys(result.ru.persons).length > 0 then "Люди:\t\t\t" + semantics.util.dictKeys(result.ru.persons).map((x) ->
+  #   x.replace(/-/g, " ").trim()
+  # ).join(", ") else "")), ((if result.ru.addresses.length > 0 then "Адреса:\n\t\t\t\t" + result.ru.addresses.join("\n\t\t\t\t") else "")), "Фразы:\t" + result.feelings.collocations.join("\n")].filter((x) ->
+  #   !!x
+  # )
+  # output.value = out.join("\n")
+
+  wrds = []
+  for k,v of result.feelings.proper_names
+    wrds.push k[0].toUpperCase() + k[1..]
+  the_sents = result.feelings.shorten_text.join "\n"
+
+  top_wrds = []
+  for k,v of result.ru.words
+    if v > 3
+      top_wrds.push [k,v]
+  top_wrds.sort (a,b) -> b[1] - a[1]
+  top_wrds = top_wrds.map (w) -> w[0]
+
+  out = [
+    "Краткое содержание:"
+    the_sents
+    "\n\nСжатие: #{(100 *(1 - the_sents.length/input.value.length)).toFixed 2} %"
+    # "\n\nФразы: "
+    # cols.join "\n"
+    "Важно: #{wrds}"
+    "Слова: #{JSON.stringify top_wrds, null, 2}" 
+    ]
+
+  output.value = out.join "\n"
+
   window.result = result
 ), no
 
@@ -90,8 +118,8 @@ fverbinf.addEventListener "click", (->
 ), no
 ffeelings.addEventListener "click", (->
   window.result = result = semantics.analysis.analyse input.value, [semantics.misc, semantics.mimimi, semantics.quotes, semantics.plugins.ru.words, semantics.plugins.ru.abbrevs, semantics.plugins.ru.dates, semantics.plugins.ru.propernames, semantics.plugins.ru.twitter, semantics.plugins.ru.feelings, semantics.plugins.en.words], getOpts()
-  colo = result.feelings.collocations.map (c) ->
-      if c.total > 1
-        console.log JSON.stringify c, null, 2
+  # colo = result.feelings.collocations.map (c) ->
+  #     if c.total > 1
+  #       console.log JSON.stringify c, null, 2
   output.value = JSON.stringify window.result, null, 2
 ), no

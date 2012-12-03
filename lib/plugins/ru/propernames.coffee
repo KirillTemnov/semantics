@@ -21,14 +21,14 @@ else
 ((exports, inclines) ->
 
   ###
-  Get proper names from text. This function merge similar names to one entity.
+  Get Person names from text. This function merge similar names to one entity.
   e.g. ["Антон--"] and ["Антон-Павлович-Чехов"] to ["Антон-Павлович-Чехов"] x 2
 
   @param {String} text Source text
   @return {Object} result Dictionary of object, described in incline module,
                           @see `plugins.ru.inclines` description.
   ###
-  exports.getProperNames = getProperNames = (text) ->
+  exports.getPersonsNames = getPersonsNames = (text) ->
     properNames    = []
     curProperName  = []
     pnList         = []
@@ -155,9 +155,10 @@ else
   ###
   exports.postFilter = (text, result) ->
     result.ru           ||={}
-    result.ru.persons     = getProperNames text
-    result.ru.addresses   = getAddresses text
-    result.ru.names       = getNames text
+    result.ru.persons      = getPersonsNames text
+    result.ru.addresses    = getAddresses text
+    result.ru.names        = getNames text
+
 
 
 )(exports, inclines)
