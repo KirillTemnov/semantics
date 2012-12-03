@@ -4,8 +4,8 @@ Feeling words
 ###
 # depends on inclines and counters
 if "undefined" is typeof global
-    window.semantics.plugins.ru.feelings  = {}
-    exports                              = window.semantics.plugins.ru.feelings
+    window.semantics.plugins.ru.meaning  = {}
+    exports                              = window.semantics.plugins.ru.meaning
     inclines                             = window.semantics.plugins.ru.inclines
     quotes                               = window.semantics.quotes
     util                                 = window.semantics.util
@@ -1124,13 +1124,13 @@ else
   # Public: Make text shorten by extracting most meaningful sentences
   #
   # result - processed text, must contain
-  #          `result.feelings.collocations`, `result.feelings.proper_names`
+  #          `result.meaning.collocations`, `result.meaning.proper_names`
   #
   exports.shortenText = shortenText = (result) ->
     cols = []
     short_sent = []
 
-    for col in result.feelings.collocations
+    for col in result.meaning.collocations
       if col.total > 1
         cols.push col.forms[0].src.join " "
         for sent_ind in col.sentences
@@ -1146,7 +1146,7 @@ else
   Extract feelengs from text. This filter use results of misc `filter`.
 
   @param {String} text Source text ( not used)
-  @param {Object} result Resulting object, that contain `feelings`
+  @param {Object} result Resulting object, that contain `meaning`
                          field after applying this filter.
   @param {Object} opts Options, :default {}
                  opts.dictOfWords      : Dict, that contain key as metric name and dict of
@@ -1207,11 +1207,11 @@ else
 
 
     result.metrics  = metrics
-    result.feelings =
+    result.meaning =
       wordsAnalysed : totalWords
       collocations  : collocations
 
-    # merge result.ru.cap_words and result.feelings.collocations -> find proper names
+    # merge result.ru.cap_words and result.meaning.collocations -> find proper names
     realPn = {}
     for wrd, i of result.ru.cap_words
       for col in collocations
@@ -1241,8 +1241,8 @@ else
                   realPn[wrd0].src.push wrd unless wrd in realPn[wrd0].src
                 
 
-    result.feelings.proper_names = realPn
-    result.feelings.shorten_text = shortenText result
+    result.meaning.proper_names = realPn
+    result.meaning.shorten_text = shortenText result
 
 
 

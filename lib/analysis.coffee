@@ -118,10 +118,10 @@ else
     mimic : util.dictKeys(r.mimimi).length
     emoc  : util.sumValues r.misc.emoticons
     qc    : r.quotes.length
-    q2wc  : (r.feelings.collocations.filter (z) -> z.length is 2).length
-    q3wc  : (r.feelings.collocations.filter (z) -> z.length is 3).length
-    q4wc  : (r.feelings.collocations.filter (z) -> z.length is 4).length
-    q5wc  : (r.feelings.collocations.filter (z) -> z.length is 5).length
+    q2wc  : (r.meaning.collocations.filter (z) -> z.length is 2).length
+    q3wc  : (r.meaning.collocations.filter (z) -> z.length is 3).length
+    q4wc  : (r.meaning.collocations.filter (z) -> z.length is 4).length
+    q5wc  : (r.meaning.collocations.filter (z) -> z.length is 5).length
     qdc   : util.sumValues r.misc.digits
     hc    : util.sumValues r.misc.hashtags
     h0p   : util.dictMinValue r.twitter.pos.hash_tags

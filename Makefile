@@ -31,7 +31,7 @@ client:
 	cat lib/plugins/ru/inclines.js  >> out.js
 	cat lib/plugins/ru/twitter.js  >> out.js
 	cat lib/plugins/ru/propernames.js  >> out.js
-	cat lib/plugins/ru/feelings.js  >> out.js
+	cat lib/plugins/ru/meaning.js  >> out.js
 
 	cat lib/plugins/en/words.js  >> out.js
 
