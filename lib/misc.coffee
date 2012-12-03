@@ -28,6 +28,29 @@ else
       tempTxt += " . "
     tempTxt
 
+  #
+  # Public: Trim unnecesary spaces, e.g. "foo , bar ." -> "foo, bar."
+  #
+  # text - string with text
+  # addSign - sign to add at the end of text, default "."
+  #
+  exports.denormalizeText = denormalizeText = (text, addSign=".") ->
+    text = text.trim()
+    unless text[-1..-1] is addSign
+      text += addSign
+
+    punctuationsRightSpace = ".,:;!?)]»" #'\"«/»!?—"
+    for pr in punctuationsRightSpace
+      text = text.replace new RegExp(" \\#{pr}\\s?","g"), "#{pr} "
+    punctuationsLeftSpace = "[(«" 
+    for pl in punctuationsLeftSpace
+      text = text.replace new RegExp("\\s?\\#{pl} ", "g"), " #{pl}"
+    text = text.trim()
+    text = text.replace /\s+/g, " "
+    text
+
+    
+
   ###
   Extract digits, emoticons and split text into sentences.
 
@@ -111,7 +134,6 @@ else
       hashtags  : wordsProceed util.arrayToDict text.match(/\#[a-zёа-я_\d]+/gi) || []
       mentions  : util.arrayToDict text.match(/\@[_a-z\d]+/gi) || []
       sentences : sentences
-
 
     result.counters =
       chars_total           : chars_total
