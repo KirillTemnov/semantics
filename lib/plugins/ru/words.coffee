@@ -86,6 +86,8 @@ else
                  ru.words      : Dict of russian words and count of occurrences for each
                  ru.reg_words  : Dict of russian immutable words and count of occurrences
                  ru.stop_words : Dict of russian stop words and count of occurrences
+                 ru.cap_words  : Array of capitalized words
+                ru.split_sentences : Array of splitted sentences
   @param {Object} opts Options, :default {}
                  opts.replaceStopWords : Replace stop words with new array, :default false
                  opts.stopWords        : Array of stop words, :default []
@@ -95,24 +97,34 @@ else
     words          = []
     reg_words      = []
     stop_words     = []
+    cap_words      = []
 
     if opts.replaceStopWords
       swArray  = opts.stopWords || []
     else
       swArray  = util.merge stopWords, opts.stopWords || []
+    split_sentences = []
     for s in result.misc.sentences || []
-      reduce   = s.toLowerCase().split(" ").filter (wrd) -> /^[-\.\d]{0,}[а-яё]+[-\.\dа-яё]{0,}$/ig.test(wrd)
-      for w in reduce
+  
+
+      reduce   = s.split(" ").filter (wrd) -> /^[-\.\d]{0,}[а-яё]+[-\.\dа-яё]{0,}$/ig.test(wrd)
+      split_sentences.push reduce
+      for wrd, i in reduce
+        w = wrd.toLowerCase()
+        if /^[A-Я][а-яё]+/.test wrd
+          if i > 0
+            cap_words.push w
         if w in swArray
           stop_words.push w
         else if w in unions or w in personals or w in adverbs or w in prepositions
           reg_words.push w
         else
           words.push w
-    result.ru.words       = util.arrayToDict words
-    result.ru.reg_words   = util.arrayToDict reg_words
-    result.ru.stop_words  = util.arrayToDict stop_words
-
+    result.ru.words            = util.arrayToDict words
+    result.ru.reg_words        = util.arrayToDict reg_words
+    result.ru.stop_words       = util.arrayToDict stop_words
+    result.ru.cap_words        = util.arrayToDict cap_words
+    result.ru.split_sentences  = split_sentences
 
     result.counters.stop_words_total ||= 0
     result.counters.stop_words_total  += stop_words.length
