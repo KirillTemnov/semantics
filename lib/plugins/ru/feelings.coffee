@@ -956,6 +956,7 @@ else
 
     # evaluate negative score
     [index, scoreWords] = evalScore sentenceWords, scoreDict
+    console.log "eval sent score: #{index}"
 
     [index, scoreWords, wordsTotal]
 
@@ -1139,7 +1140,7 @@ else
     absIndex        = 0
     collocations    = []
     properNames     = if result.ru?.persons? then result.ru.persons else {}
-    dictsOfMetrics  = opts.dictOfWords || {}
+    dictsOfMetrics  = opts.dictOfWords || {negative: negativeWords}
     metrics         = {}
 
     totalWords = 0
@@ -1167,10 +1168,11 @@ else
               c.total += col.total
               for frm in col.forms
                 c.forms.push frm
-          collocations.push col unless found_colo
+                c.sentences.push i unless i in c.sentences
+          unless found_colo
+            col.sentences = [i]
+            collocations.push col 
 
-
-    # todo merge collocations
 
     for k, metricsDict of dictsOfMetrics
       if metrics[k] and metrics[k].index
@@ -1185,6 +1187,37 @@ else
     result.feelings =
       wordsAnalysed : totalWords
       collocations  : collocations
-#      properNames  : properNames
+
+    # merge result.ru.cap_words and result.feelings.colocations -> find proper names
+    realPn = {}
+    for wrd, i of result.ru.cap_words
+      for col in collocations
+        for f in col.forms
+          ind = f.src.indexOf wrd
+          unless ind is -1
+            if f.pat.split(".")[ind] is "noun" # proper name must be noun!
+              w = semantics.plugins.ru.inclines.analyseNoun(wrd)
+              inf = w.infinitive
+              if inf.length > 0
+                wrd0 =
+                  if inf.length is 1
+                    inf[0]
+                  else
+                    if inf[0][-1..-1] is "е" # hack!
+                      inf[1]
+                    else
+                      inf[0]
+
+                unless realPn[wrd0]
+                  realPn[wrd0] =
+                    inf: inf
+                    total: 1
+                    src: [wrd]
+                else
+                  realPn[wrd0].total++
+                  realPn[wrd0].src.push wrd unless wrd in realPn[wrd0].src
+                
+
+    result.feelings.proper_names = realPn
 
 )(exports, inclines, quotes, util)
