@@ -1,6 +1,21 @@
 Changelog
 =========
 
+## v 0.7.2
+ 
+   rename plugin `feelings` to `meaning`
+   
+   add ability to shorten input text - `meaning.shortenText`
+
+
+## V 0.7.0
+
+  Merge collocations and proper names
+  
+  Add `misc.denormalizeText` for trim extra spaces
+  
+  Add capitalized words and splitted senteces in output (`result.ru`)
+
 ## v 0.6.0
 
   English words

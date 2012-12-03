@@ -1,6 +1,6 @@
 {
   "name": "semantics",
-  "version": "0.7.0",
+  "version": "0.7.2",
   "description": "Automatical text analysis. Text metrics. Search proper names and expressions. Mostly in russian.",
   "engines": {
    "node": ">= 0.8.x"
