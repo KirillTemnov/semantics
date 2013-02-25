@@ -57,14 +57,31 @@ fanalysis.addEventListener "click", (->
   wrds = []
   for k,v of result.meaning.proper_names
     wrds.push k[0].toUpperCase() + k[1..]
+
+
   the_sents = result.meaning.shorten_text.join "\n"
+
 
   top_wrds = []
   for k,v of result.ru.words
-    if v > 3
+    if v >= 2
       top_wrds.push [k,v]
   top_wrds.sort (a,b) -> b[1] - a[1]
   top_wrds = top_wrds.map (w) -> w[0]
+
+  mv = [] #semantics.plugins.ru.inclines.mergeWords result.ru.words
+  # for w, c of result.ru.words
+  #   wrd = semantics.plugins.ru.inclines.classifyWord w
+  #   if wrd.type in ["verb", "verb/noun"]
+  #     mv.push [wrd.infinitive, wrd.src]
+
+  for col in result.meaning.collocations
+    ind = col.pattern.split(".").indexOf "verb"
+    if ind > -1
+      verb = col.forms[0].src[ind]
+      mv.push verb unless verb in mv
+
+
 
   out = [
     "Краткое содержание:"
@@ -73,7 +90,8 @@ fanalysis.addEventListener "click", (->
     # "\n\nФразы: "
     # cols.join "\n"
     "Важно: #{wrds}"
-    "Слова: #{JSON.stringify top_wrds, null, 2}" 
+    "Слова: #{JSON.stringify top_wrds, null, 2}"
+    "Cлив: #{JSON.stringify mv, null, 2}"
     ]
 
   output.value = out.join "\n"

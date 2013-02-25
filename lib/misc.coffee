@@ -36,6 +36,7 @@ else
   #
   exports.denormalizeText = denormalizeText = (text, addSign=".") ->
     text = text.trim()
+    len = text.length
     unless text[-1..-1] is addSign
       text += addSign
 
@@ -47,7 +48,10 @@ else
       text = text.replace new RegExp("\\s?\\#{pl} ", "g"), " #{pl}"
     text = text.trim()
     text = text.replace /\s+/g, " "
-    text
+    if text.length isnt len
+      denormalizeText text, addSign # recursion
+    else
+      text
 
     
 

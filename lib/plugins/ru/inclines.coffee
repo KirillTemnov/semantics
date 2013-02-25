@@ -1242,6 +1242,15 @@ else
       rn = r.noun
       rninf = if "string" is typeof rn.infinitive then [rn.infinitive] else rn.infinitive || []
       rninfp = if "string" is typeof rn.plural_infinitive then [rn.plural_infinitive] else rn.plural_infinitive || []
+      if /ность$/g.test(rn.infinitive)
+        r.type = "noun"
+        r.obj = r.noun
+        r.infinitive =
+          if r.noun.infinitive.length > 0
+              r.noun.infinitive[0]
+            else
+              noun.plural_infinitive[0]
+
     else
       rninf = rninfp = []
     if r.obj
