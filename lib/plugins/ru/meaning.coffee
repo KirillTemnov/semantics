@@ -1,7 +1,7 @@
-###
-Feeling words
-
-###
+#
+# Feeling words
+# 
+#
 # depends on inclines and counters
 if "undefined" is typeof global
     window.semantics.plugins.ru.meaning  = {}
@@ -987,6 +987,9 @@ else
         "adj.adj.adj.noun"         # 3 прил. cущ
         "adj.adj.noun"             # 2 прил. cущ
         "adj.noun"                 # 1 прил. cущ
+        "adj.verb.noun"            #
+        "noun.verb.noun"           #
+        "adj.noun.verb.noun"       #
       ]
     patterns        = patterns.sort (a,b) -> b.length - a.length
     words           = words[0..-1]
@@ -1012,7 +1015,7 @@ else
             phrase.src.push words[j].src
             phrase.inf.push words[j].infinitive
             phrase.pat = pat
-          phrase.inf = phrase.inf.join " "
+          phrase.inf = phrase.inf.join "."
           arrayOfPhrases.push phrase
           # apply same phraze but shorter!
 #          shift = 1
@@ -1139,7 +1142,24 @@ else
     for s,i in result.misc.sentences
       if i in short_sent
         the_sents.push misc.denormalizeText s
+#        the_sents.push [i, parseSentence s]  #misc.denormalizeText s
+
+    ## compact sentences
+    # compare with each other
+    # sents_pairs = []
+    # for si,i in the_sents
+    #   s_i = si[1]
+    #   for sj, j in the_sents
+    #     s_j = sj[1]
+    #     continue if i is j
+    #     for wrd_i in s_i.sentenceWords
+    #       for wrd_j in s_j.sen
+
     the_sents
+
+# 279534379
+# 15035
+# 305063479
 
 
   ###
@@ -1172,7 +1192,8 @@ else
 
       for k, metricsDict of dictsOfMetrics
         metrics[k] ||= {}
-        [index, scoreWords, totalWords] = evaluateSentenceScore pps.sentenceWords, metricsDict
+        [index, scoreWords, tw] = evaluateSentenceScore pps.sentenceWords, metricsDict
+        totalWords += tw
         metrics[k].index      ||= []
         metrics[k].indexTotal ||= 0
         metrics[k].indexTotal  += index
@@ -1194,6 +1215,7 @@ else
                 c.sentences.push i unless i in c.sentences
           unless found_colo
             col.sentences = [i]
+            col.pattern = col.forms[0].pat
             collocations.push col 
 
 
@@ -1219,7 +1241,7 @@ else
           ind = f.src.indexOf wrd
           unless ind is -1
             if f.pat.split(".")[ind] is "noun" # proper name must be noun!
-              w = semantics.plugins.ru.inclines.analyseNoun(wrd)
+              w = inclines.analyseNoun(wrd)
               inf = w.infinitive
               if inf.length > 0
                 wrd0 =
