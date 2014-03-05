@@ -28,7 +28,13 @@ switch word
   # when "-i"
   #   console.log  semantics.inclineWords process.argv[3..]
   when "-a"
-    console.log sys.inspect semantics.analyseFile(process.argv[3], all: yes), yes, null
+    opts = all: yes, r: no
+    if process.argv[3][0] is "-" # recursive
+      opts.r = parseInt process.argv[3][1..]
+      fname = process.argv[4]
+    else
+      fname = process.argv[3]
+    console.log sys.inspect semantics.analyseFile(fname, opts), yes, null
   else
     console.log sys.inspect semantics.plugins.ru.inclines.findProperName process.argv[2..]
 

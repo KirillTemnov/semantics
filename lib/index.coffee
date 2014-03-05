@@ -128,7 +128,16 @@ exports.analyseFile = analyseFile = (filename, opts) ->
     text = fs.readFileSync filename, "utf8"
   catch e
     return found: no, error: "can't read file '#{filename}'"
-  analyseText text, opts
+  result = analyseText text, opts  
+  if opts.r is no
+    return result
+  opts.r--
+  txt = result.meaning.shorten_text.join " "
+  while opts.r > 0
+    opts.r--
+    result = analyseText txt, opts  
+  return txt
+  
 
 
 plugins = {}

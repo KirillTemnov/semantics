@@ -1127,21 +1127,32 @@ else
   # Public: Make text shorten by extracting most meaningful sentences
   #
   # result - processed text, must contain
-  #          `result.meaning.collocations`, `result.meaning.proper_names`
+  #          `result.meaning.collocations`, `result.meaning.proper_names`,
+  #          `result.counters.words_in_sentence_mid`
   #
-  exports.shortenText = shortenText = (result) ->
+  exports.shortenText = shortenText = (result, opts={}) ->
+
+    minColo = opts.minColo or 2
+    #maxWords= opts.maxWords or result.counters.words_in_sentence_mid
+    minSentenceLength = opts.minSentenceLength or 1
+    maxSentenceLength = opts.maxSentenceLength or 101
+    #maxSentences = opts.maxSentences or  
     cols = []
     short_sent = []
 
     for col in result.meaning.collocations
-      if col.total > 1
+      if col.total >= minColo
         cols.push col.forms[0].src.join " "
         for sent_ind in col.sentences
           short_sent.push sent_ind unless sent_ind in short_sent
     the_sents = []
     for s,i in result.misc.sentences
       if i in short_sent
-        the_sents.push misc.denormalizeText s
+        sent =  misc.denormalizeText s
+        the_sents.push sent
+#        the_sents.push sent if minSentenceLength <= sent.split(/\s/).length <= maxSentenceLength
+
+
 #        the_sents.push [i, parseSentence s]  #misc.denormalizeText s
 
     ## compact sentences
@@ -1157,13 +1168,66 @@ else
 
     the_sents
 
-# 279534379
-# 15035
-# 305063479
+  #
+  # Public: choose what sentence should we kick out
+  #
+  #
+  exports.shortenMore = shortenMore = (sentencesArray, collocations=[], pattern=/pron/) ->
+    collo2array = (collocations, pat=pattern) ->
+      cs = []
+      for colo in collocations
+        if pat.test colo.pattern
+          colo.sentences.map (i) -> cs.push i 
+      cs = cs.sort (a, b) -> a  - b
+      cs
+    
+
+    txt = sentencesArray
+
+    _max = 0
+    txt.map (s, i) ->
+      l = s.split(/\s/).length
+      if l > _max
+        _max = l
+    t = []  
+    txt.map (x, i) ->
+      t.push val: x, words: x.split(/\s/).length, i: i
+
+    t = t.sort (a, b) -> b.words - a.words
+
+    coloarr = collo2array collocations
+
+
+    rm_sent = null
+    rm_len = -1
+    # TODO add multi removal
+    t.map (x) ->
+      if x.i in coloarr
+        x.colocs = yes
+      else
+        x.colocs = no
+        if x.words > rm_len
+          rm_len = x.words
+          rm_sent = x.i
+
+
+    if rm_sent is null    # not found, remove most longer
+      t.map (x) ->
+        if x.words > rm_len
+          rm_len = x.words
+          rm_sent = x.i
+
+    t = t.sort (a,b) -> a.i - b.i
+    t.map (x) ->
+      unless x.i is rm_sent
+        x.val
+      else
+        ""
+
 
 
   ###
-  Extract feelengs from text. This filter use results of misc `filter`.
+  Extract feelings from text. This filter use results of misc `filter`.
 
   @param {String} text Source text ( not used)
   @param {Object} result Resulting object, that contain `meaning`
