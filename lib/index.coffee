@@ -125,7 +125,7 @@ Analyse file content.
 ###
 exports.analyseFile = analyseFile = (filename, opts) ->
   try
-    text = fs.readFileSync filename, "utf8"
+    text = fs.readFileSync filename, "utf-8"
   catch e
     return found: no, error: "can't read file '#{filename}'"
   result = analyseText text, opts  
