@@ -649,95 +649,98 @@ else
                                            | or null, if noun can\'t be inclined
   ###
   exports.inclineNoun =  inclineNoun = (noun) ->
-    nouns = filterNounsArray [noun]
+    try
+      nouns = filterNounsArray [noun]
 
-    unless nouns.length == 1
+      unless nouns.length == 1
+        return {found: no}
+
+      match  = noun.match /(а|е|и|о|ы|я|ь)$/g
+      rest   = if match then noun[..-2] else noun
+
+      i = {}                      # personal inclines
+      p = {}                      # plural inclines
+      m = if match then match[0] else ""
+      switch (m)
+        when "а", "я"
+          i =
+            genitive       : [ if m is "а" then "#{rest}ы" else "#{rest}и" ]
+            dative         : [ "#{rest}и", "#{rest}е" ]
+            accusative     : [ "#{rest}у", "#{rest}ю" ]
+            instrumental   : [ "#{rest}ой", "#{rest}ою", "#{rest}ей", "#{rest}ею" ]
+            prepositional  : ["#{rest}е", "#{rest}и" ]
+
+          p =
+            genitive      : null
+            dative        : null
+            accusative    : null
+            instrumental  : null
+            prepositional : null
+
+
+        when "ы", "и"             #
+          i =
+            genitive      : null
+            dative        : null
+            accusative    : null
+            instrumental  : null
+            prepositional : null
+
+          p =
+            genitive       : [ "#{rest}", "#{rest}ей", "#{rest}ов", "#{rest}ев" ]
+            dative         : [ "#{rest}ам", "#{rest}ям" ]
+            accusative     : [ "#{rest}", "#{rest}и", "#{rest}ы", "#{rest}ей", "#{rest}а", "#{rest}я" ]
+            instrumental   : [ "#{rest}ами", "#{rest}ями" ]
+            prepositional  : [ "#{rest}ах", "#{rest}ях" ]
+
+        when "о", "е"
+          i =
+            genitive       : [ "#{rest}а", "#{rest}я" ]
+            dative         : [ "#{rest}у", "#{rest}ю" ]
+            accusative     : [ noun ]
+            instrumental   : [ "#{rest}ом", "#{rest}ем" ]
+            prepositional  : [ "#{rest}и", "#{rest}е" ]
+
+          p =
+            genitive      : null
+            dative        : null
+            accusative    : null
+            instrumental  : null
+            prepositional : null
+
+        when "ь"
+          i =
+            genetive      : ["#{rest}я", "#{rest}и"]
+            dative        : ["#{rest}ю", "#{rest}и"]
+            accusative    : [noun, "#{rest}я", "#{rest}ю"]
+            instrumental  : ["#{rest}ём", "#{rest}ем", "#{noun}ю"]
+            prepositional : ["#{rest}е", "#{rest}и"]
+          p =
+            genetive      : ["#{rest}ей"]
+            dative        : ["#{rest}ям"]
+            accusative    : ["#{rest}ей", noun]
+            instrumental  : ["#{rest}ями"]
+            prepositional : ["#{rest}ях"]
+        when ""
+          i =
+            genitive       : [ "#{rest}а", "#{rest}я", "#{rest}и" ]
+            dative         : [ "#{rest}у", "#{rest}ю", "#{rest}и" ]
+            accusative     : [ noun ]
+            instrumental   : [ "#{rest}ом", "#{rest}ем", "#{rest}ю" ]
+            prepositional  : [ "#{rest}и", "#{rest}е" ]
+          p =
+            genitive      : null
+            dative        : null
+            accusative    : null
+            instrumental  : null
+            prepositional : null
+
+
+      personal : i
+      plural   : p
+      found    : yes
+    catch e
       return {found: no}
-
-    match  = noun.match /(а|е|и|о|ы|я|ь)$/g
-    rest   = if match then noun[..-2] else noun
-
-    i = {}                      # personal inclines
-    p = {}                      # plural inclines
-    m = if match then match[0] else ""
-    switch (m)
-      when "а", "я"
-        i =
-          genitive       : [ if m is "а" then "#{rest}ы" else "#{rest}и" ]
-          dative         : [ "#{rest}и", "#{rest}е" ]
-          accusative     : [ "#{rest}у", "#{rest}ю" ]
-          instrumental   : [ "#{rest}ой", "#{rest}ою", "#{rest}ей", "#{rest}ею" ]
-          prepositional  : ["#{rest}е", "#{rest}и" ]
-
-        p =
-          genitive      : null
-          dative        : null
-          accusative    : null
-          instrumental  : null
-          prepositional : null
-
-
-      when "ы", "и"             #
-        i =
-          genitive      : null
-          dative        : null
-          accusative    : null
-          instrumental  : null
-          prepositional : null
-
-        p =
-          genitive       : [ "#{rest}", "#{rest}ей", "#{rest}ов", "#{rest}ев" ]
-          dative         : [ "#{rest}ам", "#{rest}ям" ]
-          accusative     : [ "#{rest}", "#{rest}и", "#{rest}ы", "#{rest}ей", "#{rest}а", "#{rest}я" ]
-          instrumental   : [ "#{rest}ами", "#{rest}ями" ]
-          prepositional  : [ "#{rest}ах", "#{rest}ях" ]
-
-      when "о", "е"
-        i =
-          genitive       : [ "#{rest}а", "#{rest}я" ]
-          dative         : [ "#{rest}у", "#{rest}ю" ]
-          accusative     : [ noun ]
-          instrumental   : [ "#{rest}ом", "#{rest}ем" ]
-          prepositional  : [ "#{rest}и", "#{rest}е" ]
-
-        p =
-          genitive      : null
-          dative        : null
-          accusative    : null
-          instrumental  : null
-          prepositional : null
-
-      when "ь"
-        i =
-          genetive      : ["#{rest}я", "#{rest}и"]
-          dative        : ["#{rest}ю", "#{rest}и"]
-          accusative    : [noun, "#{rest}я", "#{rest}ю"]
-          instrumental  : ["#{rest}ём", "#{rest}ем", "#{noun}ю"]
-          prepositional : ["#{rest}е", "#{rest}и"]
-        p =
-          genetive      : ["#{rest}ей"]
-          dative        : ["#{rest}ям"]
-          accusative    : ["#{rest}ей", noun]
-          instrumental  : ["#{rest}ями"]
-          prepositional : ["#{rest}ях"]
-      when ""
-        i =
-          genitive       : [ "#{rest}а", "#{rest}я", "#{rest}и" ]
-          dative         : [ "#{rest}у", "#{rest}ю", "#{rest}и" ]
-          accusative     : [ noun ]
-          instrumental   : [ "#{rest}ом", "#{rest}ем", "#{rest}ю" ]
-          prepositional  : [ "#{rest}и", "#{rest}е" ]
-        p =
-          genitive      : null
-          dative        : null
-          accusative    : null
-          instrumental  : null
-          prepositional : null
-
-
-    personal : i
-    plural   : p
-    found    : yes
 
   ###
   Analyse noun and return `nounObj`.

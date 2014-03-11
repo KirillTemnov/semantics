@@ -139,7 +139,6 @@ exports.analyseFile = analyseFile = (filename, opts) ->
   return txt
   
 
-
 plugins = {}
 # export plugins
 fs = require "fs"
