@@ -65,7 +65,7 @@ else
       misc.romans    : Dictionary of roman digits and count of occurrences for each of them
       misc.urls      : Dictionary of urls and count of occurrences for each url
       misc.sentences : Array of text sentences
-
+      
 
       counters.chars_total           : total characters in text
       counters.words_total           : total words in text
@@ -130,12 +130,19 @@ else
     else
       wordsProceed = (x) -> x
 
+    # email re from http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+    emailRe = /(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-z\-0-9]+\.)+[a-z]{2,}))/ig
+
+    phoneRe = /(\+?\d{1,4}|)(\s\(\s?\d{2,4}\s?\)|\d+)[-\s]\d+[-\s\d]+/g
+
     result.misc =
-      digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig) || []
+      digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig)
       emoticons : util.arrayToDict findEmo
       romans    : util.arrayToDict romans
-      urls      : util.arrayToDict text.match(/(https?\:\/\/[^\s$]+)/g) || []
-      hashtags  : wordsProceed util.arrayToDict text.match(/\#[a-zёа-я_\d]+/gi) || []
+      emails    : util.arrayToDict text.match emailRe
+      phones    : util.arrayToDict text.match phoneRe
+      urls      : util.arrayToDict text.match(/(https?\:\/\/[^\s$]+)/g)
+      hashtags  : wordsProceed util.arrayToDict text.match(/\#[a-zёа-я_\d]+/gi)
       mentions  : util.arrayToDict text.match(/\@[_a-z\d]+/gi) || []
       sentences : sentences
 

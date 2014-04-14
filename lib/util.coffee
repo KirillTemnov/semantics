@@ -13,7 +13,7 @@ else
     sem                     = exports
 
 ((exports, sem) ->
-  sem.version  = "0.7.2"
+  sem.version  = "0.8.1"
 
   ###
   Remove case duplicates from text, e.g. make all lower case and merge words.
@@ -185,9 +185,11 @@ else
   @param {Array} arr Array
   @return {Object} result
   ###
-  exports.arrayToDict = (arr) ->
+  exports.arrayToDict = (arr, trim=yes) ->
     d = {}
+    return {} if not arr
     for i in arr
+      i = i.trim() if trim
       unless d[i]
         d[i] = 1
       else

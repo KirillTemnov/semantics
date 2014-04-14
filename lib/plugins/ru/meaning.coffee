@@ -958,7 +958,6 @@ else
 
     # evaluate negative score
     [index, scoreWords] = evalScore sentenceWords, scoreDict
-    console.log "eval sent score: #{index}"
 
     [index, scoreWords, wordsTotal]
 
