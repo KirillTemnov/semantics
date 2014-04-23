@@ -133,7 +133,7 @@ else
     # email re from http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
     emailRe = /(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-z\-0-9]+\.)+[a-z]{2,}))/ig
 
-    phoneRe = /(\+?\d{1,4}|)(\s\(\s?\d{2,4}\s?\)|\d+)[-\s]\d+[-\s\d]+/g
+    phoneRe = /(\+?\d{1,4}|)(\s\(\s?\d{2,4}\s?\)|\d+)[-\s]\d+-[\s\d]+/g
 
     result.misc =
       digits    : util.arrayToDict text.match(/-?((\d+[\.,]\d+)|(\d+))/ig)
