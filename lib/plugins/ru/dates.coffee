@@ -119,6 +119,7 @@ else
       # lookup date interval first
       # verboseMatch = str.match /\s+\d{1,2}\s+((января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+|)(\d{2,4}(\s+(года|г\.|г|))\s+|)(|по\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(\s+\d{2,4}|)(\s+|$))/mig
       verboseMatch = str.match /\s+\d{1,2}\s+((января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+|)(\d{2,4}(\s+года|)\s+|)по\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(\s+\d{2,4}|)(\s+|$)/mig
+      digitalDate = str.match /(^|\s+)\d\d?\.\d\d?\.\d{2,4}(\.|\s|$)/mig
       singleDate = str.match /\s+\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{2,4}[\s\.,!\?]/mig
       if verboseMatch
         [from, to] = verboseMatch[0].toLowerCase().split "по"
@@ -149,10 +150,10 @@ else
         fromDate  = getValidDate fromDate
         if toDate and fromDate
           intObject =
-            from: dateObjectToString fromDate
-            from_value: fromDate
-            to: dateObjectToString toDate
-            to_value: toDate
+            from       : dateObjectToString fromDate
+            from_value : fromDate
+            to         : dateObjectToString toDate
+            to_value   : toDate
           id = "#{intObject.from}-#{intObject.to}"
           unless intervals[id]
             intObject.count  = 1
@@ -175,7 +176,6 @@ else
           # check year
           date = getValidDate date
           if date
-            found = yes
             sources.push sd
             dStr = dateObjectToString date
             unless dates[dStr]
@@ -184,7 +184,23 @@ else
                 value: date
             else
               dates[dStr].count++
-
+      
+      if digitalDate
+        for dd in digitalDate
+          [d, m, y] = dd.split(".").map (x) -> parseInt x
+          y += 2000 if y < 99
+          m--
+          date = getValidDate d:d, m:m, y:y
+          if date
+            sources.push dd
+            dStr = dateObjectToString date
+            unless dates[dStr]
+              dates[dStr] =
+                count: 1
+                value: date
+            else
+              dates[dStr].count++
+          
 
     dates: dates, sources: sources, intervals: intervals
 
