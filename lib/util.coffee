@@ -169,6 +169,9 @@ else
   @return {Object|null} elem First element, that appear in arr1 and arr2
   ###
   exports.intersection = intersection = (l1, l2) ->
+    if not (l1 instanceof Array and l2 instanceof Array)
+      return null
+
     for i in l1
       return i if i in l2
     null

@@ -103,7 +103,7 @@ Analyse text and return result as json object.
 ###
 exports.analyseText = analyseText = (text, opts={}) ->
   if opts.all
-    pluginsArray = ["plugins.ru.words", "plugins.ru.abbrevs", "plugins.ru.dates", "plugins.ru.propernames", "plugins.ru.meaning"]
+    pluginsArray = ["plugins.ru.words", "plugins.ru.abbrevs", "plugins.ru.dates", "plugins.ru.propernames", "plugins.ru.meaning", "plugins.ru.money"]
   else
     pluginsArray = opts.plugins || []
 

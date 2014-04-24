@@ -543,12 +543,20 @@ else
       sn.possible_cases = sn["#{overallGender}_cases"]
       sn.nominative = sn["nominative_#{overallGender}"]
       theCase = util.intersection fn.possible_cases, sn.possible_cases
+      return found:no if theCase is null
 
-    if overallGender && (theCase in sn.possible_cases)||(theCase in sn["#{overallGender}_cases"])
-      surname = sn.nominative || sn["nominative_#{overallGender}"]
-      return  {first_name: fn.nominative, middle_name: "", surname: surname, gender: overallGender, found: yes, case: theCase}
-    else
-      return {found: no}
+    try
+      if overallGender && (theCase in sn.possible_cases)||(theCase in sn.possible_cases)
+        surname = sn.nominative || ""
+        return  {first_name: fn.nominative, middle_name: "", surname: surname, gender: overallGender, found: yes, case: theCase}
+      else
+        return {found: no}
+    catch e
+      console.error e
+      console.log JSON.stringify sn, null, 2
+      console.log "theCase = #{theCase}"
+      console.log "________________________________________"
+
 
 
   matchCase = (pObj, target_case, gender) ->
