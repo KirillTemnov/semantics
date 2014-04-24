@@ -13,7 +13,7 @@ else
     sem                     = exports
 
 ((exports, sem) ->
-  sem.version  = "0.8.1"
+  sem.version  = "0.9.0"
 
   ###
   Remove case duplicates from text, e.g. make all lower case and merge words.
